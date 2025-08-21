@@ -1096,12 +1096,11 @@
 	
 	\chapter{Studio di ablazione e Pruning post-training}
 	
-	Gli studi di ablazione rappresentano una metodologia fondamentale nell'analisi e nell'ottimizzazione dei modelli di machine learning e deep learning. In questo contesto, il pruning post-training emerge come una tecnica complementare che permette non solo di comprendere l'importanza delle componenti del modello, ma anche di ottenere versioni più efficienti senza compromettere significativamente le prestazioni. \\
-	L'ablazione consiste nella rimozione temporanea di una componente del modello, come un layer o un gruppo di parametri, per osservare l'impatto sulle prestazioni. Si tratta di un esperimento diagnostico che aiuta a comprendere quali elementi contribuiscono maggiormente alla capacità predittiva del modello. Il pruning post-training, invece, comporta la rimozione definitiva di parametri o strutture dopo l'addestramento, con l'obiettivo di ridurre le dimensioni del modello d i costi computazionali mantenendo prestazioni accettabili.
+	Gli studi di ablazione rappresentano una metodologia fondamentale nell'analisi e nell'ottimizzazione dei modelli di machine e deep learning, che consiste nella rimozione temporanea di una componente del modello, come un layer o gruppo di parametri, per osservare l'impatto sulle prestazioni. Si tratta di un esperimento diagnostico che aiuta a comprendere quali elementi contribuiscono maggiormente alla capacità predittiva del modello. In questo contesto, il pruning post-training viene utilizzato come una tecnica complementare che permette non solo di comprendere l'importanza delle componenti del modello, ma anche di ottenere versioni più efficienti senza compromettere significativamente le prestazioni.
 	
 	\section{Fondamenti teorici degli studi di ablazione}
 	
-	\subsection{Definizione formale}
+	\subsection{Definizione}
 	Per formalizzare matematicamente il concetto di ablazione, consideriamo un modello parametrizzato $f_\theta$ dove $\theta$ rappresenta l'insieme completo dei parametri, e $L(\theta)$ indica la funzione di perdita attesa del modello. Dato un sottoinsieme specifico di parametri $S$, la variazione di performance dovuta all'ablazione può essere quantificata come:
 	
 	\[
@@ -1112,142 +1111,92 @@
 	
 	Questa definizione matematica fornisce una base quantitativa per valutare l'importanza relativa delle diverse componenti del modello. Tuttavia, è importante notare che $\Delta_S$ non sempre riflette l'importanza causale della componente, poiché possono esistere effetti di interazione e ridondanza tra le diverse parti del modello.
 	
-	\subsection{Obiettivi}
+	\subsection{Benefici}
 	\begin{itemize}
-		\item \textbf{1:} consiste nell'identificazione delle componenti critiche per la predizione, permettendo di distinguere tra elementi essenziali e accessori dell'architettura. Questo processo aiuta a comprendere la sensibilità del modello a specifiche parti della sua struttura, rivelando potenziali vulnerabilità o punti di forza.
-		\item \textbf{2:} gli studi di ablazione guidano lo sviluppo di strategie di semplificazione del modello, fornendo una base empirica per le decisioni di pruning.
-		\item \textbf{3:} l'analisi dell'importanza delle componenti facilita anche l'interpretazione del comportamento del modello, contribuendo alla comprensione dei meccanismi interni che portano alle predizioni finali.
+		\item \textbf{Identificazione delle componenti critiche:} questo processo aiuta a comprendere la sensibilità del modello a specifiche parti della sua architettura, rivelando potenziali vulnerabilità o punti di forza.
+		\item \textbf{Guida per la semplificazione:} i risultati degli studi di ablazione guidano lo sviluppo di strategie di "snellimento" del modello, fornendo una base empirica per le decisioni di pruning.
+		\item \textbf{Interpretazione del comportamento del modello:} l'analisi di come la rimozione di una componente specifica influenzi le previsioni, facilita l'interpretazione del modello, contribuendo alla comprensione dei meccanismi interni che portano alle predizioni finali.
 	\end{itemize}
 	
 	\section{Pruning post-training}
 	
-	\subsection{Definizione e meccanismo}
-	Il pruning post-training può essere concettualizzato come l'applicazione di un operatore $\mathcal{P}$ a un modello già addestrato, che elimina parametri secondo criteri specifici (come l'ampiezza del parametro, l'importanza stimata, o il contributo marginale). Il risultato è un modello più leggero rappresentato da $\theta_{pruned} = \mathcal{P}(\theta)$.
-	
+	\subsection{Definizione}
+	Il pruning post-training può essere considerato come l'applicazione di un operatore $\mathcal{P}$ ad un modello già addestrato, che elimina parametri secondo criteri specifici (come l'ampiezza del parametro, l'importanza stimata, o il contributo marginale). Il risultato è un modello più leggero rappresentato da $\theta_{pruned} = \mathcal{P}(\theta)$. \\
 	La scelta del criterio di pruning influenza significativamente sia l'efficacia della compressione sia il mantenimento delle prestazioni. I criteri più comuni includono la magnitudine dei parametri (utilizzata nel pruning L1 e L2), misure di sensibilità basate sui gradienti, e metriche di importanza derivate dall'analisi della struttura del modello.
 	
-	\subsection{Obiettivi e benefici}
-	L'implementazione del pruning post-training persegue diversi obiettivi complementari. Il primo e più immediato è la riduzione della memoria richiesta e del tempo di inferenza, aspetti critici per il deployment di modelli in ambienti con risorse limitate. Parallelamente, il pruning mira a mantenere le prestazioni entro una tolleranza accettabile, bilanciando efficienza e accuratezza.
+	\subsection{Benefici}
+	Il primo e più immediato è la riduzione della memoria richiesta e del tempo di inferenza, aspetti critici per il deployment di modelli in ambienti con risorse limitate. Parallelamente, il pruning mira a mantenere le prestazioni entro una tolleranza accettabile, bilanciando efficienza e accuratezza. Un beneficio aggiuntivo del pruning è l'aumento dell'interpretabilità del modello. Con un numero ridotto di elementi attivi, diventa più chiaro il contributo delle parti rimanenti, facilitando l'analisi e la comprensione del comportamento del modello. Questo aspetto è particolarmente rilevante in domini dove la spiegabilità è un requisito fondamentale.
 	
-	Un beneficio aggiuntivo del pruning è l'aumento dell'interpretabilità del modello. Con un numero ridotto di elementi attivi, diventa più chiaro il contributo delle parti rimanenti, facilitando l'analisi e la comprensione del comportamento del modello. Questo aspetto è particolarmente rilevante in domini dove la spiegabilità è un requisito fondamentale.
-	
-	\subsection{Trade-off bias-varianza nel pruning}
-	Il processo di pruning introduce un trade-off fondamentale nel framework bias-varianza. La riduzione della complessità del modello attraverso l'eliminazione di parametri tende a diminuire la varianza, riducendo il rischio di overfitting sui dati di training. Tuttavia, questa semplificazione può introdurre bias, limitando la capacità del modello di catturare pattern complessi nei dati.
-	
-	L'obiettivo pratico del pruning consiste nel trovare il punto ottimale dove la riduzione della varianza compensa l'aumento del bias, mantenendo prestazioni globalmente superiori. Questo equilibrio è altamente dipendente dalla natura dei dati, dalla complessità del task, e dalle caratteristiche specifiche dell'architettura del modello.
+	\subsection{Trade-off bias-varianza}
+	Il processo di pruning introduce un trade-off fondamentale tra bias e varianza. La riduzione della complessità del modello attraverso l'eliminazione di parametri tende a diminuire la varianza, riducendo il rischio di overfitting sui dati di training. Tuttavia, questa semplificazione può introdurre bias, limitando la capacità del modello di catturare pattern complessi nei dati. L'obiettivo pratico del pruning consiste nel trovare il punto ottimale dove la riduzione della varianza compensa l'aumento del bias, mantenendo prestazioni globalmente superiori. Questo equilibrio è altamente dipendente dalla natura dei dati, dalla complessità del task, e dalle caratteristiche specifiche dell'architettura del modello.
 	
 	\section{Pruning L1 post-training per MLP e KAN}
 	
-	\subsection{Razionale per l'utilizzo della norma L1}
-	La scelta della penalità L1 per il pruning dei modelli MLP e KAN si basa sulle proprietà matematiche di questa norma che favorisce naturalmente soluzioni sparse. A differenza della norma L2 che tende a ridurre uniformemente tutti i parametri, la norma L1 spinge molti coefficienti verso zero, creando una selezione naturale dei parametri più significativi.
+	\subsection{Motivazione dell'utilizzo della norma L1}
+	La scelta della penalità L1 per il pruning dei modelli MLP e KAN si basa sulle proprietà matematiche di questa norma che favorisce naturalmente soluzioni sparse. A differenza della norma L2 che tende a ridurre uniformemente tutti i parametri, la norma L1 spinge molti coefficienti verso zero, creando una selezione naturale dei parametri più significativi. Questa caratteristica rende il pruning L1 particolarmente adatto per problemi dove la sparsità è desiderabile e dove l'assunzione che parametri di piccola magnitudine abbiano impatto trascurabile sulle predizioni è ragionevole. La procedura risultante è sia semplice da implementare sia interpretabile nei suoi risultati.
 	
-	Questa caratteristica rende il pruning L1 particolarmente adatto per problemi dove la sparsità è desiderabile e dove l'assunzione che parametri di piccola magnitudine abbiano impatto trascurabile sulle predizioni è ragionevole. La procedura risultante è sia semplice da implementare sia interpretabile nei suoi risultati.
+	\subsection{Definizione}
+	Dato un insieme di parametri del modello $\Theta = \{\theta_1, \theta_2, \dots, \theta_N\}$, la procedura di L1 Pruning opera applicando una trasformazione a ciascun parametro $\theta_i$, che è definita da una soglia di potatura $\lambda$, che viene tipicamente determinata a livello globale per il modello o a livello locale per ciascun strato.
 	
-	\subsection{Implementazione tramite soft-thresholding}
-	L'implementazione pratica del pruning L1 può essere realizzata attraverso l'operazione di soft-thresholding. Data una soglia $\lambda$, la trasformazione applicata a ciascun parametro $\theta_i$ è definita come:
-	
-	\[
-	\theta_i^{\text{pruned}} = \operatorname{sign}(\theta_i) \max(0, |\theta_i| - \lambda)
-	\]
-	
-	Questa formulazione presenta vantaggi significativi rispetto ad approcci più aggressivi. I parametri con magnitudine inferiore alla soglia vengono portati a zero, mentre quelli di magnitudine superiore vengono ridotti proporzionalmente. Il risultato è un processo di pruning graduale che mantiene stabilità numerica ed è differenziabile quasi ovunque.
-	
-	\subsection{Confronto soft vs hard thresholding}
-	La distinzione tra soft e hard thresholding è cruciale per comprendere i trade-off dell'implementazione. Il soft thresholding introduce un piccolo bias riducendo tutti i parametri sopra soglia, ma garantisce maggiore stabilità numerica e continuità nel processo di ottimizzazione. Questa caratteristica è particolarmente importante se si prevede di effettuare fine-tuning successivo al pruning.
-	
-	Il hard thresholding, che azzera direttamente tutti i parametri sotto soglia senza modificare quelli sopra, può essere più aggressivo nella creazione di sparsità ma rischia di introdurre discontinuità che possono complicare procedure di riaddestramento successive.
+	La formula che descrive l'operazione di Hard Thresholding è la seguente:
+	$$
+	\theta_i^{\text{pruned}} = \begin{cases}
+		0 & \text{se } |\theta_i| \le \lambda \\
+		\theta_i & \text{se } |\theta_i| > \lambda
+	\end{cases}
+	$$
+	In questa formulazione, se la magnitudine assoluta ($|\theta_i|$) di un parametro è inferiore o uguale alla soglia $\lambda$, esso viene permanentemente impostato a zero. Al contrario, se la sua magnitudine è superiore a $\lambda$, il parametro viene mantenuto invariato.
 	
 	\subsection{Considerazioni specifiche per le KAN}
-	L'applicazione del pruning L1 alle KAN presenta sfide uniche dovute alla natura delle funzioni che parametrizzano. Nelle KAN, i parametri rappresentano coefficienti di funzioni univariate, tipicamente B-spline, che devono mantenere proprietà di continuità e differenziabilità.
-	
-	Il pruning su KAN può essere implementato a due livelli di granularità. Il primo approccio prevede la rimozione di coefficienti locali delle spline, riducendo la risoluzione locale della rappresentazione funzionale mantenendo la struttura generale. Il secondo approccio elimina intere funzioni su specifici archi della rete, semplificando direttamente la topologia della KAN.
-	
-	La scelta tra questi approcci deve considerare l'impatto sulla continuità delle funzioni e sulla loro interpretabilità. La rimozione di coefficienti locali mantiene la struttura generale ma può introdurre artefatti nella rappresentazione, mentre l'eliminazione di intere funzioni preserva la continuità locale ma può alterare significativamente la capacità espressiva del modello.
+	L'applicazione del pruning L1 alle KAN é abbastanza diverso rispetto a MLP. La motivazione principale risiede nella diversa natura dei parametri che compongono questi modelli. Nelle MLP, i parametri sono pesi e bias che operano su connessioni lineari, mentre nelle KAN sono coefficienti che definiscono funzioni univariate (tipicamente B-spline) su ogni arco della rete. \\
+	Il pruning su KAN può essere implementato in due modi. Il primo approccio prevede la rimozione di coefficienti locali delle spline, riducendo la risoluzione locale della rappresentazione funzionale mantenendo la struttura generale. Il secondo approccio elimina intere funzioni su specifici archi della rete, semplificando direttamente l'architettura della KAN. \\
+	La scelta tra questi approcci deve considerare l'impatto sulla continuità delle funzioni e sulla loro interpretabilità. La rimozione di coefficienti locali mantiene la struttura generale ma può creare delle discontinuità o irregolarità indesiderate nella curva che la spline rappresenta, mentre l'eliminazione di intere funzioni preserva la continuità locale ma può alterare significativamente la capacità espressiva del modello.
 	
 	\section{Pruning per ensemble: Rank-based pruning per Random Forest}
 	
 	\subsection{Principio fondamentale}
-	Il rank-based pruning per Random Forest si basa sul principio che non tutti gli alberi nell'ensemble contribuiscono equalmente alle prestazioni finali. Alcuni alberi possono essere ridondanti o addirittura dannosi per la capacità di generalizzazione dell'ensemble, rendendo la loro rimozione vantaggiosa sia in termini di efficienza sia di prestazioni.
+	Il rank-based pruning per Random Forest si basa sul principio che non tutti gli alberi nell'ensemble contribuiscono equamente alle prestazioni finali. Alcuni alberi possono essere ridondanti o addirittura dannosi per la capacità di generalizzazione dell'ensemble, rendendo la loro rimozione vantaggiosa sia in termini di efficienza e prestazioni. L'approccio implementato definisce per ogni albero $m$ un contributo stimato alle prestazioni, quantificato attraverso la variazione di errore $\Delta L_m$ che si osserverebbe rimuovendo l'albero dall'ensemble. Gli alberi con contributo minore sono candidati prioritari per la rimozione durante il processo di pruning.
 	
-	L'approccio implementato definisce per ogni albero $m$ un contributo stimato alle prestazioni, quantificato attraverso la variazione di errore $\Delta L_m$ che si osserverebbe rimuovendo l'albero dall'ensemble. Gli alberi con contributo minore sono candidati prioritari per la rimozione durante il processo di pruning.
-	
-	\subsection{Criteri di ranking implementati}
-	La metodologia implementata utilizza l'importanza delle feature come proxy per l'utilità di ciascun albero. Specificamente, l'importanza di un albero viene calcolata come la somma delle importanze delle feature che utilizza, sotto l'assunzione che alberi che sfruttano feature più discriminative contribuiscano maggiormente alle prestazioni dell'ensemble.
-	
-	Questo approccio presenta vantaggi computazionali significativi rispetto a metodi che richiedono la valutazione esplicita delle prestazioni rimuovendo iterativamente ciascun albero. Tuttavia, è importante notare che questa metrica proxy potrebbe non catturare completamente gli effetti di interazione e complementarità tra alberi diversi.
+	\subsection{Criterio di ranking basato sulla feature importance}
+	La metodologia implementata utilizza un'euristica computazionalmente efficiente per stimare l'importanza di ciascun albero. Invece di valutare l'impatto della rimozione di ogni singolo albero sull'errore complessivo, il criterio di ranking si basa sulle feature importance di ogni singolo albero. Specificamente, l'importanza di un albero $m$ viene calcolata come la somma delle feature importance che l'albero utilizza. La logica sottostante è che un albero che si basa su feature più discriminative, che riducono significativamente l'entropia o l'indice di Gini, è probabile che fornisca un contributo maggiore all'ensemble. Questo metodo offre un vantaggio computazionale significativo rispetto a un'analisi diretta dell'errore.
 	
 	\subsection{Procedura di selezione}
 	La procedura di selezione implementa una strategia greedy che ordina gli alberi per importanza decrescente e seleziona i primi $k$ alberi, dove $k$ è determinato dal pruning ratio desiderato. Questa scelta greedy è giustificata dall'assunzione che l'utilità marginale degli alberi decresce monotonicamente con il loro ranking.
 	
 	La validazione empirica di questa assunzione rappresenta un aspetto critico della metodologia, poiché la submodularità della funzione di utilità non è sempre garantita negli ensemble reali. L'implementazione include quindi procedure di validazione che verificano che la selezione greedy produca risultati coerenti con valutazioni più esaustive su sottoinsiemi dei dati.
 	
+	\subsection{Procedura di selezione}
+	La procedura di selezione degli alberi da mantenere implementa una strategia greedy. Dopo aver calcolato l'importanza per ogni albero, l'algoritmo esegue i seguenti passaggi:
+	\begin{enumerate}
+		\item Calcola l'importanza di ogni albero basata sulla somma delle feature importance.
+		\item Ordina gli alberi in ordine decrescente di importanza.
+		\item Seleziona i primi $k$ alberi, dove $k$ è il numero di alberi da mantenere, determinato dal pruning ratio desiderato.
+	\end{enumerate}
+	
 	\section{Pruning per ensemble: Cumulative pruning per XGBoost}
 	
 	\subsection{Boosting come modello additivo}
-	XGBoost costruisce predizioni attraverso un modello additivo dove la funzione finale è rappresentata come:
+	XGBoost costruisce predizioni attraverso un modello additivo, dove la funzione finale è rappresentata dalla somma delle predizioni di ogni albero:
 	
 	\[
 	F_K(x) = \sum_{k=1}^K f_k(x)
 	\]
 	
-	Ogni componente $f_k(x)$ viene aggiunto sequenzialmente per correggere gli errori residui delle iterazioni precedenti. Questa struttura additiva permette una valutazione naturale dell'importanza di ciascuna componente basata sul suo contributo alla riduzione dell'errore.
+	Ogni albero $f_k(x)$ viene aggiunto sequenzialmente per correggere gli errori residui calcolati dalle iterazioni precedenti. Questa struttura intrinsecamente additiva e sequenziale rende il modello particolarmente adatto al pruning, poiché il contributo di ogni nuova iterazione può essere misurato in termini di riduzione dell'errore complessivo.
 	
 	\subsection{Criterio di pruning cumulativo}
-	Il pruning cumulativo implementato si basa sulla misurazione del guadagno (gain) fornito da ciascun round di boosting $k$. Quando i guadagni diventano marginali, le iterazioni successive contribuiscono poco alla performance e possono essere rimosse senza impatti significativi.
-	
-	Il criterio implementato valuta il contributo di ciascun round e identifica il punto oltre il quale i miglioramenti diventano trascurabili. Questo approccio è concettualmente simile all'early stopping durante il training, ma applicato in modalità post-hoc per ottimizzare modelli già completamente addestrati.
+	Il pruning cumulativo implementato si basa su un principio di selezione basato sull'ordine: vengono mantenuti solo i primi $n$ round di boosting, scartando i successivi. Il presupposto è che le prime iterazioni, che hanno l'obiettivo di ridurre al massimo l'errore iniziale, contribuiscano in modo più significativo e non siano ridondanti come gli alberi meno performanti che si trovano alla fine del processo di training. La percentuale di iterazioni da mantenere è controllata direttamente dal pruning ratio, che determina la frazione di modello da eliminare. In pratica, l'algoritmo mantiene le iterazioni da $1$ a $n$, dove $n$ è calcolato come $(1 - \text{pruning\_ratio})$ moltiplicato per il numero totale di round di boosting. Questo approccio è concettualmente simile all'early stopping, ma viene applicato per ottimizzare un modello già addestrato.
 	
 	\subsection{Implementazione tecnica}
-	L'implementazione del pruning cumulativo per XGBoost presenta sfide tecniche specifiche legate alla gestione del booster interno e alla corretta gestione delle iterazioni di training. Il processo mantiene solo le prime $n$ iterazioni di boosting, dove $n$ è determinato dal pruning ratio, e ricostruisce le funzioni di predizione per utilizzare solo questa porzione del modello.
+	A differenza di Random Forest, che può semplicemente rimuovere alberi dalla lista degli "estimators", XGBoost richiede un'operazione più delicata a causa della natura additiva delle sue predizioni.
 	
-	La gestione corretta dei limiti di iterazione è critica per evitare inconsistenze nella predizione, particolarmente in problemi multi-classe dove ogni iterazione produce predizioni per tutte le classi. L'implementazione utilizza il parametro iteration\_range delle funzioni native di XGBoost per garantire coerenza e prestazioni ottimali.
+	Il processo tecnico consiste in tre fasi principali:
+	\begin{enumerate}
+		\item \textbf{Calcolo del numero di iterazioni da mantenere:} si determina il numero di round di boosting (alberi) da utilizzare per la predizione. Questo valore viene calcolato in base ad un pruning ratio definito o in base al numero di alberi che ha fornito la migliore performance su un set di validazione. Nei problemi di classificazione multiclasse, ogni round di boosting aggiunge un albero per ogni classe.
+		\item \textbf{Predizione con iterazioni limitate:} invece di modificare la struttura del modello, si sfrutta una funzionalità di XGBoost che permette di specificare il numero di alberi da usare per la predizione. Il modello addestrato mantiene al suo interno tutti gli alberi, ma per calcolare il risultato finale si usa solo l'insieme limitato di alberi specificato.
+	\end{enumerate}
 	
-	\section{Risultati sperimentali e analisi}
-	
-	\subsection{Metodologia di valutazione}
-	La valutazione dei risultati di pruning è stata condotta utilizzando multiple metriche per catturare diversi aspetti delle prestazioni. L'accuratezza fornisce una misura diretta della capacità di classificazione, mentre le metriche F1-weighted e F1-macro catturano rispettivamente le prestazioni bilanciate e non bilanciate tra le classi.
-	
-	Le metriche AUC-ROC e AUC-PR forniscono valutazioni della capacità discriminativa del modello che sono meno sensibili ai cambiamenti nella distribuzione delle predizioni che possono risultare dal pruning. La combinazione di queste metriche offre una visione comprensiva dell'impatto del pruning sulle diverse dimensioni delle prestazioni.
-	
-	\subsection{Analisi dei trade-off prestazioni-compressione}
-	L'analisi dei risultati rivela pattern distintivi per le diverse tipologie di modelli. I modelli neurali (MLP e KAN) mostrano tipicamente una degradazione graduale delle prestazioni con l'aumento del pruning ratio, con punti di svolta chiari oltre i quali la perdita di performance accelera significativamente.
-	
-	I modelli ensemble presentano comportamenti più variabili, con alcune configurazioni che mostrano miglioramenti delle prestazioni a bassi livelli di pruning, presumibilmente dovuti alla rimozione di componenti che introducevano rumore o overfitting. Questi risultati evidenziano l'importanza di una valutazione empirica caso-per-caso per identificare i punti ottimali di pruning.
-	
-	\subsection{Identificazione dei punti ottimali}
-	L'analisi ha identificato punti ottimali di pruning che rappresentano il miglior compromesso tra compressione e mantenimento delle prestazioni. Per i modelli MLP e KAN, questi punti si collocano tipicamente nel range 20-40% di pruning, mentre per gli ensemble i benefici possono estendersi fino a livelli di pruning del 50-70%.
-	
-	L'identificazione di questi punti ottimali non segue regole universali ma dipende dalle caratteristiche specifiche del dataset, della complessità del modello, e dei requisiti dell'applicazione. La metodologia sviluppata fornisce un framework sistematico per identificare questi punti attraverso valutazione empirica guidata da principi teorici solidi.
-	
-	\section{Limiti e considerazioni critiche}
-	
-	\subsection{Limitazioni teoriche}
-	L'applicazione pratica delle tecniche di pruning presenta diverse limitazioni teoriche che è importante riconoscere. Molte delle garanzie teoriche che giustificano le tecniche di pruning, come le condizioni di identificabilità o le proprietà di convergenza, non sono verificate per reti profonde applicate a dati reali con tutta la loro complessità e rumore intrinseco.
-	
-	La rimozione di componenti può avere effetti differenti su test set non osservati, particolarmente in presenza di concept drift o distributional shift. Questo fenomeno limita la generalizzabilità delle conclusioni tratte dall'analisi di pruning su dataset specifici e richiede validazione continua in contesti applicativi reali.
-	
-	Inoltre, le misure locali di importanza utilizzate per guidare il pruning non sempre corrispondono all'importanza causale globale. Componenti che appaiono poco importanti in isolamento possono essere critiche per interazioni complesse o per il mantenimento di proprietà emergenti del sistema complessivo.
-	
-	\subsection{Rischi pratici nell'implementazione}
-	L'implementazione pratica del pruning comporta diversi rischi che possono compromettere l'efficacia della procedura o introdurre vulnerabilità inattese. Il pruning eccessivo può diminuire significativamente la robustezza del modello agli attacchi adversariali, rendendo il sistema più vulnerabile a perturbazioni malevole dell'input.
-	
-	L'utilizzo di soglie rigide nel processo di pruning può introdurre discontinuità che rendono difficoltoso il fine-tuning successivo o l'adattamento del modello a nuovi dati. Queste discontinuità possono manifestarsi come instabilità nell'ottimizzazione o convergenza a minimi locali subottimali.
-	
-	Le valutazioni basate su un singolo dataset possono non essere rappresentative delle prestazioni in condizioni operative reali, dove la distribuzione dei dati può differire significativamente da quella utilizzata per il training e la validazione del pruning. Questa limitazione richiede procedure di validazione estese su diversi dataset e condizioni operative.
-	
-	\section{Conclusioni e raccomandazioni pratiche}
-	
-	L'integrazione di studi di ablazione e tecniche di pruning post-training rappresenta un approccio potente per l'analisi, la comprensione e l'ottimizzazione di modelli complessi di machine learning. La metodologia sviluppata dimostra come questi due approcci si complementino per fornire insight sia teorici sia pratici sulle caratteristiche dei modelli analizzati.
-	
-	Le raccomandazioni pratiche emerse da questo studio enfatizzano l'importanza di utilizzare l'ablazione come strumento diagnostico per identificare candidati appropriati per il pruning, guidando il processo di ottimizzazione con principi basati sull'evidenza empirica. La preferenza per tecniche di pruning graduale, come il soft-thresholding, si è dimostrata superiore ad approcci più aggressivi in termini di stabilità e recuperabilità delle prestazioni.
-	
-	La personalizzazione dei criteri di pruning per diversi tipi di modelli emerge come un principio fondamentale. L'utilizzo della norma L1 e soft-thresholding per MLP e KAN, del ranking basato sull'importanza per Random Forest, e dei criteri di gain per XGBoost riflette la necessità di adattare la metodologia alle caratteristiche specifiche di ciascuna architettura.
-	
-	L'implementazione sistematica di procedure di fine-tuning post-pruning si è rivelata essenziale per il recupero delle prestazioni, suggerendo che il pruning dovrebbe essere considerato non come un processo isolato ma come parte di un workflow di ottimizzazione più ampio che include riaddestramento controllato.
-	
-	Infine, la validazione empirica estesa su set di dati indipendenti e la documentazione accurata di tutte le decisioni metodologiche emergono come requisiti fondamentali per garantire la riproducibilità e l'affidabilità dei risultati. Questo aspetto è particolarmente critico per applicazioni dove la tracciabilità delle modifiche al modello è un requisito normativo o operativo.
-	
-	La metodologia presentata fornisce un framework sistematico e rigoroso per l'applicazione di tecniche di pruning in contesti di ricerca e sviluppo, bilanciando considerazioni teoriche e requisiti pratici per massimizzare l'utilità e l'affidabilità dei risultati ottenuti.
+	Se l'obiettivo è creare un modello più leggero da salvare o da esportare, è possibile potare il modello in modo permanente. Questo si ottiene limitando l'ensemble agli alberi selezionati e salvando il nuovo modello ridotto. Questo processo è utile per ridurre l'occupazione di memoria e rendere il modello più efficiente per la distribuzione in produzione, una volta che la migliore configurazione è stata identificata tramite lo studio di ablazione.
 	
 	\chapter{Primo Caso Studio: Regressione su emissioni di automobili}
 	
