@@ -15,15 +15,12 @@
 \usepackage{enumitem}
 \usepackage{tabularx}
 \usepackage{theorem}
-
-% FONT LEGGIBILI + SPAZIATURA
-\usepackage{newpxtext}       % Palatino moderno
-\usepackage{newpxmath}       % Matematica Palatino
-\usepackage{microtype}       % Ottimizzazione micro-tipografica
-\usepackage{setspace}        % Gestione interlinea
-\onehalfspacing              % Interlinea 1.5
-
-% Hyperref (caricare per ultimo)
+\usepackage{booktabs}
+\usepackage{newpxtext}
+\usepackage{newpxmath}
+\usepackage{microtype}
+\usepackage{setspace}
+\onehalfspacing
 \usepackage{hyperref}
 
 \title{Analisi Comparativa di KAN, MLP, Random forest e XGBoost con Tecniche di Ottimizzazione}
@@ -37,7 +34,7 @@
 	\tableofcontents
 	
 	\chapter{Introduzione}
-	La presente tesi si propone di analizzare, confrontare e valutare diverse architetture di Machine Learning: le Kolmogorov–Arnold Networks (KAN), i Multi-Layer Perceptron (MLP), le Random forest e XGBoost. \\
+	La presente tesi si propone di analizzare, confrontare e valutare diverse architetture di Machine e Deep learning: le Kolmogorov–Arnold Networks (KAN), i Multi-Layer Perceptron (MLP), le Random forest e XGBoost. \\
 	L’obiettivo principale è quello di fornire, da un lato, un’analisi teorica esaustiva di ciascun modello, includendo i fondamenti matematici e le architetture; dall’altro, valutare sperimentalmente le prestazioni dei modelli su tre casi di studio: regressione sulle emissioni di automobili, classificazione dell’inquinamento atmosferico (PM2.5) e riconoscimento di immagini mediante CNN abbinate a MLP e KAN. \\
 	Oltre allo studio comparativo dei modelli, la tesi include un’ampia indagine sui metodi di Hyperparameter Tuning: Grid search, Random search, Bayesian optimization e Genetic algorithms, selezionati in base ad uno studio preliminare di confronto. \\
 	A completamento, sono stati condotti due studi di ablazione post-training per ogni caso di studio:
@@ -732,16 +729,17 @@
 	\end{itemize}
 	
 	\chapter{Convolutional Neural Networks (CNN)}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=1.0\textwidth]{img/cnn.jpg}
+		\caption{Convolutional Neural Networks.}
+	\end{figure}
 	
 	\section{Principi fondamentali delle CNN}
 	
 	\subsection{Convoluzione: kernel, stride, padding}
-	Le Convolutional Neural Networks (CNN) rappresentano una classe specializzata di reti neurali progettate per elaborare dati con struttura a griglia, come le immagini. L'operazione fondamentale su cui si basano è la convoluzione, una trasformazione matematica che applica filtri (kernel) all'input per estrarre caratteristiche locali.
-	
-	Un kernel (o filtro) è una matrice di piccole dimensioni, tipicamente 3$\times$3, 5$\times$5 o 7$\times$7, contenente pesi apprendibili che vengono moltiplicati elemento per elemento con porzioni locali dell'input. Durante l'operazione di convoluzione, il kernel viene fatto scorrere attraverso l'intera immagine di input, calcolando il prodotto scalare tra i pesi del filtro e i valori corrispondenti dell'input in ogni posizione.
-	
-	Lo stride rappresenta la grandezza in pixel di cui il kernel si sposta ad ogni passo durante la convoluzione. Uno stride di 1 significa che il filtro si muove di un pixel alla volta, producendo un output con dimensioni spaziali simili all'input. Uno stride maggiore (ad esempio 2 o 3) riduce significativamente le dimensioni dell'output, fornendo un effetto di downsampling.
-	
+	Un kernel (o filtro) è una matrice di piccole dimensioni, tipicamente 3$\times$3, 5$\times$5 o 7$\times$7, contenente pesi apprendibili che vengono moltiplicati elemento per elemento con porzioni locali dell'input. Durante l'operazione di convoluzione, il kernel viene fatto scorrere attraverso l'intera immagine di input, calcolando il prodotto scalare tra i pesi del filtro e i valori corrispondenti dell'input in ogni posizione. \\
+	Lo stride rappresenta la grandezza in pixel di cui il kernel si sposta ad ogni passo durante la convoluzione. Uno stride di 1 significa che il filtro si muove di un pixel alla volta, producendo un output con dimensioni spaziali simili all'input. Uno stride maggiore (ad esempio 2 o 3) riduce significativamente le dimensioni dell'output, fornendo un effetto di downsampling. \\
 	Il padding è una tecnica che consiste nell'aggiungere pixel (solitamente con valore zero) ai bordi dell'immagine di input. Esistono due tipi principali di padding:
 	\begin{itemize}
 		\item Valid padding: nessun padding viene aggiunto, l'output risulta più piccolo dell'input.
@@ -752,11 +750,8 @@
 	dove $W$ è la dimensione dell'input, $K$ è la dimensione del kernel, $P$ è il padding e $S$ è lo stride.
 	
 	\subsection{Feature maps e profondità dei canali}
-	Le feature maps rappresentano l'output prodotto dall'applicazione di filtri convoluzionali all'input. Ogni feature map corrisponde ad un filtro specifico e rappresenta la risposta di quel filtro all'immagine di input. Negli strati iniziali della rete, le feature maps possono catturare caratteristiche semplici come bordi, linee e angoli, mentre negli strati più profondi possono rappresentare pattern più complessi come forme, texture o addirittura oggetti interi.
-	
-	La profondità dei canali si riferisce al numero di feature maps prodotte da uno strato convoluzionale. Aumentare il numero di feature maps consente alla rete di apprendere caratteristiche più complesse e astratte, ma incrementa anche il costo computazionale e può portare ad overfitting se la rete è troppo grande per i dati disponibili.
-	
-	Un aspetto cruciale è che la profondità di un filtro deve corrispondere alla profondità dell'input. Ad esempio, per un'immagine RGB (3 canali), ogni filtro deve avere profondità 3. L'output di ogni convoluzione è una feature map 2D, indipendentemente dalla profondità dell'input.
+	Le feature maps rappresentano l'output prodotto dall'applicazione di filtri convoluzionali all'input. Ogni feature map corrisponde ad un filtro specifico e rappresenta la risposta di quel filtro all'immagine di input. Negli strati iniziali della rete, le feature maps possono catturare caratteristiche semplici come bordi, linee e angoli, mentre negli strati più profondi possono rappresentare pattern più complessi come forme, texture o addirittura oggetti interi. \\
+	La profondità dei canali si riferisce al numero di feature maps prodotte da uno strato convoluzionale. Aumentare il numero di feature maps consente alla rete di apprendere caratteristiche più complesse e astratte, ma incrementa anche il costo computazionale e può portare ad overfitting se la rete è troppo grande per i dati disponibili. Un aspetto cruciale è che la profondità di un filtro deve corrispondere alla profondità dell'input. Ad esempio, per un'immagine RGB (3 canali), ogni filtro deve avere profondità 3. L'output di ogni convoluzione è una feature map 2D, indipendentemente dalla profondità dell'input.
 	
 	\subsection{Convoluzioni 1D, 2D e 3D}
 	Le CNN possono operare su dati di diversa dimensionalità, richiedendo tipi specifici di convoluzione:
@@ -766,49 +761,66 @@
 		\item \textbf{Convoluzione 3D:}: è utilizzata per dati volumetrici come video, scansioni MRI o TAC. Il kernel si muove in tre direzioni (x,y,z), producendo un output 3D. È essenziale che la profondità del filtro sia minore di quella dell'input per generare un output volumetrico.
 	\end{itemize}
 	
-	\section{Pooling e normalizzazione}
+		\section{Pooling e normalizzazione}
 	
 	\subsection{Max pooling vs average pooling}
-	Il pooling è un'operazione di downsampling che riduce le dimensioni spaziali delle feature maps mantenendo le informazioni più importanti. Questa operazione migliora l'efficienza computazionale e introduce una forma di invarianza alle traslazioni, rendendo la rete meno sensibile a piccoli spostamenti nell'input.
-	
-	Il max pooling seleziona il valore massimo all'interno di ogni finestra di pooling. È particolarmente efficace nel preservare le caratteristiche più importanti e nell'introdurre invarianza alle traslazioni. Ad esempio, con una finestra 2$\times$2 e stride 2, il max pooling riduce le dimensioni dell'input della metà mantenendo le attivazioni più forti.
-	
+	Il pooling è un'operazione di downsampling che riduce le dimensioni spaziali delle feature maps mantenendo le informazioni più importanti. Questa operazione migliora l'efficienza computazionale e introduce una forma di invarianza alle traslazioni, rendendo la rete meno sensibile a piccoli spostamenti nell'input. \\
+	Il max pooling seleziona il valore massimo all'interno di ogni finestra di pooling. È particolarmente efficace nel preservare le caratteristiche più importanti e nell'introdurre invarianza alle traslazioni. Ad esempio, con una finestra 2$\times$2 e stride 2, il max pooling riduce le dimensioni dell'input della metà mantenendo le attivazioni più forti. \\
 	L'average pooling calcola la media dei valori all'interno di ogni finestra di pooling. Mentre preserva più informazione locale rispetto al max pooling, può essere meno efficace nel gestire variazioni sottili delle caratteristiche o features significative in certe regioni dell'immagine.
 	
 	\subsection{Global pooling}
 	
-	Il global pooling è una variante che riduce ogni feature map ad un singolo valore, eliminando completamente le dimensioni spaziali. Il global max pooling seleziona il valore massimo da ogni feature map intera, mentre il global average pooling calcola la media di tutti i valori in ogni feature map.
-	
-	Questa tecnica è spesso utilizzata prima degli strati fully connected finali nelle architetture CNN per la classificazione, riducendo drasticamente il numero di parametri e prevenendo l'overfitting.
+	Il global pooling è una variante che riduce ogni feature map ad un singolo valore, eliminando completamente le dimensioni spaziali. Il global max pooling seleziona il valore massimo da ogni feature map intera, mentre il global average pooling calcola la media di tutti i valori in ogni feature map. Questa tecnica è spesso utilizzata prima degli strati fully connected finali nelle architetture CNN per la classificazione, riducendo drasticamente il numero di parametri e prevenendo l'overfitting.
 	
 	\subsection{Batch, Layer e Group normalization}
-	La batch normalization è una tecnica introdotta per accelerare l'addestramento delle reti neurali profonde e ridurre la sensibilità all'inizializzazione dei parametri. Normalizza gli input di ogni strato utilizzando la media e la varianza del mini-batch corrente durante l'addestramento.
-	
-	Durante l'addestramento, per ogni canale, la batch normalization calcola:
+	La batch normalization è una tecnica introdotta per accelerare l'addestramento delle reti neurali profonde e ridurre la sensibilità all'inizializzazione dei parametri. Normalizza gli input di ogni strato utilizzando la media e varianza del mini-batch corrente durante l'addestramento. \\
+	Per ogni canale, durante la fase di apprendimento, la batch normalization calcola:
 	$$\hat{x}_i = \frac{x_i - \mu_B}{\sqrt{\sigma_B^2 + \epsilon}}$$
-	dove $\mu_B$ e $\sigma_B^2$ sono la media e varianza del batch, ed $\epsilon$ è una costante piccola per evitare divisioni per zero.
-	
-	Successivamente applica una trasformazione affine apprendibile:
+	dove $\mu_B$ e $\sigma_B^2$ sono la media e varianza del batch, ed $\epsilon$ è una costante piccola per evitare divisioni per zero. Successivamente applica una trasformazione affine apprendibile:
 	$$y_i = \gamma \hat{x}_i + \beta$$
-	dove $\gamma$ e $\beta$ sono parametri apprendibili.
-	
-	La layer normalization normalizza tutti i neuroni in un particolare strato per ogni input individualmente, rendendola indipendente dalla dimensione del batch.
-	
+	dove $\gamma$ e $\beta$ sono parametri apprendibili. \\
+	La layer normalization normalizza tutti i neuroni in un particolare strato per ogni input individualmente, rendendola indipendente dalla dimensione del batch. \\
 	La group normalization divide i canali in gruppi e normalizza all'interno di ogni gruppo, offrendo un compromesso tra batch e layer normalization.
 	
 	\section{Data augmentation: rotazioni, zoom, colour jitter}
-	La data augmentation è una tecnica che aumenta artificialmente le dimensioni del dataset applicando trasformazioni realistiche agli esempi di training, migliorando la generalizzazione e riducendo l'overfitting.
-	
-	Le rotazioni ruotano le immagini di angoli casuali (tipicamente tra -50$^\circ$ e 50$^\circ$), aiutando la rete a riconoscere oggetti indipendentemente dal loro orientamento. Studi hanno dimostrato che la rotazione può migliorare significativamente le prestazioni.
-	
-	Lo zoom (o scaling) modifica le dimensioni degli oggetti nell'immagine, permettendo alla rete di riconoscere oggetti a diverse scale. Il random crop è una variante che estrae porzioni casuali dell'immagine originale.
-	
+	La data augmentation è una tecnica che aumenta artificialmente le dimensioni del dataset applicando trasformazioni realistiche agli esempi di training, migliorando la generalizzazione e riducendo l'overfitting. \\
+	Le rotazioni ruotano le immagini di angoli casuali (tipicamente tra -50$^\circ$ e 50$^\circ$), aiutando la rete a riconoscere oggetti indipendentemente dal loro orientamento. Studi hanno dimostrato che la rotazione può migliorare significativamente le prestazioni. \\
+	Lo zoom (o scaling) modifica le dimensioni degli oggetti nell'immagine, permettendo alla rete di riconoscere oggetti a diverse scale. Il random crop è una variante che estrae porzioni casuali dell'immagine originale. \\
 	Il colour jitter modifica luminosità, contrasto, saturazione e tonalità delle immagini. Questa tecnica varia i canali RGB con valori casuali, producendo cambiamenti casuali nel colore che aiutano la rete a essere invariante alle variazioni di illuminazione e colore.
+	
+	\section{Funzionamento delle CNN}
+	
+	\subsection{Forward pass}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=1.0\textwidth]{img/cnn_fp.png}
+		\caption{Diagramma del forward pass in una CNN.}
+	\end{figure}
+	Il forward pass rappresenta il percorso che i dati seguono dall’input verso l’output attraverso l’intera architettura della rete. Questo processo inizia con l’immagine grezza e termina con la predizione finale, passando attraverso una serie di trasformazioni matematiche che estraggono progressivamente caratteristiche sempre più complesse.
+	
+	\subsection{Strati di convoluzione}
+	Il primo stadio, per l'elaborazione delle immagini, coinvolge gli strati convoluzionali, che rappresentano il cuore dell’architettura CNN. Quando un’immagine di input entra nella rete, essa viene elaborata attraverso un insieme di filtri (kernel) che eseguono l’operazione di convoluzione. Ogni filtro è responsabile del rilevamento di una specifica caratteristica: negli strati iniziali, questi filtri apprendono a riconoscere caratteristiche di basso livello come bordi, linee e angoli. L’operazione di convoluzione produce le feature maps, che rappresentano la risposta di ciascun filtro all’immagine di input. Ogni elemento nella feature map indica l’intensità della presenza di quella specifica caratteristica in quella posizione dell’immagine.
+	
+	\subsection{Funzioni di attivazione}
+	Dopo ogni operazione di convoluzione, viene applicata una funzione di attivazione, tipicamente ReLU. Questa fase è cruciale perché introduce non-linearità nel modello, permettendo alla rete di apprendere relazioni complesse nei dati.
+	
+	\subsection{Strati di pooling}
+	Successivamente agli strati convoluzionali, i dati passano attraverso gli strati di pooling. Questi strati eseguono un’operazione di downsampling che riduce le dimensioni spaziali delle feature maps mantenendo le informazioni più importanti.
+	
+	\subsection{Gerarchia delle caratteristiche}
+	Man mano che i dati attraversano strati successivi, si verifica un fenomeno fondamentale: la costruzione gerarchica delle caratteristiche. Gli strati iniziali rilevano caratteristiche elementari (bordi, texture), gli strati intermedi combinano queste caratteristiche per formare pattern più complessi (forme geometriche, motivi), mentre gli strati più profondi assemblano questi pattern in rappresentazioni di alto livello che corrispondono a parti di oggetti o oggetti interi.
+	
+	\subsection{Strati fully-connected}
+	Dopo l’estrazione gerarchica delle caratteristiche, i dati raggiungono gli strati fully-connected. Prima di entrare in questi strati, le feature maps multidimensionali vengono convertite in un vettore unidimensionale. Negli strati fully-connected, ogni neurone è collegato a tutti i neuroni dello strato precedente, permettendo alla rete di combinare tutte le caratteristiche estratte per prendere la decisione finale, in base al tipo di problema.
+	
+	\subsection{Flusso informativo e Trasformazioni progressive}
+	Durante tutto questo processo, l’immagine originale, inizialmente rappresentata come una matrice di valori pixel, viene gradualmente trasformata in rappresentazioni sempre più astratte e significative dal punto di vista semantico. Ogni strato della rete contribuisce a questa trasformazione: gli strati convoluzionali estraggono e raffinano le caratteristiche, gli strati di pooling riducono la complessità computazionale e introducono invarianza, mentre gli strati fully-connected integrano tutte le informazioni per la classificazione finale. \\
+	Questo design architetturale permette alle CNN di apprendere automaticamente le rappresentazioni ottimali per il compito specifico, eliminando la necessità di progettare manualmente gli estrattori di caratteristiche. La capacità di costruire rappresentazioni gerarchiche rende le CNN particolarmente efficaci per compiti di computer vision, dove la comprensione dell’immagine richiede l’integrazione di informazioni a diversi livelli di astrazione.
 	
 	\section{Vantaggi}
 	
 	\begin{itemize}
-		\item \textbf{Rilevamento automatico delle caratteristiche:} a differenza delle reti neurali tradizionali che richiedono l'estrazione manuale delle caratteristiche, le CNN sono in grado di apprendere ed identificare automaticamente le features rilevanti direttamente dai dati grezzi. Questo riduce significativamente lo sforzo di pre-processing e permette al modello di adattarsi meglio ai dati.
+		\item \textbf{Rilevamento automatico delle caratteristiche:} a differenza delle reti neurali tradizionali che richiedono l'estrazione manuale delle caratteristiche, le CNN sono in grado di apprendere ed identificare automaticamente le features rilevanti direttamente dai dati grezzi. Questo riduce significativamente lo sforzo nella fase di data pre-processing e permette al modello di adattarsi meglio ai dati.
 		\item \textbf{Efficienza computazionale e riduzione dei parametri:} l'uso del weight sharing (una tecnica che consente ad un singolo filtro di rilevare la stessa caratteristica in qualsiasi posizione dell'immagine, utilizzando lo stesso set di pesi) e degli strati di pooling riduce notevolmente il numero di parametri da addestrare rispetto alle reti neurali fully-connected. Questo non solo accelera l'addestramento, ma aiuta anche a prevenire l'overfitting.
 		\item \textbf{Invarianza alla traslazione:} grazie all'operazione di convoluzione, le CNN sono in grado di riconoscere un oggetto indipendentemente dalla sua posizione nell'immagine. Un filtro che impara a riconoscere un occhio, ad esempio, lo riconoscerà sia che si trovi in alto a sinistra che in basso a destra.
 		\item \textbf{Scalabilità:} le architetture CNN possono essere adattate facilmente a dataset di grandi dimensioni ed a compiti complessi. Ad esempio, la profondità e larghezza della rete possono essere aumentate per gestire immagini ad alta risoluzione o per apprendere pattern più astratti.
@@ -820,32 +832,31 @@
 		\item \textbf{Dipendenza da grandi dataset:} le CNN, specialmente quelle con architetture complesse, richiedono enormi quantità di dati etichettati per essere addestrate in modo efficace. La mancanza di un dataset sufficientemente grande può portare all'overfitting o ad una scarsa generalizzazione.
 		\item \textbf{Invarianza limitata:} le CNN standard sono intrinsecamente invarianti alla traslazione, ma non lo sono rispetto ad altre trasformazioni geometriche. Se un'immagine viene ruotata o scalata in modo significativo, il modello potrebbe non riconoscerla correttamente, a meno che non si utilizzino tecniche di data augmentation per esporre il modello a queste variazioni durante l'addestramento.
 		\item \textbf{Mancanza di interpretazione:} spesso è difficile comprendere perché una CNN prenda una determinata decisione. Le feature map intermedie possono essere visualizzate, ma il processo decisionale rimane una "black box", rendendo complicato il debug e l'adozione in settori critici come la medicina, dove è necessaria la trasparenza.
-		\item \textbf{Costo computazionale:} sebbene siano più efficienti delle reti neurali fully-connected, l'addestramento di architetture CNN molto profonde può richiedere una notevole potenza di calcolo, spesso necessitando di hardware specializzato come le GPU. Anche l'inferenza su dispositivi a bassa potenza può essere problematica.
+		\item \textbf{Costo computazionale:} l'addestramento di architetture CNN molto profonde può richiedere una notevole potenza di calcolo, spesso necessitando di hardware specializzato come le GPU. Anche l'inferenza su dispositivi a bassa potenza può essere problematica.
 	\end{itemize}
 	
 	\chapter{Ottimizzazione degli iperparametri}
 	
-	\section{Introduzione al capitolo}
-	L'ottimizzazione degli iperparametri è il processo con cui si scelgono i valori che regolano il comportamento di un algoritmo prima del suo allenamento. A differenza dei parametri interni (ad esempio, i pesi di una rete), gli iperparametri non vengono appresi automaticamente dai dati: vanno selezionati dall'esterno e hanno grande influenza sulla qualità finale del modello, sulla sua robustezza e sul costo computazionale.
-	
 	\section{Cross-Validation}
-	
-	La cross-validation è una tecnica statistica per la valutazione delle prestazioni di un modello predittivo. Il suo scopo principale è quello di stimare quanto un modello é in grado di generalizzare su dati indipendenti non visti durante la fase di training.
-	
-	Dato un dataset $D = \{z_1, \dots, z_N\}$ e una procedura di training che produce un modello $\hat f_{D}$, la K-fold cross-validation divide i dati in $K$ parti disgiunte (fold), dove ognuno ha una dimensione approssimativamente uguale. Il processo si ripete $K$ volte. Per ogni iterazione $k \in \{1, \dots, K\}$:
-	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=1.0\textwidth]{img/cv.png}
+		\caption{Cross-Validation.}
+	\end{figure}
+	La CV è una tecnica statistica per la valutazione delle prestazioni di un modello predittivo. Il suo scopo principale è quello di stimare quanto un modello é in grado di generalizzare su dati indipendenti non visti durante la fase di training. Dato un dataset $D = \{z_1, \dots, z_N\}$ e una procedura di training che produce un modello $\hat f_{D}$, la K-fold cross-validation divide i dati in $K$ parti disgiunte (fold), dove ognuno ha una dimensione approssimativamente uguale. Il processo si ripete $K$ volte. Per ogni iterazione $k \in \{1, \dots, K\}$:
 	\begin{itemize}
 		\item Si usano le restanti $K-1$ parti, che costituiscono il training set $D^{(k)} = D \setminus D_k$, per allenare il modello. Questo produce un modello parziale $\hat f_{D^{(k)}}$.
 		\item Si valuta l'errore del modello $\hat f_{D^{(k)}}$ sul fold lasciato fuori $D_k$, che ricopre il ruolo del validation set per questa iterazione. L'errore viene calcolato come $E_k = \text{Errore}(\hat f_{D^{(k)}}, D_k)$.
 	\end{itemize}
+	Al termine delle $K$ iterazioni, si ottiene una lista di $K$ errori $\{E_1, E_2, \dots, E_K\}$. La stima finale della performance del modello è data dalla media degli errori calcolati su ogni fold, $\bar{E} = \frac{1}{K} \sum_{k=1}^K E_k$.
 	
-	Al termine delle $K$ iterazioni, si ottiene una lista di $K$ valori di errore $\{E_1, E_2, \dots, E_K\}$. La stima finale della performance del modello è data dalla media degli errori calcolati su ogni fold, $\bar{E} = \frac{1}{K} \sum_{k=1}^K E_k$. La varianza di questi errori, $\sigma^2_E = \frac{1}{K} \sum_{k=1}^K (E_k - \bar{E})^2$, può anche fornire una misura della stabilità del modello rispetto alle diverse partizioni dei dati.
-	
-	\subsection{Time Series Cross-Validation}
-	
-	Per i dati che hanno una dipendenza temporale, come le serie storiche, la CV standard non è adatta. Suddividere i dati in fold casuali romperebbe la struttura temporale, e l'addestramento su dati futuri per testare il modello su dati passati (fenomeno noto come data leakage) non avrebbe senso pratico e porterebbe a risultati fuorvianti.
-	
-	La Time Series CV, che è stata sviluppata per risolvere questa problematica, crea un set di training che cresce sequenzialmente nel tempo, ed il set di validazione è sempre un blocco di dati che segue immediatamente il set di training. Il processo funziona così:
+	\subsection{Time Series Cross-Validation (TSCV)}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=1.0\textwidth]{img/tscv.png}
+		\caption{Time Series Cross-Validation.}
+	\end{figure}
+	Per i dati che hanno una dipendenza temporale, come le serie storiche, la CV standard non è adatta. Suddividere i dati in fold casuali romperebbe la struttura temporale, e l'addestramento su dati futuri per testare il modello su dati passati (fenomeno noto come data leakage) non avrebbe senso pratico e porterebbe a risultati fuorvianti. La TSCV, sviluppata per risolvere questa problematica, crea un training set che cresce sequenzialmente nel tempo, ed il validation set è sempre un blocco di dati che segue immediatamente il dataset di allenamento. Il processo funziona così:
 	\begin{itemize}
 		\item \textbf{Prima iterazione:} il modello è addestrato sui primi $m$ punti temporali e testato sui successivi $n$ punti.
 		\item \textbf{Seconda iterazione:} il modello è addestrato sui primi $m+n$ punti temporali e testato sui successivi $n$ punti.
@@ -853,43 +864,53 @@
 	\end{itemize}
 	Questo approccio rispecchia fedelmente lo scenario reale in cui un modello di serie storica viene addestrato su dati passati e utilizzato per fare previsioni su dati futuri non ancora visti. La media degli errori di validazione su tutte le iterazioni fornisce una stima robusta e realistica delle prestazioni del modello.
 	
-	\section{Nested Cross-Validation}
-	
-	La Nested Cross-Validation é un estensione della classica CV. Il suo scopo principale è quello di fornire una stima imparziale ed affidabile dell'errore di generalizzazione di un modello, risolvendo il del bias di selezione che può verificarsi quando gli stessi dati vengono utilizzati sia per la scelta degli iperparametri che per la valutazione finale del modello.
-	
-	L'idea alla base della Nested Cross-Validation è quella di creare due cicli di CV: un ciclo esterno ed uno interno. 
+	\section{Nested Cross-Validation (NCV)}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=1.0\textwidth]{img/ncv.png}
+		\caption{Nested Cross-Validation.}
+	\end{figure}
+	La NCV é un estensione della classica CV. Il suo scopo principale è quello di fornire una stima imparziale ed affidabile dell'errore di generalizzazione di un modello, risolvendo il problema del bias di selezione che può verificarsi quando gli stessi dati vengono utilizzati sia per la scelta degli iperparametri che per la valutazione finale del modello. L'idea alla base della NCV è quella di creare due cicli di CV: un ciclo esterno ed uno interno. 
 	
 	\begin{enumerate}
 		\item \textbf{Ciclo esterno (Outer loop):} ha il compito di stimare l'errore di generalizzazione del modello. Il dataset viene diviso in $K$ fold. Per ogni iterazione di questo ciclo, vengono utilizzati $K-1$ parti per costruire il training set esterno ed il restante fold agisce da test set finale, che non verrà mai utilizzato per la selezione degli iperparametri, garantendo una valutazione finale imparziale.
 		\item \textbf{Ciclo interno (Inner loop):} all'interno di ogni iterazione del ciclo esterno, si esegue un altro ciclo di CV (solitamente con $L$ fold) sul training set esterno. Questo ciclo interno è dedicato esclusivamente all'ottimizzazione degli iperparametri. Per ogni combinazione di essi da testare (ad esempio, utilizzando Grid o Random Search), si addestra il modello sui $L-1$ fold interni e si valuta la sua performance sul fold interno rimanente. La combinazione di iperparametri che ottiene la migliore performance media su tutte le $L$ iterazioni viene selezionata.
 		\item \textbf{Valutazione del modello ottimizzato:} una volta trovata la migliore combinazione di iperparametri nel ciclo interno, il modello viene addestrato nuovamente sull'intero training set esterno utilizzando proprio quella combinazione ottimale. Infine, la performance di questo modello viene valutata sul test set esterno, che é stato lasciato fuori all'inizio dell'iterazione $K$. L'errore ottenuto in questa fase è la stima delle prestazioni di generalizzazione del modello per quella specifica iterazione del ciclo esterno.
 	\end{enumerate}
+	Questo processo viene ripetuto per tutti i $K$ fold del ciclo esterno. La stima finale dell'errore del modello è la media dei $K$ errori ottenuti sui test set esterni.
 	
-	Questo processo viene ripetuto per tutti i $K$ fold del ciclo esterno. La stima finale dell'errore del modello è la media dei $K$ valori di errore ottenuti sui test set esterni.
-	
-	\section{Grid search}
-	
+	\section{Grid search (GS)}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=1.0\textwidth]{img/gs.png}
+		\caption{Grid search.}
+	\end{figure}
 	\subsection{Spiegazione dell'algoritmo}
-	Il Grid search consiste nel definire una griglia discreta di possibili valori per ciascun iperparametro e nell'eseguire una valutazione esaustiva del modello per ogni combinazione. Alla fine, si seleziona il set di iperparametri che ottimizza la metrica di interesse. Il metodo non introduce casualità, risultando completamente ripetibile e deterministico.
+	Il GS consiste nel definire una griglia discreta di possibili valori per ciascun iperparametro e nell'eseguire una valutazione esaustiva del modello per ogni combinazione. Alla fine, si seleziona il set di iperparametri che ottimizza la metrica di interesse. Il metodo non introduce casualità, risultando completamente ripetibile e deterministico.
 	
 	\subsection{Vantaggi}
 	\begin{itemize}
-		\item \textbf{Completezza (esaustivo):} esplora tutte le combinazioni predefinite nello spazio di ricerca, consentendo di trovare l’ottimo globale, se questo è incluso nella griglia.
-		\item \textbf{Deterministico e riproducibile:} poiché non c'è casualità, ogni esecuzione dell'algoritmo ripete gli stessi test fornendo risultati replicabili.
+		\item \textbf{Esaustivo:} esplora tutte le combinazioni predefinite nello spazio di ricerca, consentendo di trovare l’ottimo globale, se questo è incluso nella griglia.
+		\item \textbf{Deterministico e Riproducibile:} poiché non c'è casualità, ogni esecuzione dell'algoritmo ripete gli stessi test fornendo risultati replicabili.
 		\item \textbf{Semplicità di implementazione:} ideale in spazi di ricerca ridotti e ben definiti, o come baseline quando si dispone di risorse elevate.
 	\end{itemize}
 	
 	\subsection{Limiti}
 	\begin{itemize}
 		\item \textbf{Costo computazionale esponenziale:} la complessità cresce rapidamente con il numero di iperparametri (curse of dimensionality), rendendo Grid search impraticabile per spazi ampi o ad alta dimensionalità.
-		\item \textbf{Efficienza limitata:} molte valutazioni potrebbero riguardare regioni poco promettenti; spesso solo alcuni parametri influenzano la prestazione ottimale.
+		\item \textbf{Inefficiente:} molte valutazioni potrebbero riguardare regioni poco promettenti; spesso solo alcuni parametri influenzano la prestazione ottimale.
 		\item \textbf{Discretizzazione e loss di ottimi:} la necessità di fissare una griglia per iperparametri continui può portare a saltare valori potenzialmente migliori che non sono inclusi.
 		\item \textbf{Non adatto a modelli e dataset complessi:} il costo aumenta drasticamente con la complessità e con la dimensione del dataset.
 	\end{itemize}
 	
-	\section{Random Search}
+	\section{Random Search (RS)}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=1.0\textwidth]{img/rs.png}
+		\caption{Random search.}
+	\end{figure}
 	\subsection{Spiegazione dell'algoritmo}
-	Il Random Search seleziona casualmente $N$ configurazioni dagli intervalli o distribuzioni scelte per ciascun iperparametro, valutando il modello solo in quei punti. La campionatura può avvenire secondo distribuzioni uniformi, log-uniformi o guidate da conoscenze pregresse. Questo approccio si basa, quindi, sulla randomizzazione invece che su una griglia predefinita.
+	Il RS seleziona casualmente $N$ configurazioni dagli intervalli o distribuzioni scelte per ciascun iperparametro, valutando il modello solo in quei punti. La campionatura può avvenire secondo distribuzioni uniformi, log-uniformi o guidate da conoscenze pregresse. Questo approccio si basa, quindi, sulla randomizzazione invece che su una griglia predefinita.
 	
 	\subsection{Vantaggi}
 	\begin{itemize}
@@ -901,103 +922,140 @@
 	
 	\subsection{Limiti}
 	\begin{itemize}
-		\item \textbf{Non sistematico:} non esplora esasustivamente lo spazio delle ipotesi, quindi può saltare l’ottimo globale.
+		\item \textbf{Non sistematico:} non esplora esaustivamente lo spazio delle ipotesi, quindi può saltare l’ottimo globale.
 		\item \textbf{Dipendenza dalla distribuzione di campionamento:} campionamenti mal scelti possono ignorare regioni promettenti.
-		\item \textbf{Risultati non ripetibili:} salvo fissare un seed random, i risultati possono variare da run a run.
+		\item \textbf{Risultati non ripetibili:} salvo fissare un seed random, i risultati possono variare da un'esecuzione all'altra.
 		\item \textbf{Sotto-esplorazione:} su spazi piccoli e ben definiti, Grid Search resta più efficace.
 	\end{itemize}
 	
-	\section{Bayesian optimization}
-	
+	\section{Bayesian optimization (BO)}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=1.0\textwidth]{img/bo.jpg}
+		\caption{Bayesian optimization.}
+	\end{figure}
 	\subsection{Spiegazione dell'algoritmo}
-	La Bayesian Optimization interpreta l’ottimizzazione degli iperparametri come la ricerca del massimo/minimo di una funzione obiettivo costosa ed ignota. Si costruisce un modello surrogato probabilistico (come un Gaussian Process, GP) che stima la funzione obiettivo e quantifica l’incertezza predittiva. Ad ogni iterazione, una funzione di acquisizione (ad esempio, Expected improvement, Upper Confidence Bound, Probability of improvement) determina il prossimo punto da valutare, bilanciando esplorazione e sfruttamento.
+	La BO interpreta l’ottimizzazione degli iperparametri come la ricerca del massimo/minimo di una funzione obiettivo costosa ed ignota. Si costruisce un modello surrogato probabilistico (come un Gaussian Process, GP) che stima la funzione obiettivo e quantifica l’incertezza predittiva. Ad ogni iterazione, una funzione di acquisizione determina il prossimo punto da valutare.
 	
-	\subsubsection{Modello surrogato: Gaussian Process}
-	Un GP definisce, per ogni punto $\lambda$, una distribuzione normale per il valore $f(\lambda)$ con media $\mu(\lambda)$ e varianza $\sigma^2(\lambda)$. Dopo aver osservato alcune valutazioni, si aggiorna $\mu$, $\sigma$ per riflettere ciò che si è imparato.
+	\subsubsection{Modello surrogato: Gaussian Process (GP)}
+	Un GP definisce, per ogni punto $\lambda$, una distribuzione normale per il valore $f(\lambda)$ con media $\mu(\lambda)$ e varianza $\sigma^2(\lambda)$. Dopo aver osservato alcune valutazioni, si aggiorna $\mu$ e $\sigma$ per riflettere ciò che si è imparato.
 	
-	\subsubsection{Esempi di funzioni di acquisizione}
-	\begin{itemize}
-		\item \textbf{Expected improvement (EI):} sceglie $\lambda$ che si aspetta migliori il miglior valore trovato finora.
-		\item \textbf{Upper Confidence Bound (UCB):} seleziona punti con alto valore predetto o alta incertezza, tramite $\mu(\lambda) + \kappa\sigma(\lambda)$.
-		\item \textbf{Probability of improvement (PI):} massimizza la probabilità di migliorare il best-so-far.
-	\end{itemize}
+	\subsubsection{Le fasi del BO}
+	
+	\begin{enumerate}
+		\item \textbf{Campionamento iniziale:} Si comincia con una serie di prove iniziali, selezionando casualmente diverse combinazioni di iperparametri. Per ogni combinazione, si addestra il modello e si calcola una metrica di performance, come la precisione (accuracy) o l'errore quadratico medio (MSE), che funge da risultato della funzione obiettivo.
+		\item \textbf{Modello surrogato:} sulla base dei risultati del campionamento iniziale, si costruisce un modello probabilistico, solitamente un Gaussian process, che approssima la funzione obiettivo. Questo modello non solo predice la performance attesa per una data combinazione di iperparametri, ma fornisce anche un'incertezza sulla predizione.
+		\item \textbf{Funzione di acquisizione:} viene usata per decidere la prossima combinazione di iperparametri da testare. Questa funzione bilancia l'esplorazione (provare combinazioni di cui si sa poco, per ridurre l'incertezza) e lo sfruttamento (provare combinazioni che il modello surrogato ritiene promettenti, per migliorare la performance).
+		\item \textbf{Valutazione della performance:} la nuova combinazione di iperparametri viene utilizzata per addestrare il modello e valutarne le prestazioni. Il risultato di questa valutazione rappresenta il nuovo punto dati che viene aggiunto al nostro set di informazioni.
+		\item \textbf{Aggiornamento del modello surrogato:} viene aggiornato con i nuovi risultati. Questo affina le sue predizioni e riduce l'incertezza, permettendo alla funzione di acquisizione di prendere decisioni più informate nelle iterazioni successive.
+		\item \textbf{Ripetizione:} i passaggi 3, 4 e 5 vengono ripetuti. Il ciclo si ferma quando si raggiunge un criterio predefinito, come un budget di tempo, un numero massimo di iterazioni, o quando la performance del modello smette di migliorare significativamente.
+	\end{enumerate}
 	
 	\subsection{Vantaggi}
 	\begin{itemize}
-		\item \textbf{Efficienza intelligente:} riduce drasticamente il numero di valutazioni necessarie, ideale per funzioni onerose dove ogni valutazione richiede molto tempo.
+		\item \textbf{Efficiente:} riduce drasticamente il numero di valutazioni necessarie, ideale per funzioni complesse dove ogni valutazione richiede molto tempo.
 		\item \textbf{Bilanciamento exploration-exploitation:} la funzione di acquisizione permette di esplorare regioni nuove e raffinare aree note.
-		\item \textbf{Adatto a budget ridotti:} eccelle quando si hanno risorse computazionali limitate.
 		\item \textbf{Modellazione dell’incertezza:} il modello surrogato stima l’incertezza ed indirizza la ricerca nelle zone potenzialmente migliori.
 	\end{itemize}
 	
 	\subsection{Limiti}
 	\begin{itemize}
-		\item \textbf{Overhead computazionale:} il mantenimento ed aggiornamento del modello surrogato (GP/TPE) aggiunge complessità computazionale.
+		\item \textbf{Overhead computazionale:} il mantenimento ed aggiornamento del modello surrogato aggiunge complessità computazionale.
 		\item \textbf{Difficile parallelizzazione:} il processo guidato dalle valutazioni precedenti rende più complessa la parallelizzazione rispetto alla Random o Grid Search.
-		\item \textbf{Sensibile al rumore e ai parametri del modello:} metriche instabili e scelte inappropriate (kernel, acquisizione) possono ridurre le performance.
-		\item \textbf{Scalabilità limitata:} efficiente principalmente su spazi continui di media dimensione o misti (discreti + continui); su spazi molto ampi, l'ottimizzazione può diventare difficoltosa.
+		\item \textbf{Scalabilità limitata:} efficiente principalmente su spazi continui di media dimensione; su spazi molto ampi, l'ottimizzazione può diventare difficoltosa.
 	\end{itemize}
 	
-	\section{Algoritmi genetici e Metodi evolutivi}
+	\section{Genetic algorithm (GA)}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=1.0\textwidth]{img/ga.png}
+		\caption{Genetic algorithm.}
+	\end{figure}
 	\subsection{Spiegazione dell'algoritmo}
-	Gli algoritmi genetici (GA) sono metodi di ricerca ed ottimizzazione di iperparametri, ispirati al processo di selezione naturale. Funzionano mantenendo una popolazione di soluzioni e migliorandole nel tempo tramite un processo iterativo. Ad ogni iterazione, detta anche generazione, vengono applicati tre operatori evolutivi principali:
+	Gli algoritmi genetici (GA) sono metodi di ottimizzazione di iperparametri, ispirati al processo di selezione naturale. Funzionano mantenendo una popolazione di soluzioni e migliorandole nel tempo tramite un processo iterativo. Ad ogni iterazione, detta anche generazione, vengono applicati tre operatori evolutivi principali:
 	
 	\begin{itemize}
 		\item \textbf{Selezione:} gli individui con un punteggio di fitness più alto (le soluzioni "migliori" o più "adatte") vengono scelti per la riproduzione. Questo processo assicura che le caratteristiche positive si diffondano nella popolazione.
 		\item \textbf{Crossover:} le soluzioni selezionate vengono combinate per creare nuovi individui "figli". Questo operatore permette di esplorare nuove combinazioni e di mescolare le caratteristiche delle soluzioni migliori.
 		\item \textbf{Mutazione:} vengono introdotte piccole, casuali variazioni nelle nuove soluzioni. La mutazione è fondamentale per mantenere la diversità genetica e per evitare che l'algoritmo rimanga bloccato in un'unica soluzione.
 	\end{itemize}
-	
 	Questi operatori permettono, agli algoritmi genetici, di esplorare un vasto spazio di soluzioni (esplorazione globale) ed, allo stesso tempo, di migliorare le soluzioni promettenti (esplorazione locale), migliorandole sempre di più nel corso delle generazioni.
+	
+	\subsubsection{Le fasi del GA}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.5\textwidth]{img/ga_process.png}
+		\caption{Le fasi del processo del Genetic Algorithm.}
+	\end{figure}
+	\begin{itemize}
+		\item \textbf{Inizializzazione:}
+		\begin{itemize}
+			\item Definire lo spazio di ricerca degli iperparametri.
+			\item Generare una popolazione iniziale di $N$ individui casuali.
+			\item Impostare i parametri: dimensione popolazione ($N$), generazioni massime ($G_{max}$), tassi di crossover ($p_c$) e mutazione ($p_m$).
+		\end{itemize}
+		
+		\item \textbf{Ciclo evolutivo} (per ogni generazione $g = 1, 2, \ldots, G_{max}$):
+		\begin{itemize}
+			\item \textbf{Valutazione:} allenare il modello per ogni individuo e calcolare il fitness $f(x_i)$.
+			\item \textbf{Selezione:} scegliere i genitori migliori.
+			\item \textbf{Crossover:} combinare coppie di genitori con probabilità $p_c$ per generare figli.
+			\item \textbf{Mutazione:} introdurre variazioni casuali nei figli con probabilità $p_m$.
+			\item \textbf{Sostituzione:} formare la nuova popolazione (strategia elitista o generazionale).
+		\end{itemize}
+		
+		\item \textbf{Terminazione:}
+		\begin{itemize}
+			\item Fermarsi quando: raggiunto $G_{max}$, nessun miglioramento per $k$ generazioni, o fitness target raggiunto.
+			\item Restituire l'individuo con il miglior fitness come soluzione ottimale.
+		\end{itemize}
+	\end{itemize}
 	
 	\subsection{Vantaggi}
 	\begin{itemize}
 		\item \textbf{Esplorazione robusta:} grazie a crossover e mutazioni, i GA sono molto adatti a spazi complessi e non lineari, e trovano ottimi globali ove altri metodi fallirebbero.
 		\item \textbf{Gestione di spazi misti:} funzionano bene con iperparametri discreti, continui e categorici.
-		\item \textbf{Parallelizzazione naturale:} Fitness evaluations possono essere distribuite in parallelo.
-		\item \textbf{Adattabilità:} utili in problemi multi-obiettivo ed in presenza di funzioni obiettivo non differenziabili.
+		\item \textbf{Parallelizzazione:} le valutazioni della fitness possono essere distribuite in parallelo.
 	\end{itemize}
 	
 	\subsection{Limiti}
 	\begin{itemize}
-		\item \textbf{Lentezza:} richiedono molte generazioni e valutazioni, quindi la convergenza può essere lenta.
-		\item \textbf{Dipendenza da parametri evolutivi:} risultati sensibili alla dimensione della popolazione, ai tassi di mutazione/crossover ed altri meta-iperparametri, che vanno ottimizzati.
-		\item \textbf{Costo computazionale:} può diventare oneroso se la valutazione delle soluzioni è costosa.
+		\item \textbf{Costo computazionale elevato:} richiedono molte generazioni e valutazioni, quindi la convergenza può essere lenta e costosa.
+		\item \textbf{Dipendenza da iperparametri evolutivi:} i risultati sono sensibili alla dimensione della popolazione, ai tassi di mutazione/crossover ed altri iperparametri di GA, che vanno ottimizzati. Ciò porta maggior complessità.
 		\item \textbf{Nessuna garanzia di convergenza:} potrebbero bloccarsi in minimi sub-ottimali se la diversità non viene mantenuta.
 	\end{itemize}
 	
 	\section{Confronto pratico}
 	
 	\subsection{Criteri per la scelta}
-	Nella pratica, si valuta:
 	\begin{itemize}
-		\item \textbf{Efficienza campionaria}: quante valutazioni servono per trovare una buona soluzione;
-		\item \textbf{Costo per iterazione}: quanto costa valutare ciascuna configurazione (training+CV);
+		\item \textbf{Efficienza}: quante valutazioni servono per trovare una buona soluzione;
 		\item \textbf{Scalabilità}: comportamento al crescere della dimensionalità degli iperparametri;
 		\item \textbf{Supporto per vari tipi di variabili}: continue, discrete, categoriche;
-		\item \textbf{Implementazione e parallelizzazione}: facilità di esecuzione su cluster/GPU;
+		\item \textbf{Parallelizzazione}: facilità di esecuzione su cluster/GPU;
 		\item \textbf{Robustezza}: capacità di gestire rumore e funzioni complesse;
 		\item \textbf{Risorse computazionali richieste}: overhead e costi aggiuntivi dell'algoritmo.
 	\end{itemize}
 	
 	\subsection{Tabella riassuntiva comparativa}
-	\begin{table}[h]
+	\begin{table}[H]
 		\centering
 		\small
 		\begin{tabular}{lccccc}
 			\toprule
 			\textbf{Metodo} & \textbf{Efficienza} & \textbf{Scalabilità} & \textbf{Parallelizz.} & \textbf{Complessità} & \textbf{Spazi misti}\\
 			\midrule
-			Grid search & Bassa & Pessima & Facile & Minima & Limitata\\
-			Random search & Buona & Buona & Facile & Minima & Buona\\
-			Bayesian opt. & Alta & Discreta & Difficile & Alta & Discreta\\
-			Genetic alg. & Variabile & Discreta & Facile & Media & Ottima\\
+			Grid search & Bassa & Pessima & Eccellente & Bassa & Bassa\\
+			Random search & Media & Buona & Eccellente & Bassa & Bassa\\
+			Bayesian opt. & Alta & Limitata & Moderata & Alta & Media\\
+			Genetic alg. & Variabile\textsuperscript{*} & Discreta & Eccellente & Media-Alta & Alta\\
 			\bottomrule
 		\end{tabular}
 	\end{table}
+	\textsuperscript{*} può essere molto efficace su spazi complessi/discreti, ma richiede molte valutazioni rispetto a BO in spazi piccoli; meno efficiente se valutazioni sono molto care.
 	
 	\subsection{Matrice decisionale per la scelta del metodo}
-	\begin{table}[h]
+	\begin{table}[H]
 		\centering
 		\footnotesize
 		\begin{tabular}{lccc}
@@ -1006,7 +1064,7 @@
 			\midrule
 			Spazi piccoli (2-3 param.) & Grid Search & Random Search & Bayesian Opt.\\
 			Spazi medi/ampi ($>4$ param.) & Random Search & Bayesian Opt. & Grid Search\\
-			Modelli costosi, budget limitato & Bayesian Opt. & Random Search & Grid Search\\
+			Valutazioni costose, budget limitato & Bayesian Opt. & Random Search & Grid Search\\
 			Spazi molto complessi & Genetic Algorithms & Bayesian Opt. & Grid Search\\
 			Multi-obiettivo & Genetic Algorithms & - & Grid/Random Search\\
 			Risorse limitate & Random Search & Bayesian Opt. & Grid Search\\
@@ -1014,7 +1072,7 @@
 		\end{tabular}
 	\end{table}
 	
-	\subsection{Scelta suggerita: Random search}
+	\subsection{Scelta per i casi studio: Random search}
 	
 	\subsubsection{Motivazioni della scelta}
 	\begin{itemize}
@@ -1086,44 +1144,43 @@
 	\section{Fondamenti teorici degli studi di ablazione}
 	
 	\subsection{Definizione}
-	Per formalizzare matematicamente il concetto di ablazione, consideriamo un modello parametrizzato $f_\theta$ dove $\theta$ rappresenta l'insieme completo dei parametri, e $L(\theta)$ indica la funzione di perdita attesa del modello. Dato un sottoinsieme specifico di parametri $S$, la variazione di performance dovuta all'ablazione può essere quantificata come:
+	Per formalizzare matematicamente il concetto di ablazione, consideriamo un modello $f_\theta$ dove $\theta$ rappresenta l'insieme completo dei suoi parametri, e $L(\theta)$ indica la funzione di perdita del modello. Dato un sottoinsieme specifico di parametri $S$, la variazione di performance dovuta all'ablazione può essere quantificata come:
 	
 	\[
 	\Delta_S = L(\theta_{-S}) - L(\theta)
 	\]
 	
-	In questa formulazione, $\theta_{-S}$ rappresenta il modello con la componente $S$ rimossa. Un valore elevato di $\Delta_S$ indica che la componente $S$ fornisce un contributo importante alle prestazioni del modello.
-	
-	Questa definizione matematica fornisce una base quantitativa per valutare l'importanza relativa delle diverse componenti del modello. Tuttavia, è importante notare che $\Delta_S$ non sempre riflette l'importanza causale della componente, poiché possono esistere effetti di interazione e ridondanza tra le diverse parti del modello.
+	In questa formulazione, $\theta_{-S}$ rappresenta il modello con la componente $S$ rimossa. Un valore elevato di $\Delta_S$ indica che la componente $S$ fornisce un contributo importante alle prestazioni del modello. Questa definizione matematica fornisce una base quantitativa per valutare l'importanza relativa delle diverse componenti del modello.
 	
 	\subsection{Benefici}
 	\begin{itemize}
 		\item \textbf{Identificazione delle componenti critiche:} questo processo aiuta a comprendere la sensibilità del modello a specifiche parti della sua architettura, rivelando potenziali vulnerabilità o punti di forza.
-		\item \textbf{Guida per la semplificazione:} i risultati degli studi di ablazione guidano lo sviluppo di strategie di "snellimento" del modello, fornendo una base empirica per le decisioni di pruning.
+		\item \textbf{Guida per la semplificazione:} i risultati degli studi di ablazione guidano lo sviluppo di strategie di semplificazione del modello, fornendo una base empirica per le decisioni di pruning.
 		\item \textbf{Interpretazione del comportamento del modello:} l'analisi di come la rimozione di una componente specifica influenzi le previsioni, facilita l'interpretazione del modello, contribuendo alla comprensione dei meccanismi interni che portano alle predizioni finali.
 	\end{itemize}
 	
 	\section{Pruning post-training}
 	
 	\subsection{Definizione}
-	Il pruning post-training può essere considerato come l'applicazione di un operatore $\mathcal{P}$ ad un modello già addestrato, che elimina parametri secondo criteri specifici (come l'ampiezza del parametro, l'importanza stimata, o il contributo marginale). Il risultato è un modello più leggero rappresentato da $\theta_{pruned} = \mathcal{P}(\theta)$. \\
-	La scelta del criterio di pruning influenza significativamente sia l'efficacia della compressione sia il mantenimento delle prestazioni. I criteri più comuni includono la magnitudine dei parametri (utilizzata nel pruning L1 e L2), misure di sensibilità basate sui gradienti, e metriche di importanza derivate dall'analisi della struttura del modello.
+	Il pruning post-training può essere considerato come l'applicazione di un operatore $\mathcal{P}$ ad un modello già addestrato, che elimina parametri secondo criteri specifici (come l'ampiezza del parametro, l'importanza stimata, o il contributo marginale) per avere un modello più leggero. \\
+	La scelta del criterio di pruning influenza significativamente sia l'efficacia della compressione sia il mantenimento delle prestazioni. I criteri più comuni includono la magnitudine dei parametri, misure di sensibilità basate sui gradienti, e metriche di importanza derivate dall'analisi della struttura del modello.
 	
 	\subsection{Benefici}
-	Il primo e più immediato è la riduzione della memoria richiesta e del tempo di inferenza, aspetti critici per il deployment di modelli in ambienti con risorse limitate. Parallelamente, il pruning mira a mantenere le prestazioni entro una tolleranza accettabile, bilanciando efficienza e accuratezza. Un beneficio aggiuntivo del pruning è l'aumento dell'interpretabilità del modello. Con un numero ridotto di elementi attivi, diventa più chiaro il contributo delle parti rimanenti, facilitando l'analisi e la comprensione del comportamento del modello. Questo aspetto è particolarmente rilevante in domini dove la spiegabilità è un requisito fondamentale.
+	\begin{itemize}
+		\item \textbf{Riduzione della memoria e del tempo di inferenza}: il pruning riduce la memoria richiesta e il tempo di inferenza del modello, aspetti critici per il deployment in ambienti con risorse limitate.
+		\item \textbf{Mantenimento delle prestazioni}: l'obiettivo del pruning è bilanciare l'efficienza e l'accuratezza del modello, mantenendo le prestazioni entro una tolleranza accettabile.
+		\item \textbf{Aumento dell'interpretabilità}: riducendo il numero di elementi attivi, il pruning facilita l'analisi e la comprensione del contributo delle parti rimanenti.
+	\end{itemize}
 	
 	\subsection{Trade-off bias-varianza}
-	Il processo di pruning introduce un trade-off fondamentale tra bias e varianza. La riduzione della complessità del modello attraverso l'eliminazione di parametri tende a diminuire la varianza, riducendo il rischio di overfitting sui dati di training. Tuttavia, questa semplificazione può introdurre bias, limitando la capacità del modello di catturare pattern complessi nei dati. L'obiettivo pratico del pruning consiste nel trovare il punto ottimale dove la riduzione della varianza compensa l'aumento del bias, mantenendo prestazioni globalmente superiori. Questo equilibrio è altamente dipendente dalla natura dei dati, dalla complessità del task, e dalle caratteristiche specifiche dell'architettura del modello.
+	La riduzione della complessità del modello, attraverso l'eliminazione di parametri, tende a diminuire la varianza, riducendo il rischio di overfitting sui dati di training. Tuttavia, questa semplificazione può introdurre bias, limitando la capacità del modello di catturare pattern complessi nei dati. L'obiettivo pratico del pruning consiste nel trovare il punto ottimale dove la riduzione della varianza compensa l'aumento del bias, mantenendo prestazioni globalmente superiori. Questo equilibrio è altamente dipendente dalla natura dei dati, dalla complessità del task, e dalle caratteristiche specifiche dell'architettura del modello.
 	
 	\section{Pruning L1 post-training per MLP e KAN}
 	
-	\subsection{Motivazione dell'utilizzo della norma L1}
-	La scelta della penalità L1 per il pruning dei modelli MLP e KAN si basa sulle proprietà matematiche di questa norma che favorisce naturalmente soluzioni sparse. A differenza della norma L2 che tende a ridurre uniformemente tutti i parametri, la norma L1 spinge molti coefficienti verso zero, creando una selezione naturale dei parametri più significativi. Questa caratteristica rende il pruning L1 particolarmente adatto per problemi dove la sparsità è desiderabile e dove l'assunzione che parametri di piccola magnitudine abbiano impatto trascurabile sulle predizioni è ragionevole. La procedura risultante è sia semplice da implementare sia interpretabile nei suoi risultati.
-	
 	\subsection{Definizione}
-	Dato un insieme di parametri del modello $\Theta = \{\theta_1, \theta_2, \dots, \theta_N\}$, la procedura di L1 Pruning opera applicando una trasformazione a ciascun parametro $\theta_i$, che è definita da una soglia di potatura $\lambda$, che viene tipicamente determinata a livello globale per il modello o a livello locale per ciascun strato.
+	Dato un insieme di parametri del modello $\Theta = \{\theta_1, \theta_2, \dots, \theta_N\}$, la procedura di L1 pruning opera applicando una trasformazione a ciascun parametro $\theta_i$, che è definita da una soglia di potatura $\lambda$, che viene tipicamente determinata a livello globale per il modello o a livello locale per ciascun strato.
 	
-	La formula che descrive l'operazione di Hard Thresholding è la seguente:
+	La formula è:
 	$$
 	\theta_i^{\text{pruned}} = \begin{cases}
 		0 & \text{se } |\theta_i| \le \lambda \\
@@ -1133,55 +1190,36 @@
 	In questa formulazione, se la magnitudine assoluta ($|\theta_i|$) di un parametro è inferiore o uguale alla soglia $\lambda$, esso viene permanentemente impostato a zero. Al contrario, se la sua magnitudine è superiore a $\lambda$, il parametro viene mantenuto invariato.
 	
 	\subsection{Considerazioni specifiche per le KAN}
-	L'applicazione del pruning L1 alle KAN é abbastanza diverso rispetto a MLP. La motivazione principale risiede nella diversa natura dei parametri che compongono questi modelli. Nelle MLP, i parametri sono pesi e bias che operano su connessioni lineari, mentre nelle KAN sono coefficienti che definiscono funzioni univariate (tipicamente B-spline) su ogni arco della rete. \\
+	L'applicazione del L1 pruning alle KAN é abbastanza diverso rispetto a MLP. La motivazione principale risiede nella diversa natura dei parametri che compongono questi modelli. Nelle MLP, i parametri sono pesi e bias che operano su connessioni lineari, mentre nelle KAN sono coefficienti che definiscono funzioni univariate (tipicamente B-spline) su ogni arco della rete. \\
 	Il pruning su KAN può essere implementato in due modi. Il primo approccio prevede la rimozione di coefficienti locali delle spline, riducendo la risoluzione locale della rappresentazione funzionale mantenendo la struttura generale. Il secondo approccio elimina intere funzioni su specifici archi della rete, semplificando direttamente l'architettura della KAN. \\
 	La scelta tra questi approcci deve considerare l'impatto sulla continuità delle funzioni e sulla loro interpretabilità. La rimozione di coefficienti locali mantiene la struttura generale ma può creare delle discontinuità o irregolarità indesiderate nella curva che la spline rappresenta, mentre l'eliminazione di intere funzioni preserva la continuità locale ma può alterare significativamente la capacità espressiva del modello.
 	
-	\section{Pruning per ensemble: Rank-based pruning per Random forest}
+	\section{Pruning per Ensemble: Rank-based pruning per Random forest}
 	
 	\subsection{Principio fondamentale}
 	Il rank-based pruning per Random forest si basa sul principio che non tutti gli alberi nell'ensemble contribuiscono equamente alle prestazioni finali. Alcuni alberi possono essere ridondanti o addirittura dannosi per la capacità di generalizzazione dell'ensemble, rendendo la loro rimozione vantaggiosa sia in termini di efficienza e prestazioni. L'approccio implementato definisce per ogni albero $m$ un contributo stimato alle prestazioni, quantificato attraverso la variazione di errore $\Delta L_m$ che si osserverebbe rimuovendo l'albero dall'ensemble. Gli alberi con contributo minore sono candidati prioritari per la rimozione durante il processo di pruning.
 	
 	\subsection{Criterio di ranking basato sulla feature importance}
-	La metodologia implementata utilizza un'euristica computazionalmente efficiente per stimare l'importanza di ciascun albero. Invece di valutare l'impatto della rimozione di ogni singolo albero sull'errore complessivo, il criterio di ranking si basa sulle feature importance di ogni singolo albero. Specificamente, l'importanza di un albero $m$ viene calcolata come la somma delle feature importance che l'albero utilizza. La logica sottostante è che un albero che si basa su feature più discriminative, che riducono significativamente l'entropia o l'indice di Gini, è probabile che fornisca un contributo maggiore all'ensemble. Questo metodo offre un vantaggio computazionale significativo rispetto a un'analisi diretta dell'errore.
+	Invece di valutare l'impatto della rimozione di ogni singolo albero sull'errore complessivo, il criterio di ranking si basa sulle feature importance di ogni singolo albero. Specificamente, l'importanza di un albero $m$ viene calcolata come la somma delle feature importance che l'albero utilizza. La logica sottostante è che un albero che si basa su feature più discriminative, che riducono significativamente l'entropia o l'indice di Gini, è probabile che fornisca un contributo maggiore all'ensemble. Questo metodo offre un vantaggio computazionale significativo rispetto a un'analisi diretta dell'errore.
 	
 	\subsection{Procedura di selezione}
-	La procedura di selezione implementa una strategia greedy che ordina gli alberi per importanza decrescente e seleziona i primi $k$ alberi, dove $k$ è determinato dal pruning ratio desiderato. Questa scelta greedy è giustificata dall'assunzione che l'utilità marginale degli alberi decresce monotonicamente con il loro ranking.
+	La procedura di selezione implementa una strategia greedy che ordina gli alberi per importanza decrescente e seleziona i primi $k$ alberi, dove $k$ è determinato dal pruning ratio desiderato. Questa scelta greedy è giustificata dall'assunzione che l'utilità marginale degli alberi decresce monotonicamente con il loro ranking. La validazione empirica di questa assunzione rappresenta un aspetto critico della metodologia, poiché la submodularità della funzione di utilità non è sempre garantita negli ensemble reali. L'implementazione, infatti, include procedure di validazione che verificano che la selezione greedy produca risultati coerenti.
 	
-	La validazione empirica di questa assunzione rappresenta un aspetto critico della metodologia, poiché la submodularità della funzione di utilità non è sempre garantita negli ensemble reali. L'implementazione include quindi procedure di validazione che verificano che la selezione greedy produca risultati coerenti con valutazioni più esaustive su sottoinsiemi dei dati.
-	
-	\subsection{Procedura di selezione}
-	La procedura di selezione degli alberi da mantenere implementa una strategia greedy. Dopo aver calcolato l'importanza per ogni albero, l'algoritmo esegue i seguenti passaggi:
-	\begin{enumerate}
-		\item Calcola l'importanza di ogni albero basata sulla somma delle feature importance.
-		\item Ordina gli alberi in ordine decrescente di importanza.
-		\item Seleziona i primi $k$ alberi, dove $k$ è il numero di alberi da mantenere, determinato dal pruning ratio desiderato.
-	\end{enumerate}
-	
-	\section{Pruning per ensemble: Cumulative pruning per XGBoost}
-	
-	\subsection{Boosting come modello additivo}
-	XGBoost costruisce predizioni attraverso un modello additivo, dove la funzione finale è rappresentata dalla somma delle predizioni di ogni albero:
-	
-	\[
-	F_K(x) = \sum_{k=1}^K f_k(x)
-	\]
-	
-	Ogni albero $f_k(x)$ viene aggiunto sequenzialmente per correggere gli errori residui calcolati dalle iterazioni precedenti. Questa struttura intrinsecamente additiva e sequenziale rende il modello particolarmente adatto al pruning, poiché il contributo di ogni nuova iterazione può essere misurato in termini di riduzione dell'errore complessivo.
+	\section{Pruning per Ensemble: Cumulative pruning per XGBoost}
 	
 	\subsection{Criterio di pruning cumulativo}
-	Il pruning cumulativo implementato si basa su un principio di selezione basato sull'ordine: vengono mantenuti solo i primi $n$ round di boosting, scartando i successivi. Il presupposto è che le prime iterazioni, che hanno l'obiettivo di ridurre al massimo l'errore iniziale, contribuiscano in modo più significativo e non siano ridondanti come gli alberi meno performanti che si trovano alla fine del processo di training. La percentuale di iterazioni da mantenere è controllata direttamente dal pruning ratio, che determina la frazione di modello da eliminare. In pratica, l'algoritmo mantiene le iterazioni da $1$ a $n$, dove $n$ è calcolato come $(1 - \text{pruning\_ratio})$ moltiplicato per il numero totale di round di boosting. Questo approccio è concettualmente simile all'early stopping, ma viene applicato per ottimizzare un modello già addestrato.
+	Il pruning cumulativo implementato si basa su un principio di selezione basato sull'ordine: vengono mantenuti solo i primi $n$ round di boosting, scartando i successivi. Il presupposto è che le prime iterazioni, che hanno l'obiettivo di ridurre al massimo l'errore iniziale, contribuiscano in modo più significativo e non siano ridondanti come gli alberi meno performanti che si trovano alla fine del processo di training. La percentuale di iterazioni da mantenere è controllata direttamente dal pruning ratio, che determina la frazione di modello da eliminare. In pratica, l'algoritmo mantiene le iterazioni da $1$ a $n$, dove $n$ è calcolato come $(1 - \text{pruning ratio})$ moltiplicato per il numero totale di round di boosting.
 	
-	\subsection{Implementazione tecnica}
+	\subsection{Procedura di selezione}
 	A differenza di Random forest, che può semplicemente rimuovere alberi dalla lista degli "estimators", XGBoost richiede un'operazione più delicata a causa della natura additiva delle sue predizioni.
 	
-	Il processo tecnico consiste in tre fasi principali:
+	Il processo tecnico consiste in:
 	\begin{enumerate}
-		\item \textbf{Calcolo del numero di iterazioni da mantenere:} si determina il numero di round di boosting (alberi) da utilizzare per la predizione. Questo valore viene calcolato in base ad un pruning ratio definito o in base al numero di alberi che ha fornito la migliore performance su un set di validazione. Nei problemi di classificazione multiclasse, ogni round di boosting aggiunge un albero per ogni classe.
+		\item \textbf{Calcolo del numero di iterazioni da mantenere:} si determina il numero di alberi da utilizzare per la predizione. Questo valore viene calcolato in base ad un pruning ratio definito. Nei problemi di classificazione multiclasse, ogni round di boosting aggiunge un albero per ogni classe.
 		\item \textbf{Predizione con iterazioni limitate:} invece di modificare la struttura del modello, si sfrutta una funzionalità di XGBoost che permette di specificare il numero di alberi da usare per la predizione. Il modello addestrato mantiene al suo interno tutti gli alberi, ma per calcolare il risultato finale si usa solo l'insieme limitato di alberi specificato.
 	\end{enumerate}
 	
-	Se l'obiettivo è creare un modello più leggero da salvare o da esportare, è possibile potare il modello in modo permanente. Questo si ottiene limitando l'ensemble agli alberi selezionati e salvando il nuovo modello ridotto. Questo processo è utile per ridurre l'occupazione di memoria e rendere il modello più efficiente per la distribuzione in produzione, una volta che la migliore configurazione è stata identificata tramite lo studio di ablazione.
+	Se l'obiettivo è creare un modello più leggero da salvare o esportare, è possibile potare il modello in modo permanente. Questo si ottiene limitando l'ensemble agli alberi selezionati e salvando il nuovo modello ridotto. Questo processo è utile per ridurre l'occupazione di memoria e rendere il modello più efficiente per la distribuzione in produzione, una volta che la migliore configurazione è stata identificata tramite lo studio di ablazione.
 	
 	\chapter{Primo Caso Studio: Regressione su emissioni di automobili}
 	
@@ -1193,8 +1231,81 @@
 	
 	\chapter{Conclusioni}
 	
-	\nocite{*}
-	\bibliographystyle{plain}
-	\bibliography{bibliografia}
-	
+	\begin{thebibliography}{99}
+		\bibitem{mlp_popescu}
+		Popescu et al. , \emph{Multilayer perceptron and neural networks}, 2009. \url{https://www.researchgate.net/publication/228340819_Multilayer_perceptron_and_neural_networks}
+		
+		\bibitem{mlp_hornick}
+		Hornick et al. , \emph{Multilayer feedforward networks are universal approximators}, 1988. \url{https://www.cs.cmu.edu/~epxing/Class/10715/reading/Kornick_et_al.pdf}
+		
+		\bibitem{schmidhuber2015deep}
+		J. Schmidhuber, \emph{Deep learning in neural networks: An overview}, vol. 61, 2015.
+		
+		\bibitem{cybenko1989uat}
+		G. Cybenko, \emph{Approximation by superpositions of a sigmoidal function}, vol. 2, 1989. \url{https://doi.org/10.1007/BF02551274}
+		
+		\bibitem{leshno1993uat}
+		Leshno et al. , \emph{Multilayer feedforward networks with a nonpolynomial activation function can approximate any functionn}, vol. 6, 1993. \url{https://www.sciencedirect.com/science/article/pii/S0893608005801315}
+		
+		\bibitem{dl2016mit}
+		I. Goodfellow, Y. Bengio, A.Courville, \emph{Deep Learning}, 2016.
+		
+		\bibitem{liu2024kan}
+		Liu et al. , \emph{Kan: Kolmogorov-arnold networks}, 2024. \url{https://arxiv.org/pdf/2404.19756}
+		
+		\bibitem{kolmogorov1957representation}
+		A.N. Kolmogorov, \emph{On the representation of continuous functions of several variables by superpositions of continuous functions of one variable and addition, Doklady Akademii Nauk SSSR}, vol. 114, no. 5, 1957.
+		
+		\bibitem{arnold1963functions}
+		V.I. Arnold, \emph{On functions of three variables, Doklady Akademii Nauk SSSR}, vol. 141, no. 4, 1963.
+		
+		\bibitem{pinkus1999approximation}
+		A. Pinkus, \emph{Approximation theory of the mlp model in neural networks, Acta Numerica}, vol. 8, 1999.
+		
+		\bibitem{poggio1990networks}
+		T. Poggio, F. Girosi, \emph{Networks for approximation and learning, Proceedings of the IEEE}, vol. 78, no. 9, 1990.
+		
+		\bibitem{chaudhuri2021splines}
+		A. Chaudhuri, \emph{B-Splines}, 2021. \url{https://arxiv.org/pdf/2108.06617}
+		
+		\bibitem{henseler1995back}
+		J. Henseler, \emph{Back Propagation}, 1995. \url{https://link.springer.com/chapter/10.1007/BFb0027022}
+		
+		\bibitem{donoho2000high}
+		D. Donoho, \emph{High-Dimensional Data Analysis: The Curses and Blessings of Dimensionality}, 2000. \url{https://www.researchgate.net/publication/220049061_High-Dimensional_Data_Analysis_The_Curses_and_Blessings_of_Dimensionality}.
+		
+		\bibitem{french1999catastrophic}
+		R. French, \emph{Catastrophic forgetting in connectionist networks}, 1999. \url{https://www.researchgate.net/publication/12977135_Catastrophic_forgetting_in_connectionist_networks}
+		
+		\bibitem{breiman1996bagging}
+		L. Breiman, \emph{Bagging Predictors,}, vol. 24, 1996. \url{https://link.springer.com/article/10.1007/BF00058655}
+		
+		\bibitem{breiman2001randomforest}
+		L. Breiman, \emph{Random Forests}, vol. 45, 2001. \url{https://link.springer.com/article/10.1023/A:1010933404324}
+		
+		\bibitem{quinlan1993c45}
+		J.R Quinlan, \emph{C4.5: Programs for Machine Learning}, 1993. \url{https://scholar.google.com/scholar_lookup?&title=C4.5%20Programs%20for%20Machine%20Learning&publication_year=1992&author=Quinlan%2CJ.R.}
+		
+		\bibitem{hastie2009elements}
+		T. Hastie, R. Tibshirani, and J. Friedman, \emph{The Elements of Statistical Learning}, 2009. \url{https://link.springer.com/book/10.1007/978-0-387-84858-7}
+		
+		\bibitem{friedman2001gradientboosting}
+		J. H. Friedman, \emph{Greedy function approximation: A gradient boosting machine}, 2001. \url{https://jerryfriedman.su.domains/ftp/trebst.pdf}
+		
+		\bibitem{chen2016xgboost}
+		T. Chen, C. Guestrin, \emph{XGBoost: A Scalable Tree Boosting System}, 2016. \url{https://arxiv.org/pdf/1603.02754}
+		
+		\bibitem{hoerl1970ridge}
+		A. E. Hoerl, R. W. Kennard, \emph{Ridge regression: Biased estimation for nonorthogonal problems}, 1970. \url{https://homepages.math.uic.edu/~lreyzin/papers/ridge.pdf}
+		
+		\bibitem{tibshirani1996lasso}
+		R. Tibshirani, \emph{Regression shrinkage and selection via the lasso}, 1996. \url{https://webdoc.agsci.colostate.edu/koontz/arec-econ535/papers/Tibshirani%20(JRSS-B%201996).pdf}
+		
+		\bibitem{zou2005elasticnet}
+		H. Zou, T. Hastie, \emph{Regularization and variable selection via the elastic net}, 2005. \url{https://academic.oup.com/jrsssb/article-abstract/67/2/301/7109482}
+		
+		\bibitem{srivastava2014dropout}
+		N. Srivastava et al. , \emph{Dropout: A simple way to prevent neural networks from overfitting}, 2014. \url{https://www.cs.toronto.edu/~rsalakhu/papers/srivastava14a.pdf}
+	\end{thebibliography}
+		
 \end{document}
