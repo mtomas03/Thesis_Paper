@@ -1225,6 +1225,307 @@
 	
 	\chapter{Secondo Caso Studio: Classificazione di PM2.5}
 	
+	\section{Data Preparation}
+	
+	Questa sezione descrive in dettaglio le operazioni svolte per il caricamento, la normalizzazione, la pulizia e l'arricchimento del dataset utilizzato nel caso studio. Lo scopo principale della fase di Data preparation è trasformare i dati grezzi in una rappresentazione coerente, completa e utilizzabile per la successiva fase di allenamento.
+	
+	\subsection{Fonti e descrizione generale del dataset}
+	Il dataset principale utilizzato nello studio raccoglie misurazioni relative alla qualità dell'aria in numerose stazioni di monitoraggio presenti in 453 città indiane per il periodo temporale 2010-2023. Le osservazioni includono sia concentrazioni di inquinanti (es. PM2.5, PM10, NOx, SO2, CO, Ozone, e numerosi idrocarburi) sia variabili meteorologiche e ambientali.\\
+	Un file ausiliario, denominato stations\_info.csv, contiene la mappatura tra i file contenenti le misure e informazioni di contesto (stato, città, agenzia responsabile, data di inizio rilevamento), permettendo in tal modo una gestione centralizzata dei metadati associati alle stazioni di monitoraggio.
+	
+	\subsection{Caricamento dati e organizzazione iniziale}
+	Il caricamento del dataset é stato effettuato tramite la lettura dei file compressi estratti in una directory dedicata in locale o su Google Colab. Per ogni file contenente le misure di una singola stazione vengono eseguite le seguenti operazioni:
+	
+	\begin{enumerate}
+		\item estrazione del contenuto dell'archivio ZIP in una directory strutturata per stato;
+		\item lettura dei metadati (file stations\_info.csv) e rimozione di colonne non necessarie per l'analisi, al fine di semplificare la tabella dei metadati;
+		\item costruzione di un insieme aggregato: per ogni stato, vengono individuati automaticamente tutti i file CSV che condividono il prefisso identificativo dello stato; ogni file viene letto, alla tabella vengono aggiunte le colonne "city" e "state" ed infine tutte le tabelle sono concatenate in un unico DataFrame nazionale.
+	\end{enumerate}
+	
+	Il risultato di questa fase é un DataFrame unico contenente le misurazioni orarie con colonne per le concentrazioni degli inquinanti, le variabili meteorologiche e gli identificatori geografici.
+	
+	\subsection{Indicizzazione temporale}
+	Nel dataset originale sono presenti due colonne che definiscono la finestra temporale di misurazione: "From Date" e "To Date". Per semplificare la gestione delle serie storiche si é adottata la seguente procedura:
+	\begin{itemize}
+		\item conversione della colonna "From Date" in tipo datetime;
+		\item rinomina di "From Date" in "datetime" ed impostazione di tale colonna come indice temporale del DataFrame;
+		\item rimozione della colonna "To Date" (ridondante per l'analisi);
+	\end{itemize}
+	Questa trasformazione consente di sfruttare le funzionalità native di raggruppamento e ricampionamento temporale offerte dalle librerie di manipolazione delle serie temporali.
+	
+	\subsection{Riduzione e unificazione di feature ridondanti}
+	Dall'esplorazione iniziale, é emersa la presenza di colonne duplicate o varianti dello stesso nome (per esempio, "Ozone (ug/m3)" e "Ozone (ppb)"). Per evitare rappresentazioni inconsistenti della stessa grandezza sono state seguite le operazioni:
+	\begin{enumerate}
+		\item identificazione di gruppi di colonne equivalenti tramite l'analisi grafica dei trend (andamento delle medie annue) e confronto delle statistiche di base (media, deviazione standard, minimo, massimo);
+		\item definizione di un mapping di riduzione: ad esempio, tutte le varianti di Xylene sono state aggregate in una colonna comune;
+		\item per ciascun gruppo di colonne, i valori non nulli provenienti dalle colonne secondarie sono stati trasferiti nella colonna principale; successivamente le colonne ridondanti sono state eliminate.
+	\end{enumerate}
+	
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=1.0\textwidth]{img/feat_red_pm.png}
+		\caption{Similaritá delle features - Analisi medie annue}
+	\end{figure}
+	
+	\subsection{Verifica e gestione dei valori mancanti}
+	La quantificazione dei valori mancanti \`e stata effettuata calcolando il numero assoluto e la percentuale di missing per ogni variabile. 
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=1.0\textwidth]{img/miss_value_pm.png}
+		\caption{Percentuali dei Valori Mancanti.}
+	\end{figure}
+	
+	Sono stati applicati i seguenti criteri:
+	\begin{itemize}
+		\item rimozione delle osservazioni completamente vuote e delle colonne completamente vuote;
+		\item eliminazione delle colonne con una proporzione di valori mancanti superiore alla soglia del 40\% (soglia scelta per bilanciare trade-off tra perdita informativa e robustezza statistica);
+		\item per le restanti colonne numeriche, i valori NaN vengono sostituiti tramite il metodo di interpolazione forward-fill (propagazione dell'ultimo valore valido, non NaN, di quella feature), seguita da una sostituzione tramite media per eventuali rimanenze;
+	\end{itemize}
+	
+	Questa strategia é comunemente adottata quando si lavora con serie temporali, poiché preserva la dinamica locale dei segnali evitando di introdurre forti discontinuità.
+	
+	\subsection{Analisi esplorativa (EDA) e selezione delle feature rilevanti}
+	Per esplorare relazioni e correlazioni tra le variabili sono state eseguite le seguenti analisi:
+	
+	\begin{enumerate}
+		\item calcolo delle medie raggruppate su più frequenze temporali (giorno, mese, anno) e visualizzazione dei trend con grafici a linee;
+		\item utilizzo di pairplot per ispezionare le relazioni bivariate e le distribuzioni univariate;
+		\item costruzione della matrice di correlazione e visualizzazione tramite heatmap per quantificare le correlazioni lineari. Sono state identificate, come features potenzialmente rilevanti, quelle con correlazione assoluta maggiore di 0.4 con "PM2.5".
+	\end{enumerate}
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=1.0\textwidth]{img/pm_trend_pm.png}
+		\caption{Analisi dei trend giornalieri, mensili e annuali per il Particolato.}
+	\end{figure}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=1.0\textwidth]{img/carbon_trend_pm.png}
+		\caption{Analisi dei trend giornalieri, mensili e annuali per il Monossido di carbonio.}
+	\end{figure}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=1.0\textwidth]{img/ozone_trend_pm.png}
+		\caption{Analisi dei trend giornalieri, mensili e annuali per l'Ozono.}
+	\end{figure}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=1.0\textwidth]{img/pm_trend_pm.png}
+		\caption{Analisi dei trend giornalieri, mensili e annuali per i Composti dell'azoto.}
+	\end{figure}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=1.0\textwidth]{img/corr_pairplot_pm.png}
+		\caption{Analisi della relazione tra features e le loro distribuzioni univariate.}
+	\end{figure}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=1.0\textwidth]{img/corr_pm.png}
+		\caption{Analisi della correlazione tra variabili.}
+	\end{figure}
+	
+	Dall'analisi, si é deciso di mantenere la variabile aggregata "NOx" e rimuovere le componenti ridondanti ("NO", "NO2") per evitare multicollinearitá e semplificare i modelli successivi.
+	
+	\subsection{Ricampionamento ed aggregazione a livello statale}
+	Poiché i dati aggregati includevano misurazioni provenienti da più stazioni all'interno dello stesso stato con lo stesso timestamp, si é deciso di ricampionare temporaneamente i dati a frequenza oraria e di aggregare le osservazioni a livello di stato tramite media aritmetica. La procedura implementata é la seguente:
+	
+	\begin{verbatim}
+		df_resampled = df_india
+			.groupby('state')
+			.resample('60min')
+			.mean(numeric_only=True)
+			.reset_index()
+	\end{verbatim}
+	
+	\subsection{Rilevamento e rimozione degli outlier}
+	Per l'identificazione di outlier nei valori delle concentrazioni degli inquinanti, si é utilizzato l'algoritmo Isolation Forest, un metodo ensemble noto per la sua efficacia nell'identificare valori anomali indipendentemente dalla distribuzione a priori dei dati. I punti principali dell'approccio sono:
+	
+	\begin{itemize}
+		\item scelta di un insieme limitato di variabili su cui applicare il rilevamento (in questo caso, "PM2.5", "CO", "Ozone", "NOx");
+		\item inizializzazione del modello con un valore di contamination pari a 0.01 (assumendo quindi che circa l'1\% delle istanze sia anomala) ed un random\_state fissato per la riproducibilità;
+		\item addestramento del modello ed uso del metodo predict per etichettare le istanze anomale con -1 e le normali con 1;
+		\item rimozione delle osservazioni etichettate come outlier e verifica della distribuzione pre/post tramite istogrammi.
+	\end{itemize}
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=1.0\textwidth]{img/distr_prepost_isofor_pm.png}
+		\caption{Visualizzazione della distribuzione, di ogni variabile esaminata, prima e dopo.}
+	\end{figure}
+	
+	\subsection{Feature engineering ed arricchimento temporale}
+	Per catturare informazioni temporali rilevanti per aiutare i modelli a predire in modo più accurato, sono state create variabili derivate dall'indice temporale quali: "hour", "dayofmonth", "dayofweek", "dayofyear", "weekofyear", "month", "quarter" e "year". Queste variabili servono a modellare stagionalità, ciclicità giornaliera e pattern settimanali/annuali tipici dei fenomeni atmosferici e delle attività umane legate all'inquinamento atmosferico.
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=1.0\textwidth]{img/byhour_pm.png}
+		\caption{Visualizzazione della distribuzione di PM2.5 per ora.}
+	\end{figure}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=1.0\textwidth]{img/bydayofmonth_pm.png}
+		\caption{Visualizzazione della distribuzione di PM2.5 per giorno del mese.}
+	\end{figure}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=1.0\textwidth]{img/bydayofweek_pm.png}
+		\caption{Visualizzazione della distribuzione di PM2.5 per giorno della settimana.}
+	\end{figure}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=1.0\textwidth]{img/byweekofyear_pm.png}
+		\caption{Visualizzazione della distribuzione di PM2.5 per settimana dell'anno.}
+	\end{figure}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=1.0\textwidth]{img/bymonth_pm.png}
+		\caption{Visualizzazione della distribuzione di PM2.5 per mese dell'anno.}
+	\end{figure}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=1.0\textwidth]{img/byquarter_pm.png}
+		\caption{Visualizzazione della distribuzione di PM2.5 per trimestre dell'anno.}
+	\end{figure}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=1.0\textwidth]{img/byyear_pm.png}
+		\caption{Visualizzazione della distribuzione di PM2.5 per anno.}
+	\end{figure}
+	
+	\subsection{Creazione di lag-features e categorizzazione di PM2.5}
+	
+	Per catturare l'informazione storica intrinseca nelle serie temporali, sono state create delle lag-features per alcune delle variabili più rilevanti, che consentono ai modelli di sfruttare dipendenze temporali (ad esempio stagionalità annua, effetto di breve periodo (giorni/settimane) e persistenti condizioni mensili) e rappresentano una tecnica consolidata nella preparazione dei dati per serie temporali.
+	
+	In questo caso, sono state generate le seguenti tipologie di lag:
+	\begin{itemize}
+		\item a lungo termine: 1 e 2 anni;
+		\item a medio termine: 1 mese;
+		\item a breve termine: 1 settimana ed ultimi 3 giorni dall'osservazione selezionata.
+	\end{itemize}
+	
+	\subsection{Categorizzazione PM2.5}
+	Per trasformare la variabile target "PM2.5" da continua a discreta, con l'obiettivo di passare da un problema di regressione ad uno di classificazione, si é deciso di mappare i valori di PM2.5 in sei categorie dell'AQI (Good, Moderate, Unhealthy for Sensitive, Unhealthy, Very Unhealthy, Hazardous) usando le soglie standard corrispondenti ai breakpoints AQI per "PM2.5" (National Ambient Air Quality Standards for PM). \\
+	Le soglie utilizzate, misurate in $\mu g/m^3$, sono le seguenti:
+	\begin{itemize}
+		\item \textbf{GOOD:} 0-9.0
+		\item \textbf{MODERATE:} 9.1-35.4
+		\item \textbf{UNHEALTHY FOR SENSITIVE:} 35.5-55.4
+		\item \textbf{UNHEALTHY:} 55.5-125.4
+		\item \textbf{VERY UNHEALTHY:} 125.5-225.4
+		\item \textbf{HAZARDOUS:} 225.5+
+	\end{itemize}
+	Per facilitare l'analisi e l'addestramento dei modelli, le categorie sono state convertite in etichette intere da 1 (GOOD) a 6 (HAZARDOUS). Questo approccio non solo semplifica la gestione dei dati, ma mantiene anche la relazione ordinale tra le classi.
+	
+	\section{Addestramento dei modelli}
+	
+	\subsection{Pipeline di preprocessing}
+	\begin{enumerate}
+		\item \textbf{Selezione di variabili:} le feature indipendenti includono variabili temporali (\texttt{year, month, dayofmonth, dayofweek, dayofyear, weekofyear, quarter}), l'identificativo geografico (\texttt{state}) e le lag-features (p.es. \texttt{pm\_lag\_1D}, \texttt{pm\_lag\_1W}, \texttt{pm\_lag\_1M}, \texttt{pm\_lag\_1Y}, ecc.).
+		\item \textbf{Rimozione NaN derivanti dalle lag:} per confrontare i modelli in condizioni omogenee si é applicato un "drop" delle righe contenenti valori mancanti generati dalle lag-features.
+		\item \textbf{Trasformazioni:} le colonne numeriche sono standardizzate tramite \texttt{StandardScaler}; la variabile categorica "state" é codificata con \texttt{OneHotEncoder}. Le trasformazioni sono incapsulate in un \texttt{ColumnTransformer} e usate come primo step nelle pipeline di training.
+		\item \textbf{Bilanciamento delle classi in fase di training:} per i modelli che beneficiano di un dataset bilanciato, si applica SMOTE all'interno della pipeline. Lo SMOTE é eseguito esclusivamente sul training fold in ogni ripetizione di cross-validation per evitare data leakage.
+	\end{enumerate}
+	
+	\paragraph{Nota su XGBoost} XGBoost é in grado di gestire internamente i valori mancanti; tuttavia, per rendere i confronti equi con modelli che non supportano questa funzionalità internamente, si é deciso di rimuovere direttamente tutte le righe con NaN nelle lag-features prima di tutti gli esperimenti.
+	
+	\subsection{Split dei dati}
+	Il dataset é stato suddiviso in due partizioni principali nel rispetto dell'ordine cronologico delle osservazioni:
+	
+	\begin{itemize}
+		\item \textbf{Training set (80\%)}: utilizzato per la fase di ricerca degli iperparametri con Random Search mediante Time Series Cross Validation;
+		\item \textbf{Test set (20\%)}: tenuto separato e mai usato durante la ricerca degli iperparametri; impiegato esclusivamente per la valutazione finale comparativa fra i modelli. Ció permette di avere una stima realistica delle prestazioni su dati non visti e previene il data leakage.
+	\end{itemize}
+	
+	\subsection{Metriche e intervalli di confidenza}
+	Vengono utilizzati le seguenti metriche per valutare i diversi modelli sperimentali:
+	\begin{itemize}
+		\item \textbf{Accuracy}, \textbf{F1-score weighted} e \textbf{F1-score macro};
+		\item \textbf{Confusion matrix} e \textbf{Classification report} per analisi di classe;
+		\item \textbf{AUC-ROC weighted} e \textbf{AUC-PR weighted} quando disponibili (modelli con predict\_proba);
+		\item \textbf{Bootstrap di intervalli di confidenza (CI95\%)} per F1-weighted, F1-macro e AUC.
+	\end{itemize}
+	
+	\subsection{Random Forest}
+	
+	\paragraph{Spazio degli iperparametri}
+	\begin{itemize}
+		\item \texttt{n\_estimators}: [100, 150, 200]
+		\item \texttt{max\_samples}: [0.5, 0.7, 0.9]
+		\item \texttt{max\_depth}: [5, 10, 15]
+		\item \texttt{min\_samples\_split}: [2, 5]
+		\item \texttt{min\_samples\_leaf}: [2, 5]
+		\item \texttt{max\_features}: ['sqrt', 'log2']
+	\end{itemize}
+	
+	\subsection{XGBoost}
+	XGBoost richiede etichette 0-indexed per la funzione obiettivo "multi:softprob". Le etichette numeriche sono pertanto convertite sottraendo 1 alle classi originali.
+	
+	\paragraph{Spazio degli iperparametri}
+	\begin{itemize}
+		\item \texttt{max\_depth}: [3, 5]
+		\item \texttt{learning\_rate}: [0.01, 0.05, 0.1]
+		\item \texttt{n\_estimators}: [100, 200, 300]
+		\item \texttt{subsample}: [0.7, 0.9]
+		\item \texttt{colsample\_bytree}: [0.7, 0.9]
+		\item \texttt{gamma}: [0, 0.2, 0.4]
+		\item \texttt{min\_child\_weight}: [1, 5]
+	\end{itemize}
+	
+	\subsection{MLP}
+	
+	\subsubsection{Strategia di training}
+	\begin{itemize}
+		\item \textbf{Ottimizzatore:} Adam;
+		\item \textbf{Funzione di attivazione:} ReLU per gli strati nascosti;
+		\item \textbf{Loss:} CrossEntropyLoss (richiede etichette 0-indexed);
+		\item \textbf{Regolarizzazione:} L2 opzionale (l2\_lambda);
+		\item \textbf{Batch size:} 32 (configurabile);
+		\item \textbf{Device:} GPU se disponibile (altrimenti CPU);
+		\item \textbf{Early stopping:} EarlyStopper con parametri patience e min\_delta configurabili per interrompere l'allenamento in caso di mancato miglioramento sulla validation loss;
+	\end{itemize}
+	
+	\subsubsection{Spazio degli iperparametri}
+	\begin{itemize}
+		\item \textbf{\texttt{input\_dim}}: [input\_dim] (numero di features dopo il preprocessing);
+		\item \textbf{\texttt{hidden\_sizes}}: [(64,64), (128,), (128,64), (256,128), (512,256)];
+		\item \textbf{\texttt{dropout}}: [0.0, 0.2, 0.5];
+		\item \textbf{\texttt{lr}} (learning rate): [1e-3, 1e-4];
+		\item \textbf{\texttt{num\_classes}}: [num\_classes] (numero di classi);
+		\item \textbf{\texttt{l2\_lambda}} (coefficiente L2): [0.0, 1e-5, 1e-4, 1e-3].
+	\end{itemize}
+	
+	\subsection{KAN}
+	
+	\subsubsection{Strategia di training}
+	L'addestramento segue una strategia simile a quella adottata per la rete MLP, con alcune specificità legate all'architettura:
+	
+	\begin{itemize}
+		\item \textbf{Ottimizzatore:} Adam;
+		\item \textbf{Loss:} CrossEntropyLoss (etichette 0-indexed);
+		\item \textbf{Regularizzazione:} L2 opzionale (l2\_lambda);
+		\item \textbf{Batch size:} 32 (configurabile);
+		\item \textbf{Device:} GPU se disponibile;
+		\item \textbf{Early stopping:} EarlyStopper con patience e min\_delta configurabili;
+	\end{itemize}
+	
+	\subsubsection{Spazio degli iperparametri}
+	\begin{itemize}
+		\item \textbf{\texttt{input\_dim}}: [input\_dim] (numero di features dopo preprocessing);
+		\item \textbf{\texttt{width}}: [(8,4), (16,8), (32,16), (64,32)] (struttura a livelli della rete);
+		\item \textbf{\texttt{grid}}: [5, 10, 20] (dimensione della griglia interna);
+		\item \textbf{\texttt{k}}: [2, 4] (ordine/complessit\`a della combinazione);
+		\item \textbf{\texttt{seed}}: [0] (per riproducibilit\`a);
+		\item \textbf{\texttt{lr}}: [1e-3, 1e-4];
+		\item \textbf{\texttt{num\_classes}}: [num\_classes];
+		\item \textbf{\texttt{l2\_lambda}}: [0.0, 1e-5, 1e-4, 1e-3].
+	\end{itemize}
+	
+	\subsection{Valutazione finale}
+	
+	\subsection{Studio di Ablazione}
+	
 	\chapter{Terzo Caso Studio: Classificazione di età tramite immagini}
 	
 	\chapter{Discussione comparativa sui Risultati dei casi studio}
@@ -1278,7 +1579,7 @@
 		R. French, \emph{Catastrophic forgetting in connectionist networks}, 1999. \url{https://www.researchgate.net/publication/12977135_Catastrophic_forgetting_in_connectionist_networks}
 		
 		\bibitem{yu2024kanvsmlp}
-		R. Yu, KAN or MLP: A Fairer Comparison, 2024. \url{https://arxiv.org/pdf/2407.16674v1}
+		R. Yu, \emph{KAN or MLP: A Fairer Comparison}, 2024. \url{https://arxiv.org/pdf/2407.16674v1}
 		
 		\bibitem{breiman1996bagging}
 		L. Breiman, \emph{Bagging Predictors,}, vol. 24, 1996. \url{https://link.springer.com/article/10.1007/BF00058655}
@@ -1299,7 +1600,7 @@
 		T. Chen, C. Guestrin, \emph{XGBoost: A Scalable Tree Boosting System}, 2016. \url{https://arxiv.org/pdf/1603.02754}
 		
 		\bibitem{fatima2023xgbvsrf}
-		S. Fatima, XGBoost and Random Forest Algorithms: An in Depth Analysis, 2023. \url{https://www.researchgate.net/publication/377135877_XGBoost_and_Random_Forest_Algorithms_An_in_Depth_Analysis}
+		S. Fatima, \emph{XGBoost and Random Forest Algorithms: An in Depth Analysis}, 2023. \url{https://www.researchgate.net/publication/377135877_XGBoost_and_Random_Forest_Algorithms_An_in_Depth_Analysis}
 		
 		\bibitem{hoerl1970ridge}
 		A. E. Hoerl, R. W. Kennard, \emph{Ridge regression: Biased estimation for nonorthogonal problems}, 1970. \url{https://homepages.math.uic.edu/~lreyzin/papers/ridge.pdf}
@@ -1314,52 +1615,58 @@
 		N. Srivastava et al. , \emph{Dropout: A simple way to prevent neural networks from overfitting}, 2014. \url{https://www.cs.toronto.edu/~rsalakhu/papers/srivastava14a.pdf}
 		
 		\bibitem{oshea2015cnn}
-		K. O'Shea, R. Nash, An Introduction to Convolutional Neural Networks, 2015. \url{https://arxiv.org/pdf/1511.08458}
+		K. O'Shea, R. Nash, \emph{An Introduction to Convolutional Neural Networks}, 2015. \url{https://arxiv.org/pdf/1511.08458}
 		
 		\bibitem{krizhevsky2012imagenet}
-		A. Krizhevsky et al. , ImageNet Classification with Deep Convolutional Neural Networks, 2012. \url{https://proceedings.neurips.cc/paper_files/paper/2012/file/c399862d3b9d6b76c8436e924a68c45b-Paper.pdf}
+		A. Krizhevsky et al. , \emph{ImageNet Classification with Deep Convolutional Neural Networks}, 2012. \url{https://proceedings.neurips.cc/paper_files/paper/2012/file/c399862d3b9d6b76c8436e924a68c45b-Paper.pdf}
 		
 		\bibitem{simonyan2014very}
-		K. Simonyan, A. Zisserman, Very Deep Convolutional Networks for Large-Scale Image Recognition, 2015. \url{https://arxiv.org/pdf/1409.1556}
+		K. Simonyan, A. Zisserman, \emph{Very Deep Convolutional Networks for Large-Scale Image Recognition}, 2015. \url{https://arxiv.org/pdf/1409.1556}
 		
 		\bibitem{ioffe2015batch}
-		S. Ioffe, C. Szegedy, Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift, 2015. \url{https://arxiv.org/pdf/1502.03167}
+		S. Ioffe, C. Szegedy, \emph{Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift}, 2015. \url{https://arxiv.org/pdf/1502.03167}
 		
 		\bibitem{ba2016layer}
-		J.L. Ba et al. , Layer Normalization, 2016. \url{https://arxiv.org/pdf/1607.06450}
+		J.L. Ba et al. , \emph{Layer Normalization}, 2016. \url{https://arxiv.org/pdf/1607.06450}
 		
 		\bibitem{wu2018group}
-		Y. Wu, K. He, Group Normalization, 2018. \url{https://arxiv.org/pdf/1803.08494}
+		Y. Wu, K. He, \emph{Group Normalization}, 2018. \url{https://arxiv.org/pdf/1803.08494}
 		
 		\bibitem{poojary2020dataaug}
-		R. Poojary, Effect of data-augmentation on fine-tuned CNN model performance, 2020. \url{https://www.researchgate.net/publication/347437393_Effect_of_data-augmentation_on_fine-tuned_CNN_model_performance}
+		R. Poojary, \emph{Effect of data-augmentation on fine-tuned CNN model performance}, 2020. \url{https://www.researchgate.net/publication/347437393_Effect_of_data-augmentation_on_fine-tuned_CNN_model_performance}
 		
 		\bibitem{bergstra2012random}
-		J. Bergstra , Y. Bengio, Random Search for Hyper-Parameter Optimization, 2012. \url{https://www.jmlr.org/papers/volume13/bergstra12a/bergstra12a.pdf}
+		J. Bergstra , Y. Bengio, \emph{Random Search for Hyper-Parameter Optimization}, 2012. \url{https://www.jmlr.org/papers/volume13/bergstra12a/bergstra12a.pdf}
 		
 		\bibitem{franceschi2024hyperparameter}
-		L. Franceschi et al. , Hyperparameter Optimization in Machine Learning, 2024. \url{https://arxiv.org/pdf/2410.22854}
+		L. Franceschi et al. , \emph{Hyperparameter Optimization in Machine Learning}, 2024. \url{https://arxiv.org/pdf/2410.22854}
 		
 		\bibitem{snoek2012bo}
-		J. Snoek et al. , Practical Bayesian Optimization of Machine Learning Algorithms, 2012 \url{https://arxiv.org/pdf/1206.2944}
+		J. Snoek et al. , \emph{Practical Bayesian Optimization of Machine Learning Algorithms}, 2012 \url{https://arxiv.org/pdf/1206.2944}
 		
 		\bibitem{alibrahim2021gagsbo}
-		H. Alibrahim, S.A. Ludwig, Hyperparameter Optimization: Comparing Genetic Algorithm against Grid Search and Bayesian Optimization, 2021. \url{https://web.cs.ndsu.nodak.edu/~siludwig/Publish/papers/CEC2021.pdf}
+		H. Alibrahim, S.A. Ludwig, \emph{Hyperparameter Optimization: Comparing Genetic Algorithm against Grid Search and Bayesian Optimization}, 2021. \url{https://web.cs.ndsu.nodak.edu/~siludwig/Publish/papers/CEC2021.pdf}
 		 
 		\bibitem{wainer2018cvncv}
-		J. Wainer, G. Cawley, Nested cross-validation when selecting classifiers is overzealous for most practical applications, 2018.\url{https://arxiv.org/pdf/1809.09446}
+		J. Wainer, G. Cawley, \emph{Nested cross-validation when selecting classifiers is overzealous for most practical applications}, 2018.\url{https://arxiv.org/pdf/1809.09446}
 		 
 		\bibitem{deng2023tscv}
-		A. Deng, Time series cross validation: A theoretical result and finite sample performance, 2023. \url{https://www.sciencedirect.com/science/article/abs/pii/S0165176523003944}
+		A. Deng, \emph{Time series cross validation: A theoretical result and finite sample performance}, 2023. \url{https://www.sciencedirect.com/science/article/abs/pii/S0165176523003944}
 		 
 		\bibitem{tsoumakas1970rfpruning}
-		G. Tsoumakas, An Ensemble Pruning Primer, 1970. \url{https://www.researchgate.net/publication/225606257_An_Ensemble_Pruning_Primer}
+		G. Tsoumakas, \emph{An Ensemble Pruning Primer}, 1970. \url{https://www.researchgate.net/publication/225606257_An_Ensemble_Pruning_Primer}
 		 
 		\bibitem{vadera2021dnnpruning}
-		S. Vadera, S. Ameen, Methods for Pruning Deep Neural Networks, 2021. \url{https://arxiv.org/pdf/2011.00241}
+		S. Vadera, S. Ameen, \emph{Methods for Pruning Deep Neural Networks}, 2021. \url{https://arxiv.org/pdf/2011.00241}
 		
 		\bibitem{meyes2019ablation}
-		R. Meyes, Ablation Studies in Artificial Neural Networks, 2019. \url{https://www.researchgate.net/publication/330672937_Ablation_Studies_in_Artificial_Neural_Networks}
+		R. Meyes, \emph{Ablation Studies in Artificial Neural Networks}, 2019. \url{https://www.researchgate.net/publication/330672937_Ablation_Studies_in_Artificial_Neural_Networks}
+		
+		\bibitem{liu2009iforest}
+		F.T. Liu et al. , \emph{Isolation Forest}, 2009. \url{https://www.researchgate.net/publication/224384174_Isolation_Forest}
+		
+		\bibitem{chawla2011smote}
+		N.W. Chawla et al. , \emph{SMOTE: Synthetic Minority Over-sampling Technique}, 2011.\url{https://arxiv.org/pdf/1106.1813}
 	\end{thebibliography}
 		
 \end{document}
