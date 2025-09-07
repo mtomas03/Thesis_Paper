@@ -34,6 +34,7 @@
 	\tableofcontents
 	
 	\chapter*{Introduzione}
+	% To Be Modified
 	La presente tesi si propone di analizzare, confrontare e valutare diverse architetture di Machine e Deep learning: le Kolmogorov–Arnold Networks (KAN), i Multi-Layer Perceptron (MLP), le Random forest e XGBoost. \\
 	L’obiettivo principale è quello di fornire, da un lato, un’analisi teorica esaustiva di ciascun modello, includendo i fondamenti matematici e le architetture; dall’altro, valutare sperimentalmente le prestazioni dei modelli su tre casi di studio: regressione sulle emissioni di automobili, classificazione dell’inquinamento atmosferico (PM2.5) e riconoscimento di immagini mediante CNN abbinate a MLP e KAN. \\
 	Oltre allo studio comparativo dei modelli, la tesi include un’ampia indagine sui metodi di Hyperparameter Tuning: Grid search, Random search, Bayesian optimization e Genetic algorithms, selezionati in base ad uno studio preliminare di confronto. \\
@@ -50,12 +51,12 @@
 	\chapter{Multi-Layer Perceptron (MLP)}
 	
 	\section{Introduzione}
-	Questo capitolo presenta una descrizione del Multi-Layer Perceptron (MLP), un'architettura fondamentale delle reti neurali. L'obiettivo è esplorare la sua struttura e le sue capacità di modellare relazioni complesse, a partire dai principi matematici. Verranno analizzate le sue componenti principali, tra cui la distinzione tra gli strati e le funzioni di attivazione, che sono cruciali per l'apprendimento di relazioni non lineari. Il testo spiegherà poi il meccanismo attraverso cui la rete impara, descrivendo i passaggi di calcolo che avvengono durante il forward pass e l'algoritmo di backpropagation che aggiorna i parametri del modello. Verranno inoltre affrontate le tecniche di regolarizzazione, indispensabili per evitare che la rete memorizzi i dati di addestramento invece di imparare a generalizzare. Infine, il capitolo riassume i vantaggi ed i limiti delle MLP, ponendo l'accento sulla loro flessibilità e sui problemi legati alla profondità della rete, come il vanishing/exploding gradient.
+	Questo capitolo presenta una descrizione del Multi-Layer Perceptron (MLP), un'architettura fondamentale delle reti neurali. L'obiettivo è esplorare la sua struttura e le sue capacità di modellare relazioni complesse, a partire dai principi matematici. Verranno analizzate le sue componenti principali, tra cui la distinzione tra gli strati e le funzioni di attivazione, che sono cruciali per l'apprendimento di relazioni non lineari. Il testo spiegherà poi il meccanismo attraverso cui la rete impara, descrivendo i passaggi di calcolo che avvengono durante il forward pass e l'algoritmo di backpropagation che aggiorna i parametri del modello. Verranno inoltre affrontate le tecniche di regolarizzazione, indispensabili per evitare che la rete memorizzi i dati di addestramento invece di imparare a generalizzare. Infine, il capitolo riassume i vantaggi ed i limiti delle MLP, ponendo l'accento sulla loro flessibilità e sui problemi legati alla profondità della rete, come il vanishing/exploding gradient. \cite{popescu2009mlp, hornick1988mfn, cybenko1989uat, leshno1993uat, henseler1995back, srivastava2014dropout, schmidhuber2015deep}
 	
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=0.8\textwidth]{img/mlp.png}
-		\caption{Multi-Layer Perceptron.}
+		\caption{Architettura della rete neurale Multi-Layer Perceptron.}
 	\end{figure}
 	
 	\section{Fondamenti matematici}
@@ -136,7 +137,7 @@
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=0.8\textwidth]{img/sigmoid.png}
-		\caption{Grafico della funzione di attivazione Sigmoide}
+		\caption{Grafico della funzione di attivazione Sigmoide.}
 	\end{figure}
 	\[
 	\sigma(x) = \frac{1}{1+e^{-x}},\qquad
@@ -148,7 +149,7 @@
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=0.8\textwidth]{img/tanh.png}
-		\caption{Grafico della funzione di attivazione Tangente iperbolica}
+		\caption{Grafico della funzione di attivazione Tangente iperbolica.}
 	\end{figure}
 	\[
 	\tanh(x)=\frac{e^x-e^{-x}}{e^x+e^{-x}},\qquad
@@ -160,7 +161,7 @@
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=0.8\textwidth]{img/relu.png}
-		\caption{Grafico ReLU}
+		\caption{Grafico della funzione di attivazione ReLU.}
 	\end{figure}
 	\[
 	\mathrm{ReLU}(x)=\max(0,x),\qquad
@@ -172,7 +173,7 @@
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=0.8\textwidth]{img/lprelu.png}
-		\caption{Grafico LReLU vs PReLU}
+		\caption{Grafico delle funzioni di attivazione LReLU e PReLU.}
 	\end{figure}
 	\[
 	\mathrm{LReLU}(x)=\begin{cases}0.01x & x\le0,\\ x & x>0,\end{cases}\qquad
@@ -188,7 +189,7 @@
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=0.8\textwidth]{img/elu.png}
-		\caption{Grafico ELU}
+		\caption{Grafico della funzione di attivazione ELU.}
 	\end{figure}
 	\[
 	\mathrm{ELU}(x)=\begin{cases}x & x\ge0,\\ \alpha(e^x-1) & x<0,\end{cases}\qquad
@@ -200,7 +201,7 @@
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=0.8\textwidth]{img/softplus.png}
-		\caption{Grafico Softplus}
+		\caption{Grafico della funzione di attivazione Softplus.}
 	\end{figure}
 	\[
 	\mathrm{softplus}(x)=\log(1+e^x),\qquad
@@ -212,7 +213,7 @@
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=0.8\textwidth]{img/gelu.png}
-		\caption{Grafico GELU}
+		\caption{Grafico della funzione di attivazione GELU.}
 	\end{figure}
 	\[
 	\mathrm{GELU}(x) = x \cdot \Phi(x)
@@ -248,10 +249,10 @@
 	\[
 	a_j = \phi(z_j).
 	\]
-	Ad esempio, con $\phi=\sigma$ (sigmoid), avremmo $a_j=1/(1+e^{-z_j})$. Questo processo viene eseguito strato per strato. Ogni layer trasforma in modo non lineare i dati in ingresso, permettendo alla rete di apprendere composizioni funzionali complesse.
+	Ad esempio, con $\phi=\sigma$ (sigmoide), avremmo $a_j=1/(1+e^{-z_j})$. Questo processo viene eseguito strato per strato. Ogni layer trasforma in modo non lineare i dati in ingresso, permettendo alla rete di apprendere composizioni funzionali complesse.
 	
 	\subsection{Propagazione ed output}
-	Dopo aver calcolato le attivazioni in tutti gli strati intermedi, l'uscita dello strato finale ($\mathbf{a}_{\text{out}}$) costituisce la previsione della rete. Se il problema è di regressione, l'ultima funzione di attivazione può essere identità (o lineare); se è di classificazione binaria, si può usare la sigmoid; se è multi-classe, si usa tipicamente la softmax. Ad esempio, in una classificazione a $K$ classi lo strato di output contiene $K$ neuroni con softmax, e ciascuna uscita $a_k \in (0,1)$ rappresenta la probabilità assegnata alla classe $k$. L'output finale è dunque un vettore di predizioni che dipende dalle scelte di pesi, bias e funzioni di attivazione attraverso la rete. Infine, confrontando $\mathbf{a}_{\text{out}}$ con il valore target (ground truth) del training si calcola una funzione di perdita che misura l'errore di previsione (ad esempio, MSE per regressione o cross-entropy per classificazione). Questa funzione di perdita viene poi utilizzata nell'allenamento per aggiornare i pesi tramite backpropagation.
+	Dopo aver calcolato le attivazioni in tutti gli strati intermedi, l'uscita dello strato finale ($\mathbf{a}_{\text{out}}$) costituisce la previsione della rete. Se il problema è di regressione, l'ultima funzione di attivazione può essere identità (o lineare); se è di classificazione binaria, si può usare la sigmoide; se è multi-classe, si usa tipicamente la softmax. Ad esempio, in una classificazione a $K$ classi lo strato di output contiene $K$ neuroni con softmax, e ciascuna uscita $a_k \in (0,1)$ rappresenta la probabilità assegnata alla classe $k$. L'output finale è dunque un vettore di predizioni che dipende dalle scelte di pesi, bias e funzioni di attivazione attraverso la rete. Infine, confrontando $\mathbf{a}_{\text{out}}$ con il valore target (ground truth) del training si calcola una funzione di perdita che misura l'errore di previsione (ad esempio, MSE per regressione o cross-entropy per classificazione). Questa funzione di perdita viene poi utilizzata nell'allenamento per aggiornare i pesi tramite backpropagation.
 	
 	\section{Algoritmo di backpropagation}
 	L'algoritmo di backpropagation è fondamentale per l'addestramento delle reti neurali, poiché calcola come i pesi della rete devono essere modificati per minimizzare l'errore. Questo processo si basa sull'applicazione della regola della catena (chain rule) per derivare il gradiente della funzione di perdita $L$ rispetto a ogni peso $w$.
@@ -307,7 +308,7 @@
 	Le reti MLP offrono grande flessibilità: grazie alla combinazione di pesi e attivazioni non lineari, possono modellare relazioni complesse e non lineari tra input e output. Possono apprendere sia compiti di regressione che di classificazione (binarie o multi-classe) e sono in grado di approssimare praticamente qualsiasi funzione continua. Tale capacità di rappresentazione rende le MLP potenti modelli predittivi in molti ambiti. Inoltre, in presenza di dati adeguati e con l'uso di tecniche di regolarizzazione, le MLP tendono ad avere una buona capacità di generalizzazione, ossia sono in grado di fare previsioni corrette su dati non visti.
 	
 	\subsection{Problemi di vanishing/exploding gradient}
-	Uno dei limiti piu importanti delle MLP (soprattutto se possiedono molti hidden layer) riguarda il problema del vanishing gradient. Poiché, durante la backpropagation, i gradienti vengono moltiplicati per le derivate delle funzioni di attivazione in ogni layer, se queste derivate sono piccole (come in sigmoid o tanh, che assumono valori entro $(0,1)$), il prodotto dei gradienti tende a diminuire esponenzialmente con la profondità. Di conseguenza, i pesi nei primi strati (vicini all'input) ricevono gradienti quasi nulli e la rete impara molto lentamente le rappresentazioni nei layer bassi.
+	Uno dei limiti piu importanti delle MLP (soprattutto se possiedono molti hidden layer) riguarda il problema del vanishing gradient. Poiché, durante la backpropagation, i gradienti vengono moltiplicati per le derivate delle funzioni di attivazione in ogni layer, se queste derivate sono piccole (come in sigmoide o tanh, che assumono valori entro $(0,1)$), il prodotto dei gradienti tende a diminuire esponenzialmente con la profondità. Di conseguenza, i pesi nei primi strati (vicini all'input) ricevono gradienti quasi nulli e la rete impara molto lentamente le rappresentazioni nei layer bassi.
 	Al contrario, se derivate o pesi sono grandi ($>1$), può manifestarsi un exploding gradient, dove i gradienti crescono esponenzialmente e portano ad instabilità numeriche (pesanti oscillazioni o overflow).
 	Per questo si usano funzioni, come le ReLU, che hanno derivate più stabili, normalizzazione dei dati, inizializzazione specifiche dei pesi, o architetture speciali per alleviare il fenomeno.
 	
@@ -317,7 +318,7 @@
 	\chapter{Kolmogorov–Arnold Networks (KAN)}
 	
 	\section{Introduzione}
-	Il presente capitolo introduce le Kolmogorov–Arnold Networks (KAN), una nuova classe di reti neurali che si ispira direttamente al teorema di approssimazione di Kolmogorov-Arnold. L'obiettivo è esplorare la loro architettura innovativa, che differisce dalle tradizionali reti MLP nel modo in cui gestiscono le funzioni di attivazione. Verranno esaminati i fondamenti matematici che giustificano la loro efficacia, in particolare come le KAN si propongono di superare la "maledizione della dimensionalità" (curse of dimensionality) grazie alla loro capacità di approssimare funzioni complesse. Il capitolo si concentra sul funzionamento operativo, descrivendo come le funzioni parametriche basate su B-spline sostituiscono i pesi scalari e le attivazioni fisse degli MLP. Infine, verranno discussi in dettaglio i vantaggi e gli svantaggi delle KAN, come la loro interpretabilità e maggiore flessibilità locale rispetto agli MLP, ma anche la loro maggiore complessità computazionale e la dipendenza dalla struttura del problema.
+	Il presente capitolo introduce le Kolmogorov–Arnold Networks (KAN), una nuova classe di reti neurali che si ispira direttamente al teorema di approssimazione di Kolmogorov-Arnold. L'obiettivo è esplorare la loro architettura innovativa, che differisce dalle tradizionali reti MLP nel modo in cui gestiscono le funzioni di attivazione. Verranno esaminati i fondamenti matematici che giustificano la loro efficacia, in particolare come le KAN si propongono di superare la "maledizione della dimensionalità" (curse of dimensionality) grazie alla loro capacità di approssimare funzioni complesse. Il capitolo si concentra sul funzionamento operativo, descrivendo come le funzioni parametriche basate su B-spline sostituiscono i pesi scalari e le attivazioni fisse degli MLP. Infine, verranno discussi in dettaglio i vantaggi e gli svantaggi delle KAN, come la loro interpretabilità e maggiore flessibilità locale rispetto agli MLP, ma anche la loro maggiore complessità computazionale e la dipendenza dalla struttura del problema. \cite{liu2024kan, kolmogorov1957representation, arnold1963functions, donoho2000high, chaudhuri2021splines, yu2024kanvsmlp}
 	
 	\begin{figure}[H]
 		\centering
@@ -343,9 +344,9 @@
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=1.0\textwidth]{img/KANvsMLP.png}
-		\caption{Confronto tra un Multi-Layer Perceptron (MLP) ed una Kolmogorov–Arnold Network (KAN).}
+		\caption{Confronto tra Multi-Layer Perceptron (MLP) e Kolmogorov–Arnold Network (KAN).}
 	\end{figure}
-	Una Kolmogorov–Arnold Network (KAN) è strutturalmente simile ad una rete feedforward completamente connessa, simile ad una MLP, ma differisce in modo sostanziale nell'uso delle funzioni di attivazione: ogni arco (collegamento) tra i neuroni di strati consecutivi porta con sé una funzione univariata parametricamente definita (spesso una B-spline), anziché un peso scalare come nelle MLP. Ciascun neurone di uno strato riceve gli output dei collegamenti in ingresso e calcola semplicemente la somma di tali output, senza l’uso di pesi lineari o di funzioni di attivazione non lineari applicate ai singoli nodi stessi.
+	Una KAN è strutturalmente simile ad una rete feedforward completamente connessa, simile ad una MLP, ma differisce in modo sostanziale nell'uso delle funzioni di attivazione: ogni arco (collegamento) tra i neuroni di strati consecutivi porta con sé una funzione univariata parametricamente definita (spesso una B-spline), anziché un peso scalare come nelle MLP. Ciascun neurone di uno strato riceve gli output dei collegamenti in ingresso e calcola semplicemente la somma di tali output, senza l’uso di pesi lineari o di funzioni di attivazione non lineari applicate ai singoli nodi stessi.
 	
 	Il modello generale si descrive così: se lo strato $(\ell-1)$ ha $d_{\ell-1}$ neuroni e lo strato $\ell$ ne ha $d_\ell$, allora esiste una matrice di funzioni unidimensionali $\{f^{(\ell)}_{ij}\}_{i=1,\dots,d_{\ell-1}}^{j=1,\dots,d_\ell}$ tale che, dati gli output degli $d_{\ell-1}$ neuroni precedenti $x_i^{(\ell-1)}$, l’uscita $x_j^{(\ell)}$ del $j$-esimo neurone del livello $\ell$ è: 
 	\[
@@ -358,14 +359,14 @@
 	\] 
 	dove $x^{(0)}$ è il vettore di input della rete. \\
 	Questa architettura combina, in un’unica funzione $f_{ij}$ per ogni arco, le trasformazioni lineari e non lineari, permettendo alla rete di apprendere la forma esatta della funzione di attivazione necessaria per ogni arco di connessione. \\
-	Si noti che un MLP applica funzioni di attivazione predefinite (ReLU, sigmoid, ecc.) sui singoli neuroni e moltiplica gli input per pesi scalari; al contrario, una KAN utilizza funzioni parametriche sugli archi e non applica ulteriori attivazioni non lineari sui neuroni.
+	Si noti che un MLP applica funzioni di attivazione predefinite (ReLU, sigmoide, ecc.) sui singoli neuroni e moltiplica gli input per pesi scalari; al contrario, una KAN utilizza funzioni parametriche sugli archi e non applica ulteriori attivazioni non lineari sui neuroni.
 	
 	\subsection{Funzioni univariate parametriche}
 	
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=1.0\textwidth]{img/fup.png}
-		\caption{Funzioni univariate parametriche.}
+		\caption{Struttura delle funzioni univariate parametriche.}
 	\end{figure}
 	
 	Le funzioni di attivazione utilizzate nelle KAN sono funzioni univariate parametriche che possono apprendere flessibilmente la forma durante il training. Nell’implementazione classica proposta da Liu et al. (2024), queste funzioni sono rappresentate tramite B-spline (polinomi a tratti di basso grado), che offrono un buon trade-off tra flessibilità locale e complessità di calcolo. \\
@@ -386,7 +387,7 @@
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=1.0\textwidth]{img/b_spline.jpg}
-		\caption{Struttura B-spline.}
+		\caption{Struttura delle B-spline.}
 	\end{figure}
 	
 	\subsubsection{Definizione}
@@ -450,7 +451,7 @@
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=1.0\textwidth]{img/KANvsMLP_layer.png}
-		\caption{Differenze tra Layer MLP e KAN.}
+		\caption{Differenze tra i Layer delle reti MLP e KAN.}
 	\end{figure}
 	
 	\subsection{Architettura a confronto}
@@ -473,7 +474,7 @@
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=0.7\textwidth]{img/grid_extension.jpg}
-		\caption{Grid extension della spline grid delle KAN.}
+		\caption{Grid extension delle B-spline nelle KAN.}
 	\end{figure}
 	Le funzioni univariate nelle KAN sono parametrizzate tramite B-spline definite su una griglia. È possibile aumentare la risoluzione della griglia ("grid extension") per incrementare la precisione in modo controllato: partendo da spline grossolane si possono ottenere spline più fini con una procedura di inizializzazione che conserva la continuità e permette rapide riduzioni della loss senza costi computazionali esponenziali.
 	
@@ -492,12 +493,12 @@
 	\chapter{Random forest}
 	
 	\section{Introduzione}
-	In questo capitolo viene descritto il Random forest, un algoritmo di Machine learning molto versatile, in grado di gestire sia compiti di classificazione che di regressione. Il suo funzionamento si basa sull'idea dell'ensemble learning, combinando la forza di più alberi di decisione per ottenere un modello finale più robusto e preciso. L'introduzione del capitolo si concentra sui concetti fondamentali che guidano la costruzione del modello, come i criteri di divisione dei dati e la tecnica di bagging, che sfrutta il campionamento casuale per ridurre la varianza. Si approfondisce poi l'architettura specifica del Random forest, che aggiunge un ulteriore livello di casualità nella selezione delle variabili per ogni albero, rendendo la "foresta" più diversificata e meno soggetta ad overfitting. Il capitolo si conclude con una valutazione dei vantaggi e degli svantaggi dell'algoritmo, evidenziando la sua robustezza e la sua capacità di generalizzazione, ma anche i suoi requisiti in termini di risorse computazionali e la minore interpretabilità rispetto ad un singolo albero.
+	In questo capitolo viene descritto il Random forest, un algoritmo di Machine learning molto versatile, in grado di gestire sia compiti di classificazione che di regressione. Il suo funzionamento si basa sull'idea dell'ensemble learning, combinando la forza di più alberi di decisione per ottenere un modello finale più robusto e preciso. L'introduzione del capitolo si concentra sui concetti fondamentali che guidano la costruzione del modello, come i criteri di divisione dei dati e la tecnica di bagging, che sfrutta il campionamento casuale per ridurre la varianza. Si approfondisce poi l'architettura specifica del Random forest, che aggiunge un ulteriore livello di casualità nella selezione delle variabili per ogni albero, rendendo la "foresta" più diversificata e meno soggetta ad overfitting. Il capitolo si conclude con una valutazione dei vantaggi e degli svantaggi dell'algoritmo, evidenziando la sua robustezza e la sua capacità di generalizzazione, ma anche i suoi requisiti in termini di risorse computazionali e la minore interpretabilità rispetto ad un singolo albero. \cite{breiman2001randomforest, quinlan1993c45, breiman1996bagging, fatima2023xgbvsrf}
 	
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=0.8\textwidth]{img/rf.png}
-		\caption{Random forest.}
+		\caption{Architettura del Random forest.}
 	\end{figure}
 	
 	Il Random forest è un algoritmo di Machine learning ampiamente utilizzato, noto per la sua robustezza e versatilità sia in problemi di classificazione e regressione. La sua efficacia deriva dalla combinazione di più alberi di decisione "deboli", formando un "ensemble" che supera le prestazioni di un singolo albero, mitigando le debolezze di ciascuno.
@@ -534,7 +535,7 @@
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=0.8\textwidth]{img/bagging.png}
-		\caption{Bagging.}
+		\caption{Funzionamento del Bagging.}
 	\end{figure}
 	Il Bagging è un metodo di Ensemble learning il cui scopo principale è ridurre la varianza all'interno di un dataset "rumoroso", migliorando così la capacità di generalizzazione del modello e mitigando l'overfitting. Il processo di Bagging si articola in tre fasi fondamentali:
 	\begin{enumerate}
@@ -559,31 +560,8 @@
 	
 	\subsection{Aggregazione delle predizioni}
 	
-	Una volta che tutti gli alberi di decisione sono stati costruiti e addestrati sui rispettivi sottoinsiemi di dati e feature, le loro previsioni vengono combinate per ottenere il risultato finale del Random forest. Il metodo di aggregazione dipende dalla natura del problema:
-	\begin{itemize}
-		\item \textbf{Regressione}: le previsioni numeriche generate da ciascun albero individuale vengono semplicemente mediate. Il valore medio di tutte le previsioni degli alberi costituisce la previsione finale del modello.
-		\item \textbf{Classificazione}: la classe finale viene determinata attraverso un processo di voto di maggioranza. Ogni albero nella foresta produce una previsione e la classe che riceve il maggior numero di "voti" (cioè, la più scelta) tra tutti gli alberi viene accettata come previsione finale del Random forest.
-	\end{itemize}
-	
+	Una volta che tutti gli alberi di decisione sono stati costruiti e addestrati sui rispettivi sottoinsiemi di dati e feature, le loro previsioni vengono combinate per ottenere il risultato finale del Random forest. Il metodo di aggregazione dipende dalla natura del problema. Nei problemi di regressione, le previsioni numeriche generate da ciascun albero individuale vengono semplicemente mediate. Il valore medio di tutte le previsioni degli alberi costituisce la previsione finale del modello. Nei problemi di classificazione, la classe finale viene determinata attraverso un processo di voto di maggioranza. Ogni albero nella foresta produce una previsione e la classe che riceve il maggior numero di "voti" (cioè, la più scelta) tra tutti gli alberi viene accettata come previsione finale del Random forest. \\
 	Questo processo di aggregazione trasforma un insieme di learner deboli in un modello forte. Sebbene gli alberi di decisione individuali possano presentare un'alta varianza, la media o il voto di maggioranza sulle loro previsioni riduce significativamente la varianza complessiva e rende il modello meno sensibile ad errori ed outlier. Questo processo mitiga la tendenza del singolo albero a sovrastimare o sottostimare i valori, producendo una previsione finale più stabile e robusta. Questo meccanismo di aggregazione è ciò che consente al Random forest di raggiungere un'elevata accuratezza mantenendo al contempo una solida capacità di generalizzazione. È un esempio pratico dell'applicazione del principio della "saggezza della folla" nel Machine learning, dove la combinazione di molteplici opinioni individuali, seppur imperfette, conduce ad un risultato finale superiore.
-	
-	\section{Vantaggi}
-	\begin{itemize}
-		\item \textbf{Riduzione della varianza:} é intrinsecamente meno propenso all'overfitting rispetto a un singolo albero di decisione. Questo è dovuto alla sua natura ensemble, che aggrega le previsioni di molti alberi diversi, ed all'introduzione di casualità sia nel campionamento dei dati che nella selezione delle features.
-		\item \textbf{Robustezza agli outlier ed ai dati rumorosi:} il modello è meno sensibile all'influenza degli outlier e del rumore nei dati, poiché le previsioni vengono mediate su più alberi, diluendo l'impatto di singole osservazioni estreme.
-		\item \textbf{Gestione dei valori mancanti:} Random forest può gestire efficacemente i valori mancanti nel dataset, rendendo la fase di pre-processing dei dati più semplice.
-		\item \textbf{Gestione dei dati sbilanciati}: ha la capacità di gestire dataset in cui le classi sono sbilanciate.
-		\item \textbf{Facilità di determinazione dell'importanza delle feature:} l'algoritmo rende relativamente semplice valutare il contributo di ciascuna variabile al modello.
-		\item \textbf{Parallelizzabile:} i singoli alberi, all'interno del Random forest, possono essere addestrati in parallelo. Questa caratteristica contribuisce significativamente alla sua velocità di addestramento, specialmente quando si lavora con dataset di grandi dimensioni e hardware multi-core.
-	\end{itemize}
-	
-	\section{Svantaggi}
-	\begin{itemize}
-		\item \textbf{Costo computazionale e Tempo di addestramento}: l'addestramento di un Random forest può essere lento, in particolare con un numero molto elevato di alberi o su dataset di grandi dimensioni, poiché la costruzione di ogni albero è un'operazione computazionalmente intensiva.
-		\item \textbf{Requisiti di risorse}: poiché elabora dataset potenzialmente grandi e costruisce molti alberi, richiede più risorse di memoria per archiviare i dati rispetto ad un singolo albero.
-		\item \textbf{Complessità e Perdita di interpretability (rispetto a un singolo albero)}: la previsione di una "foresta" di centinaia o migliaia di alberi diventa molto più difficile da interpretare a livello globale.
-		\item \textbf{Mancanza di regolarizzazione esplicita}: A differenza di altri algoritmi ensemble, Random forest non include internamente tecniche di regolarizzazione dirette. Si affida principalmente alla sua natura ensemble e all'introduzione di casualità per prevenire l'overfitting.
-	\end{itemize}
 	
 	\section{Vantaggi}
 	Il Random Forest si distingue per la sua robustezza e flessibilità, offrendo diversi vantaggi che lo rendono una scelta popolare nel machine learning. Un punto di forza principale è la \textbf{riduzione della varianza}, che lo rende intrinsecamente meno propenso all'overfitting rispetto a un singolo albero di decisione. Questo risultato è ottenuto grazie alla sua natura ensemble, che aggrega le previsioni di molti alberi indipendenti, ed all'introduzione di casualità sia nel campionamento dei dati (bootstrap) sia nella selezione delle feature per ogni singolo albero. La sua robustezza non si limita alla varianza. L'algoritmo mostra anche una notevole \textbf{robustezza agli outlier}, poiché l'impatto di singole osservazioni estreme viene diluito e mediato tra i vari alberi. Il Random Forest eccelle anche nella \textbf{gestione dei valori mancanti}, semplificando notevolmente la fase di pre-elaborazione dei dati. Allo stesso modo, è in grado di gestire efficacemente \textbf{dataset sbilanciati}. Dal punto di vista della usabilità, il Random Forest facilita la \textbf{determinazione dell'importanza delle feature}, offrendo un modo diretto per valutare il contributo di ogni variabile al modello. La sua architettura è inoltre \textbf{parallelizzabile}, il che significa che i singoli alberi possono essere addestrati in parallelo. Questa caratteristica contribuisce in modo significativo alla sua velocità di addestramento, in particolare con dataset di grandi dimensioni e hardware multi-core.
@@ -594,19 +572,19 @@
 	\chapter{eXtreme Gradient Boosting (XGBoost)}
 	
 	\section{Introduzione}
-	Questo capitolo presenta eXtreme Gradient Boosting (XGBoost), un algoritmo che ha rivoluzionato il Machine Learning per la sua efficacia e velocità. L'obiettivo è analizzare come XGBoost, pur basandosi sul Gradient Boosting, lo superi grazie ad una serie di importanti ottimizzazioni. Verranno esaminati i miglioramenti che lo rendono così performante, come l'uso di una funzione di perdita avanzata ed una gestione più efficiente della regolarizzazione e dei dati mancanti. Il testo spiegherà come la sua architettura sfrutti il parallelismo e l'uso intelligente della cache per velocizzare i calcoli, rendendo l'addestramento più rapido. Si affronterà anche il tema degli iperparametri, che offrono una grande flessibilità per personalizzare il modello, sebbene richiedano un'attenta calibrazione. Il capitolo si conclude con un riassunto dei suoi vantaggi, come la robustezza e l'efficienza, e dei suoi svantaggi, tra cui la complessità e la maggiore richiesta di risorse per il tuning.
+	Questo capitolo presenta eXtreme Gradient Boosting (XGBoost), un algoritmo che ha rivoluzionato il Machine Learning per la sua efficacia e velocità. L'obiettivo è analizzare come XGBoost, pur basandosi sul Gradient Boosting, lo superi grazie ad una serie di importanti ottimizzazioni. Verranno esaminati i miglioramenti che lo rendono così performante, come l'uso di una funzione di perdita avanzata ed una gestione più efficiente della regolarizzazione e dei dati mancanti. Il testo spiegherà come la sua architettura sfrutti il parallelismo e l'uso intelligente della cache per velocizzare i calcoli, rendendo l'addestramento più rapido. Si affronterà anche il tema degli iperparametri, che offrono una grande flessibilità per personalizzare il modello, sebbene richiedano un'attenta calibrazione. Il capitolo si conclude con un riassunto dei suoi vantaggi, come la robustezza e l'efficienza, e dei suoi svantaggi, tra cui la complessità e la maggiore richiesta di risorse per il tuning. \cite{chen2016xgboost, friedman2001gradientboosting, hoerl1970ridge, tibshirani1996lasso, zou2005elasticnet, fatima2023xgbvsrf}
 	
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=0.8\textwidth]{img/xgb.png}
-		\caption{XGBoost.}
+		\caption{Architettura del XGBoost.}
 	\end{figure}
 	
 	\section{Introduzione al Gradient boosting}
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=1.0\textwidth]{img/grad_boost.png}
-		\caption{Gradient boosting.}
+		\caption{Funzionamento del Gradient boosting.}
 	\end{figure}
 	
 	Il Gradient boosting è una tecnica di Ensemble learning che costruisce un modello predittivo forte combinando iterativamente i risultati di numerosi "learner deboli". A differenza del Bagging, che addestra i modelli in parallelo, il Boosting adotta un approccio sequenziale, dove ogni nuovo modello cerca di correggere gli errori commessi dai modelli precedenti.
@@ -685,12 +663,12 @@
 	\chapter{Convolutional Neural Networks (CNN)}
 	
 	\section{Introduzione}
-	Questo capitolo si occupa di introdurre le Convolutional Neural Networks (CNN), un'architettura di rete neurale che eccelle nell'analisi di immagini e di dati con una struttura a griglia. L'obiettivo è esplorare come queste reti riescano ad estrarre automaticamente le caratteristiche rilevanti, superando i limiti delle reti tradizionali. Il testo descriverà il funzionamento dei principali blocchi costruttivi, come la convoluzione e il pooling, che permettono alla rete di identificare forme e pattern in modo gerarchico e di ridurne la complessità. Verrà poi spiegato come, attraverso una sequenza di operazioni, un'immagine viene trasformata in rappresentazioni via via più astratte fino a giungere ad una decisione finale. Infine, il capitolo riassume i vantaggi delle CNN, come la loro efficienza e la capacità di riconoscere oggetti a prescindere dalla loro posizione, e i loro svantaggi, tra cui la necessità di enormi quantità di dati e il loro costo computazionale.
+	Questo capitolo si occupa di introdurre le Convolutional Neural Networks (CNN), un'architettura di rete neurale che eccelle nell'analisi di immagini e di dati con una struttura a griglia. L'obiettivo è esplorare come queste reti riescano ad estrarre automaticamente le caratteristiche rilevanti, superando i limiti delle reti tradizionali. Il testo descriverà il funzionamento dei principali blocchi costruttivi, come la convoluzione e il pooling, che permettono alla rete di identificare forme e pattern in modo gerarchico e di ridurne la complessità. Verrà poi spiegato come, attraverso una sequenza di operazioni, un'immagine viene trasformata in rappresentazioni via via più astratte fino a giungere ad una decisione finale. Infine, il capitolo riassume i vantaggi delle CNN, come la loro efficienza e la capacità di riconoscere oggetti a prescindere dalla loro posizione, e i loro svantaggi, tra cui la necessità di enormi quantità di dati e il loro costo computazionale. \cite{oshea2015cnn, krizhevsky2012imagenet, simonyan2014very, ioffe2015batch, ba2016layer, wu2018group, poojary2020dataaug}
 	
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=1.0\textwidth]{img/cnn.jpg}
-		\caption{Convolutional Neural Networks.}
+		\caption{Architettura delle Convolutional Neural Networks.}
 	\end{figure}
 	
 	\section{Principi fondamentali delle CNN}
@@ -711,15 +689,7 @@
 	Le feature maps rappresentano l'output prodotto dall'applicazione di filtri convoluzionali all'input. Ogni feature map corrisponde ad un filtro specifico e rappresenta la risposta di quel filtro all'immagine di input. Negli strati iniziali della rete, le feature maps possono catturare caratteristiche semplici come bordi, linee e angoli, mentre negli strati più profondi possono rappresentare pattern più complessi come forme, texture o addirittura oggetti interi. \\
 	La profondità dei canali si riferisce al numero di feature maps prodotte da uno strato convoluzionale. Aumentare il numero di feature maps consente alla rete di apprendere caratteristiche più complesse e astratte, ma incrementa anche il costo computazionale e può portare ad overfitting se la rete è troppo grande per i dati disponibili. Un aspetto cruciale è che la profondità di un filtro deve corrispondere alla profondità dell'input. Ad esempio, per un'immagine RGB (3 canali), ogni filtro deve avere profondità 3. L'output di ogni convoluzione è una feature map 2D, indipendentemente dalla profondità dell'input.
 	
-	\subsection{Convoluzioni 1D, 2D e 3D}
-	Le CNN possono operare su dati di diversa dimensionalità, richiedendo tipi specifici di convoluzione:
-	\begin{itemize}
-		\item \textbf{Convoluzione 1D:} viene utilizzata per dati sequenziali come segnali temporali, dati finanziari, segnali biomedici (EEG, ECG) o testi. Il kernel si muove lungo una sola direzione (asse temporale), producendo un output 1D.
-		\item \textbf{Convoluzione 2D:} è la più comune nelle CNN per Computer vision. Il kernel si muove in due direzioni (x e y) attraverso l'immagine, producendo feature maps 2D. Anche quando l'input è 3D (come un'immagine RGB), la convoluzione opera ancora in 2D poiché la profondità del filtro deve corrispondere al numero di canali dell'input.
-		\item \textbf{Convoluzione 3D:}: è utilizzata per dati volumetrici come video, scansioni MRI o TAC. Il kernel si muove in tre direzioni (x,y,z), producendo un output 3D. È essenziale che la profondità del filtro sia minore di quella dell'input per generare un output volumetrico.
-	\end{itemize}
-	
-		\section{Pooling e normalizzazione}
+	\section{Pooling e normalizzazione}
 	
 	\subsection{Max pooling vs average pooling}
 	Il pooling è un'operazione di downsampling che riduce le dimensioni spaziali delle feature maps mantenendo le informazioni più importanti. Questa operazione migliora l'efficienza computazionale e introduce una forma di invarianza alle traslazioni, rendendo la rete meno sensibile a piccoli spostamenti nell'input. \\
@@ -793,26 +763,21 @@
 	\chapter{Ottimizzazione degli iperparametri}
 	
 	\section{Introduzione}
-	Questo capitolo presenta una panoramica delle metodologie di ottimizzazione degli iperparametri, essenziali per migliorare le performance dei modelli di Machine e Deep Learning. L'obiettivo è esplorare come queste tecniche permettano di navigare lo spazio delle configurazioni di un modello per trovare la combinazione ideale. Il testo inizia descrivendo diverse forme di Cross-Validation, tra cui la K-fold CV, la Nested Cross-Validation e la Time Series Cross-Validation, pensata specificamente per i dati temporali. Successivamente, il capitolo si concentra sulle strategie di ricerca, a partire dai metodi più semplici come il Grid Search e il Random Search, per poi introdurre approcci più sofisticati come l'Ottimizzazione Bayesiana e gli Algoritmi Genetici. Infine, viene fornito un confronto pratico tra questi metodi per aiutare a comprendere quando applicare ciascuno di essi. Per la sua efficienza e scalabilità, in questa ricerca è stato scelto il Random Search, che è stato ottimizzato utilizzando una formula che utilizza le probabilità per determinare il numero ideale di iterazioni.
+	Questo capitolo presenta una panoramica delle metodologie di ottimizzazione degli iperparametri, essenziali per migliorare le performance dei modelli di Machine e Deep Learning. L'obiettivo è esplorare come queste tecniche permettano di navigare lo spazio delle configurazioni di un modello per trovare la combinazione ideale. Il testo inizia descrivendo diverse forme di Cross-Validation, tra cui la K-fold CV, la Nested Cross-Validation e la Time Series Cross-Validation, pensata specificamente per i dati temporali. Successivamente, il capitolo si concentra sulle strategie di ricerca, a partire dai metodi più semplici come il Grid Search e il Random Search, per poi introdurre approcci più sofisticati come l'Ottimizzazione Bayesiana e gli Algoritmi Genetici. Infine, viene fornito un confronto pratico tra questi metodi per aiutare a comprendere quando applicare ciascuno di essi. Per la sua efficienza e scalabilità, in questa ricerca è stato scelto il Random Search, che è stato ottimizzato utilizzando una formula che utilizza le probabilità per determinare il numero ideale di iterazioni. \cite{franceschi2024hyperparameter, wainer2018cvncv, deng2023tscv, bergstra2012random, snoek2012bo, alibrahim2021gagsbo}
 	
 	\section{Cross-Validation (CV)}
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=1.0\textwidth]{img/cv.png}
-		\caption{Cross-Validation.}
+		\caption{Funzionamento della tecnica di Cross-Validation.}
 	\end{figure}
-	La CV è una tecnica statistica per la valutazione delle prestazioni di un modello predittivo. Il suo scopo principale è quello di stimare quanto un modello é in grado di generalizzare su dati indipendenti non visti durante la fase di training. Dato un dataset $D = \{z_1, \dots, z_N\}$ e una procedura di training che produce un modello $\hat f_{D}$, la K-fold cross-validation divide i dati in $K$ parti disgiunte (fold), dove ognuno ha una dimensione approssimativamente uguale. Il processo si ripete $K$ volte. Per ogni iterazione $k \in \{1, \dots, K\}$:
-	\begin{itemize}
-		\item Si usano le restanti $K-1$ parti, che costituiscono il training set $D^{(k)} = D \setminus D_k$, per allenare il modello. Questo produce un modello parziale $\hat f_{D^{(k)}}$.
-		\item Si valuta l'errore del modello $\hat f_{D^{(k)}}$ sul fold lasciato fuori $D_k$, che ricopre il ruolo del validation set per questa iterazione. L'errore viene calcolato come $E_k = \text{Errore}(\hat f_{D^{(k)}}, D_k)$.
-	\end{itemize}
-	Al termine delle $K$ iterazioni, si ottiene una lista di $K$ errori $\{E_1, E_2, \dots, E_K\}$. La stima finale della performance del modello è data dalla media degli errori calcolati su ogni fold, $\bar{E} = \frac{1}{K} \sum_{k=1}^K E_k$.
+	La CV è una metodologia utilizzata per la valutazione delle prestazioni di un modello predittivo. Il suo scopo principale è quello di stimare quanto un modello é in grado di generalizzare su dati indipendenti non visti durante la fase di training. Dato un dataset $D = \{z_1, \dots, z_N\}$ e una procedura di training che produce un modello $\hat f_{D}$, la K-fold cross-validation divide i dati in $K$ parti disgiunte (fold), dove ognuno ha una dimensione approssimativamente uguale. Il processo si ripete $K$ volte. Per ogni iterazione $k \in \{1, \dots, K\}$, si usano le restanti $K-1$ parti, che costituiscono il training set $D^{(k)} = D \setminus D_k$, per allenare il modello. Questo produce un modello parziale $\hat f_{D^{(k)}}$. Poi, si valuta l'errore del modello $\hat f_{D^{(k)}}$ sul fold lasciato fuori $D_k$, che ricopre il ruolo del validation set per questa iterazione. L'errore viene calcolato come $E_k = \text{Errore}(\hat f_{D^{(k)}}, D_k)$. Al termine delle $K$ iterazioni, si ottiene una lista di $K$ errori $\{E_1, E_2, \dots, E_K\}$. La stima finale della performance del modello è data dalla media degli errori calcolati su ogni fold, $\bar{E} = \frac{1}{K} \sum_{k=1}^K E_k$.
 	
 	\subsection{Time Series Cross-Validation (TSCV)}
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=1.0\textwidth]{img/tscv.png}
-		\caption{Time Series Cross-Validation.}
+		\caption{Svolgimento della tecnica di Time Series Cross-Validation.}
 	\end{figure}
 	Per i dati che hanno una dipendenza temporale, come le serie storiche, la CV standard non è adatta. Suddividere i dati in fold casuali romperebbe la struttura temporale, e l'addestramento su dati futuri per testare il modello su dati passati (fenomeno noto come data leakage) non avrebbe senso pratico e porterebbe a risultati fuorvianti. La TSCV, sviluppata per risolvere questa problematica, crea un training set che cresce sequenzialmente nel tempo, ed il validation set è sempre un blocco di dati che segue immediatamente il dataset di allenamento. Il processo funziona così:
 	\begin{itemize}
@@ -826,7 +791,7 @@
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=1.0\textwidth]{img/ncv.png}
-		\caption{Nested Cross-Validation.}
+		\caption{Funzionamento della tecnica di Nested Cross-Validation.}
 	\end{figure}
 	La NCV é un estensione della classica CV. Il suo scopo principale è quello di fornire una stima imparziale ed affidabile dell'errore di generalizzazione di un modello, risolvendo il problema del bias di selezione che può verificarsi quando gli stessi dati vengono utilizzati sia per la scelta degli iperparametri che per la valutazione finale del modello. L'idea alla base della NCV è quella di creare due cicli di CV: un ciclo esterno ed uno interno. 
 	
@@ -841,7 +806,7 @@
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=1.0\textwidth]{img/gs.png}
-		\caption{Grid search.}
+		\caption{Grafico che mostra come Grid search ispeziona lo spazio degli iperparametri.}
 	\end{figure}
 	\subsection{Spiegazione dell'algoritmo}
 	Il GS consiste nel definire una griglia discreta di possibili valori per ciascun iperparametro e nell'eseguire una valutazione esaustiva del modello per ogni combinazione. Alla fine, si seleziona il set di iperparametri che ottimizza la metrica di interesse. Il metodo non introduce casualità, risultando completamente ripetibile e deterministico.
@@ -856,7 +821,7 @@
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=1.0\textwidth]{img/rs.png}
-		\caption{Random search.}
+		\caption{Grafico che mostra come Random search esegue l'ottimizzazione degli iperparametri sullo spazio definito.}
 	\end{figure}
 	\subsection{Spiegazione dell'algoritmo}
 	Il RS seleziona casualmente $N$ configurazioni dagli intervalli o distribuzioni scelte per ciascun iperparametro, valutando il modello solo in quei punti. La campionatura può avvenire secondo distribuzioni uniformi, log-uniformi o guidate da conoscenze pregresse. Questo approccio si basa, quindi, sulla randomizzazione invece che su una griglia predefinita.
@@ -871,7 +836,7 @@
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=1.0\textwidth]{img/bo.jpg}
-		\caption{Bayesian optimization.}
+		\caption{Confronto tra la ricerca di Grid e Random search con l'ottimizzazione bayesiana.}
 	\end{figure}
 	\subsection{Spiegazione dell'algoritmo}
 	La BO interpreta l’ottimizzazione degli iperparametri come la ricerca del massimo/minimo di una funzione obiettivo costosa ed ignota. Si costruisce un modello surrogato probabilistico (come un Gaussian Process, GP) che stima la funzione obiettivo e quantifica l’incertezza predittiva. Ad ogni iterazione, una funzione di acquisizione determina il prossimo punto da valutare.
@@ -900,10 +865,10 @@
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=1.0\textwidth]{img/ga.png}
-		\caption{Genetic algorithm.}
+		\caption{Definizione dei concetti principali alla base del funzionamento degli Algoritmi genetici.}
 	\end{figure}
 	\subsection{Spiegazione dell'algoritmo}
-	Gli algoritmi genetici (GA) sono metodi di ottimizzazione di iperparametri, ispirati al processo di selezione naturale. Funzionano mantenendo una popolazione di soluzioni e migliorandole nel tempo tramite un processo iterativo. Ad ogni iterazione, detta anche generazione, vengono applicati tre operatori evolutivi principali:
+    I Genetic algorithm(GA) sono metodi di ottimizzazione degli iperparametri, ispirati al processo di selezione naturale. Funzionano mantenendo una popolazione di soluzioni e migliorandole nel tempo tramite un processo iterativo. Ad ogni iterazione, detta anche generazione, vengono applicati tre operatori evolutivi principali:
 	
 	\begin{itemize}
 		\item \textbf{Selezione:} gli individui con un punteggio di fitness più alto (le soluzioni "migliori" o più "adatte") vengono scelti per la riproduzione. Questo processo assicura che le caratteristiche positive si diffondano nella popolazione.
@@ -916,7 +881,7 @@
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=0.5\textwidth]{img/ga_process.png}
-		\caption{Le fasi del processo del Genetic Algorithm.}
+		\caption{Le varie fasi del processo del Genetic algorithm.}
 	\end{figure}
 	\begin{itemize}
 		\item \textbf{Inizializzazione:}
@@ -1013,9 +978,11 @@
 	
 	\chapter{Studio di ablazione e Pruning post-training}
 	
-	Gli studi di ablazione rappresentano una metodologia fondamentale nell'analisi e nell'ottimizzazione dei modelli di machine e deep learning, che consiste nella rimozione temporanea di una componente del modello, come un layer o gruppo di parametri, per osservare l'impatto sulle prestazioni. Si tratta di un esperimento diagnostico che aiuta a comprendere quali elementi contribuiscono maggiormente alla capacità predittiva del modello. In questo contesto, il pruning post-training viene utilizzato come una tecnica complementare che permette non solo di comprendere l'importanza delle componenti del modello, ma anche di ottenere versioni più efficienti senza compromettere significativamente le prestazioni.
+	\section{Introduzione}
+	Questo capitolo introduce e analizza due metodologie fondamentali per l'ottimizzazione e la comprensione dei modelli di Machine e Deep Learning: lo studio di ablazione ed il post-training pruning. L'obiettivo è esplorare come queste tecniche permettano non solo di diagnosticare il funzionamento interno di un modello, ma anche di migliorarne l'efficienza senza comprometterne significativamente le prestazioni. Il testo inizia descrivendo la natura degli studi di ablazione e la loro utilità nell'identificare le componenti critiche di un modello. Successivamente, il capitolo si concentra sul pruning post-training, partendo da una definizione generale per poi focalizzarsi sulla tecnica di L1 pruning applicata a diverse architetture, come i classici MLP e le KAN. Infine, viene fornito un confronto tra il pruning rank-based per le Random Forest e il cumulative pruning per XGBoost, illustrando come queste tecniche possano essere adattate per ottimizzare diversi tipi di ensemble. Per la sua efficienza e la sua flessibilità, il pruning L1 è stato scelto come tecnica di riferimento per l'ottimizzazione dei modelli di deep learning presentati in questa ricerca. \cite{meyes2019ablation, vadera2021dnnpruning, tsoumakas1970rfpruning}
 	
 	\section{Studi di ablazione}
+	Gli studi di ablazione rappresentano una metodologia fondamentale nell'analisi e nell'ottimizzazione dei modelli di machine e deep learning, che consiste nella rimozione temporanea di una componente del modello, come un layer o gruppo di parametri, per osservare l'impatto sulle prestazioni. Si tratta di un esperimento diagnostico che aiuta a comprendere quali elementi contribuiscono maggiormente alla capacità predittiva del modello. In questo contesto, il pruning post-training viene utilizzato come una tecnica complementare che permette non solo di comprendere l'importanza delle componenti del modello, ma anche di ottenere versioni più efficienti senza compromettere significativamente le prestazioni.
 	
 	\subsection{Definizione}
 	Per formalizzare matematicamente il concetto di ablazione, consideriamo un modello $f_\theta$ dove $\theta$ rappresenta l'insieme completo dei suoi parametri, e $L(\theta)$ indica la funzione di perdita del modello. Dato un sottoinsieme specifico di parametri $S$, la variazione di performance dovuta all'ablazione può essere quantificata come:
@@ -1137,7 +1104,7 @@
 	
 	\begin{table}[H]
 		\centering
-		\caption{Configurazioni dei modelli.}
+		\caption{Configurazioni finali dei modelli usati per il Training, dopo aver effettuato l'ottimizzazione degli iperparametri.}
 		\label{tab:model-config}
 		\begin{tabular}{l p{0.65\linewidth}}
 			\toprule
@@ -1298,7 +1265,7 @@
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=1.0\textwidth]{img/comparison_car.png}
-		\caption{Confronto visivo delle prestazioni dei modelli.}
+		\caption{Confronto visivo della complessitá e prestazioni dei modelli, utilizzando come metriche $R^2$, MSE, MAE, MAPE e $R^2$ aggiustato.}
 		\label{fig:comparison_models}
 	\end{figure}
 	
@@ -1393,7 +1360,7 @@
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=1.0\textwidth]{img/abl_kanvsmlp_car.png}
-		\caption{Risultati dello studio L1 pruning per MLP e KAN.}
+		\caption{Risultati dello studio L1 pruning per MLP e KAN, utilizzando metriche principali e indicatori di compressione (MSE, \(R^2\), MAE, MAPE, max error, sparsitá, parametri attivi, performance retention).}
 	\end{figure}
 	
 	\subsubsection{Risultati}
@@ -1437,8 +1404,8 @@
 	\subsubsection{Figura riassuntiva}
 	\begin{figure}[H]
 		\centering
-		\includegraphics[width=\textwidth]{img/abl_xgbvsrf_pm.png}
-		\caption{Risultati dello studio di pruning per Random Forest (rank-based) e XGBoost (cumulative).}
+		\includegraphics[width=\textwidth]{img/abl_xgbvsrf_car.png}
+		\caption{Risultati dello studio di pruning per Random Forest (rank-based) e XGBoost (cumulative), utilizzando metriche principali e indicatori di compressione (MSE, \(R^2\), MAE, MAPE, max error, sparsitá, parametri attivi, performance retention).}
 	\end{figure}
 	
 	\subsubsection{Risultati}
@@ -1481,14 +1448,14 @@
 		\begin{minipage}{0.49\textwidth}
 			\centering
 			\includegraphics[width=\linewidth]{img/abl_kanvsmlp_pm.png}
-			\caption*{A: Ablation MLP vs KAN (L1 pruning).}
+			\caption*{A: Studio di Ablazione MLP e KAN (L1 pruning).}
 		\end{minipage}\hfill
 		\begin{minipage}{0.49\textwidth}
 			\centering
 			\includegraphics[width=\linewidth]{img/abl_xgbvsrf_pm.png}
-			\caption*{B: Ablation Random Forest (Rank-based) vs XGBoost (cumulative).}
+			\caption*{B: Studio di Ablazione Random Forest (Rank-based) e XGBoost (cumulative).}
 		\end{minipage}
-		\caption{Risultati sintetici degli studi di pruning.}
+		\caption{Risultati sintetici degli studi di ablazione.}
 	\end{figure}
 	
 	\subsubsection{Riepilogo}
@@ -1504,7 +1471,7 @@
 			KAN           & 0.9688 & 0.9688 @ 10\% pr & \(\approx 3.1\times\) \\
 			\bottomrule
 		\end{tabular}
-		\caption{Riepilogo sintetico dei principali punti di trade-off.}
+		\caption{Riepilogo sintetico dei principali punti di trade-off e compressione.}
 	\end{table}
 	
 	\subsubsection{Confronto su soglie tipiche (30\%, 50\%, 70\%, 90\%)}
@@ -1639,7 +1606,7 @@
 	\end{verbatim}
 	
 	\subsection{Rilevamento e rimozione degli outlier}
-	Per l'identificazione di outlier nei valori delle concentrazioni degli inquinanti, si é utilizzato l'algoritmo Isolation Forest, un metodo ensemble noto per la sua efficacia nell'identificare valori anomali indipendentemente dalla distribuzione a priori dei dati. I punti principali dell'approccio sono:
+	Per l'identificazione di outlier nei valori delle concentrazioni degli inquinanti, si é utilizzato l'algoritmo Isolation Forest, un metodo ensemble noto per la sua efficacia nell'identificare valori anomali indipendentemente dalla distribuzione a priori dei dati \cite{liu2009iforest}. I punti principali dell'approccio sono:
 	
 	\begin{itemize}
 		\item scelta di un insieme limitato di variabili su cui applicare il rilevamento (in questo caso, "PM2.5", "CO", "Ozone", "NOx");
@@ -1724,7 +1691,7 @@
 		\item \textbf{Selezione di variabili:} le feature indipendenti includono variabili temporali (\texttt{year, month, dayofmonth, dayofweek, dayofyear, weekofyear, quarter}), l'identificativo geografico (\texttt{state}) e le lag-features (p.es. \texttt{pm\_lag\_1D}, \texttt{pm\_lag\_1W}, \texttt{pm\_lag\_1M}, \texttt{pm\_lag\_1Y}, ecc.).
 		\item \textbf{Rimozione NaN derivanti dalle lag:} per confrontare i modelli in condizioni omogenee si é applicato un "drop" delle righe contenenti valori mancanti generati dalle lag-features.
 		\item \textbf{Trasformazioni:} le colonne numeriche sono standardizzate tramite \texttt{StandardScaler}; la variabile categorica "state" é codificata con \texttt{OneHotEncoder}. Le trasformazioni sono incapsulate in un \texttt{ColumnTransformer} e usate come primo step nelle pipeline di training.
-		\item \textbf{Bilanciamento delle classi in fase di training:} per i modelli che beneficiano di un dataset bilanciato, si applica SMOTE all'interno della pipeline. Lo SMOTE é eseguito esclusivamente sul training fold in ogni ripetizione di cross-validation per evitare data leakage.
+		\item \textbf{Bilanciamento delle classi in fase di training:} per i modelli che beneficiano di un dataset bilanciato, si applica SMOTE all'interno della pipeline. Lo SMOTE é eseguito esclusivamente sul training fold in ogni ripetizione di cross-validation per evitare data leakage. \cite{chawla2011smote}
 	\end{enumerate}
 	
 	\paragraph{Nota su XGBoost} XGBoost é in grado di gestire internamente i valori mancanti; tuttavia, per rendere i confronti equi con modelli che non supportano questa funzionalità internamente, si é deciso di rimuovere direttamente tutte le righe con NaN nelle lag-features prima di tutti gli esperimenti.
@@ -1828,7 +1795,7 @@
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=1.0\textwidth]{img/comparison_pm.png}
-		\caption{Confronto visivo delle prestazioni dei modelli.}
+		\caption{Confronto visivo delle prestazioni dei modelli (Accuracy train vs test, F1-weighted / F1-macro con CI95\%, AUC-ROC e AUC-PR OVR weighted, e complessità in parametri/nodi).}
 		\label{fig:comparison_pm}
 	\end{figure}
 	
@@ -1926,7 +1893,7 @@
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=1.0\textwidth]{img/abl_kanvsmlp_pm.png}
-		\caption{Risultati dello studio L1 pruning per MLP e KAN (metriche su test set in funzione del pruning ratio).}
+		\caption{Risultati dello studio L1 pruning per MLP e KAN, utilizzando metriche principali e indicatori di compressione (Accuracy, F1-Weighted, F1-Macro, AUC-ROC, AUC-PR, sparsitá, parametri attivi, performance retention).}
 	\end{figure}
 	
 	\subsubsection{Risultati}
@@ -1971,7 +1938,7 @@
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=\textwidth]{img/abl_xgbvsrf_pm.png}
-		\caption{Risultati dello studio di pruning per Random Forest (rank-based) e XGBoost (cumulative).}
+		\caption{Risultati dello studio di pruning per Random Forest (rank-based) e XGBoost (cumulative), utilizzando metriche principali e indicatori di compressione (Accuracy, F1-Weighted, F1-Macro, AUC-ROC, AUC-PR, sparsitá, alberi rimanenti, performance retention).}
 	\end{figure}
 	
 	\subsubsection{Risultati}
@@ -2015,14 +1982,14 @@
 		\begin{minipage}{0.49\textwidth}
 			\centering
 			\includegraphics[width=\linewidth]{img/abl_kanvsmlp_pm.png}
-			\caption*{A: Ablation MLP vs KAN (L1 pruning).}
+			\caption*{A: Studio di ablazione MLP e KAN (L1 pruning).}
 		\end{minipage}\hfill
 		\begin{minipage}{0.49\textwidth}
 			\centering
 			\includegraphics[width=\linewidth]{img/abl_xgbvsrf_pm.png}
-			\caption*{B: Ablation Random Forest (rank-based) vs XGBoost (cumulative).}
+			\caption*{B: Studio di ablazione Random Forest (rank-based) e XGBoost (cumulative).}
 		\end{minipage}
-		\caption{Risultati sintetici degli studi di pruning (metriche su test set in funzione del pruning ratio).}
+		\caption{Risultati sintetici degli studi di ablazione.}
 	\end{figure}
 	
 	\subsubsection{Riepilogo}
@@ -2038,7 +2005,7 @@
 			KAN      & 0.7823 & 0.7710 @ 70\% pr & \(\approx 3.0\times\) \\
 			\bottomrule
 		\end{tabular}
-		\caption{Riepilogo sintetico dei principali punti di trade-off.}
+		\caption{Riepilogo sintetico dei principali punti di trade-off e compressione.}
 	\end{table}
 	
 	\subsubsection{Confronto su soglie tipiche (30\%, 50\%, 70\%, 90\%)}
@@ -2065,10 +2032,10 @@
 	\chapter{Conclusioni}
 	
 	\begin{thebibliography}{99}
-		\bibitem{mlp_popescu}
+		\bibitem{popescu2009mlp}
 		Popescu et al. , \emph{Multilayer perceptron and neural networks}, 2009. \url{https://www.researchgate.net/publication/228340819_Multilayer_perceptron_and_neural_networks}
 		
-		\bibitem{mlp_hornick}
+		\bibitem{hornick1988mfn}
 		Hornick et al. , \emph{Multilayer feedforward networks are universal approximators}, 1988. \url{https://www.cs.cmu.edu/~epxing/Class/10715/reading/Kornick_et_al.pdf}
 		
 		\bibitem{schmidhuber2015deep}
@@ -2080,9 +2047,6 @@
 		\bibitem{leshno1993uat}
 		Leshno et al. , \emph{Multilayer feedforward networks with a nonpolynomial activation function can approximate any functionn}, vol. 6, 1993. \url{https://www.sciencedirect.com/science/article/pii/S0893608005801315}
 		
-		\bibitem{dl2016mit}
-		I. Goodfellow, Y. Bengio, A.Courville, \emph{Deep Learning}, 2016.
-		
 		\bibitem{liu2024kan}
 		Liu et al. , \emph{Kan: Kolmogorov-arnold networks}, 2024. \url{https://arxiv.org/pdf/2404.19756}
 		
@@ -2092,12 +2056,6 @@
 		\bibitem{arnold1963functions}
 		V.I. Arnold, \emph{On functions of three variables, Doklady Akademii Nauk SSSR}, vol. 141, no. 4, 1963.
 		
-		\bibitem{pinkus1999approximation}
-		A. Pinkus, \emph{Approximation theory of the mlp model in neural networks, Acta Numerica}, vol. 8, 1999.
-		
-		\bibitem{poggio1990networks}
-		T. Poggio, F. Girosi, \emph{Networks for approximation and learning, Proceedings of the IEEE}, vol. 78, no. 9, 1990.
-		
 		\bibitem{chaudhuri2021splines}
 		A. Chaudhuri, \emph{B-Splines}, 2021. \url{https://arxiv.org/pdf/2108.06617}
 		
@@ -2106,9 +2064,6 @@
 		
 		\bibitem{donoho2000high}
 		D. Donoho, \emph{High-Dimensional Data Analysis: The Curses and Blessings of Dimensionality}, 2000. \url{https://www.researchgate.net/publication/220049061_High-Dimensional_Data_Analysis_The_Curses_and_Blessings_of_Dimensionality}.
-		
-		\bibitem{french1999catastrophic}
-		R. French, \emph{Catastrophic forgetting in connectionist networks}, 1999. \url{https://www.researchgate.net/publication/12977135_Catastrophic_forgetting_in_connectionist_networks}
 		
 		\bibitem{yu2024kanvsmlp}
 		R. Yu, \emph{KAN or MLP: A Fairer Comparison}, 2024. \url{https://arxiv.org/pdf/2407.16674v1}
@@ -2121,9 +2076,6 @@
 		
 		\bibitem{quinlan1993c45}
 		J.R Quinlan, \emph{C4.5: Programs for Machine Learning}, 1993. \url{https://scholar.google.com/scholar_lookup?&title=C4.5%20Programs%20for%20Machine%20Learning&publication_year=1992&author=Quinlan%2CJ.R.}
-		
-		\bibitem{hastie2009elements}
-		T. Hastie, R. Tibshirani, and J. Friedman, \emph{The Elements of Statistical Learning}, 2009. \url{https://link.springer.com/book/10.1007/978-0-387-84858-7}
 		
 		\bibitem{friedman2001gradientboosting}
 		J. H. Friedman, \emph{Greedy function approximation: A gradient boosting machine}, 2001. \url{https://jerryfriedman.su.domains/ftp/trebst.pdf}
