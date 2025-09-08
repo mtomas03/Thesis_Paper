@@ -1085,13 +1085,17 @@
 		#SBATCH --chdir=/scratch.hpc/martin.tomassi
 		#SBATCH --gres=gpu:1
 		
-		export JUPYTER_CONFIG_DIR="/scratch.hpc/martin.tomassi/jupyter_config_for_job_$SLURM_JOB_ID"
-		export MPLCONFIGDIR="/scratch.hpc/martin.tomassi/matplotlib_cache_for_job_$SLURM_JOB_ID"
+		export JUPYTER_CONFIG_DIR=
+				"/scratch.hpc/martin.tomassi/jupyter_config_for_job_$SLURM_JOB_ID"
+		export MPLCONFIGDIR=
+				"/scratch.hpc/martin.tomassi/matplotlib_cache_for_job_$SLURM_JOB_ID"
 		mkdir -p "$JUPYTER_CONFIG_DIR"
 		mkdir -p "$MPLCONFIGDIR"
 		
 		source venv_car/bin/activate
-		jupyter nbconvert --to notebook --execute car_emissions.ipynb --output car_emissions_trained.ipynb
+		jupyter nbconvert --to notebook 
+				--execute car_emissions.ipynb 
+				--output car_emissions_trained.ipynb
 		jupyter nbconvert --to html car_emissions_trained.ipynb
 		deactivate
 		
@@ -1100,7 +1104,7 @@
 	\end{verbatim}
 	
 	\subsection{Scelte architetturali ed iperparametri}
-	Nella Tabella ~\ref{tab:model-config} vengono mostrate le scelte finali, dopo l'ottimizzazione degli iperparametri, utilizzate per training, valutazioni comparative e studio di ablazione.
+	Nella Tabella \ref{tab:model-config} vengono mostrate le scelte finali, dopo l'ottimizzazione degli iperparametri, utilizzate per training, valutazioni comparative e studio di ablazione.
 	
 	\begin{table}[H]
 		\centering
@@ -1120,28 +1124,16 @@
 	\end{table}
 	
 	\section{Data preparation}
-	
 	Questo caso studio si concentra principalmente sulle fasi di allenamento, valutazione e studio di ablazione; pertanto il dataset utilizzato per l'addestramento è stato fornito già pre-elaborato da terze parti. Di seguito, viene mostrata una sintesi chiara e sintetica delle principali trasformazioni già applicate ai dati, senza entrare nel dettaglio operativo della preparazione dei dati.
 	
 	\subsection{Nota sull'origine e stato del dataset}
-	Il dataset finale è il risultato della fusione di tre sorgenti ufficiali su emissioni automobilistiche (Regno unito, Spagna, Canada). La preparazione è stata svolta prima della presente analisi ed ha incluso operazioni di armonizzazione dei nomi di colonna, conversione di unità, pulizia testuale di campi, rimozione di osservazioni non pertinenti e rimozioni conservative per valori mancanti ritenuti non critici.
+	Il dataset finale è il risultato della fusione di tre sorgenti ufficiali sulle emissioni automobilistiche (Regno Unito, Spagna, Canada). La preparazione è stata svolta prima della presente analisi e ha incluso operazioni di armonizzazione dei nomi di colonna, conversione di unità, pulizia testuale di campi, rimozione di osservazioni non pertinenti e rimozioni conservative per valori mancanti ritenuti non critici.
 	
 	\subsection{Riassunto sintetico delle principali trasformazioni}
-	\begin{itemize}
-		\item \textbf{Unione} delle tre sorgenti in un unico dataframe coerente;
-		\item \textbf{Omogeneizzazione degli schemi}: mappatura e rinomina delle colonne per ottenere uno schema comune;
-		\item \textbf{Pulizia testuale}: standardizzazione e capitalizzazione dei valori testuali e rimozione di suffissi/annotazioni spurie;
-		\item \textbf{Imputazione conservativa}: viene usata la mediana (globale o per gruppo/categoria) per riempire i valori mancanti numerici significativi; eliminazioni conservative per categoria quando necessario;
-		\item \textbf{Filtri}: eliminazione di righe prive della variabile target (CO2\_Emissions) o prive di attributi ritenuti fondamentali per l'allenamento dei modelli.
-	\end{itemize}
+	Le principali trasformazioni applicate includono: l'unione delle tre sorgenti in un unico dataframe coerente; l'omogeneizzazione degli schemi attraverso la mappatura e la ridenominazione delle colonne per ottenere uno schema comune; la pulizia testuale con la standardizzazione e capitalizzazione dei valori e la rimozione di suffissi o annotazioni spurie. Inoltre, è stata effettuata un'imputazione conservativa, utilizzando la mediana (globale o per gruppo/categoria) per riempire i valori mancanti numerici significativi, con eliminazioni conservative per categoria quando necessario. Infine, sono stati applicati dei filtri per eliminare righe prive della variabile target (\texttt{CO2\_Emissions}) o prive di attributi ritenuti fondamentali per l'allenamento dei modelli.
 	
 	\subsection{Ruolo nella tesi}
-	Poiché il preprocessing non rientra nelle attività svolte dall'autore, nelle sezioni successive si assume che il dataset finale sia corretto e pronto per la modellazione; la trattazione si concentra pertanto su:
-	\begin{itemize}
-		\item la scelta delle architetture e degli algoritmi di regressione;
-		\item la strategia di validazione e splitting utilizzata per evitare data leakage;
-		\item le metriche di valutazione, il confronto tra modelli e lo studio di ablazione.
-	\end{itemize}
+	Poiché il preprocessing non rientra nelle attività svolte, nelle sezioni successive si assume che il dataset finale sia corretto e pronto per la modellazione. La trattazione si concentrerà pertanto su tre aspetti principali: la scelta delle architetture, la strategia di validazione e splitting utilizzata per evitare il data leakage, e, infine, le metriche di valutazione, il confronto tra modelli e lo studio di ablazione.
 	
 	\section{Addestramento modelli}
 	
@@ -1158,11 +1150,7 @@
 	La variabile target è \texttt{CO2\_Emissions} (g/km).
 	
 	\subsection{Pipeline di preprocessing}
-	\begin{enumerate}
-		\item \textbf{Selezione delle features}: dal dataset finale, sono state mantenute le colonne importanti per la previsione della CO2.
-		\item \textbf{One-hot encoding}: le variabili categoriche sono state codificate con OneHotEncoder.
-		\item \textbf{Standardizzazione}: le variabili numeriche vengono scalate con StandardScaler quando il modello lo richiede.
-	\end{enumerate}
+	La pipeline di preprocessing prevede tre passaggi principali. Innanzitutto, si effettua una selezione delle features per mantenere solo le colonne più importanti per la previsione delle emissioni di CO2. Successivamente, le variabili categoriche vengono codificate con un \texttt{OneHotEncoder} e, infine, le variabili numeriche sono standardizzate con uno \texttt{StandardScaler}, quando il modello lo richiede.
 	
 	\subsection{Split dei dati}
 	\begin{itemize}
@@ -1178,6 +1166,9 @@
 			\item \textbf{Inner CV}: KFold con 3 fold (inner\_folds = 3) — per comparare le configurazioni campionate dalla Random Search.
 		\end{itemize}
 	\end{itemize}
+	
+	\subsection{Split dei dati}
+	Il dataset è stato suddiviso per le fasi di training e testing. Inizialmente, si è creato un test set indipendente, pari al 20\% del dataset totale. Dal restante 80\%, è stato selezionato un "training pool" di 25000 osservazioni, utilizzato per la ricerca degli iperparametri, che è stato ulteriormente suddiviso in un set di training interno (22500 osservazioni) e un set di validazione indipendente (2500 osservazioni), che verrà utilizzato durante lo studio di ablazione, oltre al test set indipendente per la valutazione finale. Per la selezione degli iperparametri, è stata impiegata una Nested CV con Random search, organizzata in un ciclo esterno (Outer CV) di 5 K-fold per stimare la performance generalizzata e un ciclo interno (Inner CV) di 3 K-fold per confrontare le configurazioni campionate dalla ricerca casuale.
 	
 	\subsection{Metriche e intervalli di confidenza}
 	\begin{itemize}
@@ -1196,18 +1187,7 @@
 	Sono stati calcolati per MSE, MAE e MAPE gli intervalli di confidenza.
 	
 	\subsection{Strategia di training comune e griglie di iperparametri}
-	
-	La strategia di training adottata è sostanzialmente omogenea per tutti i modelli considerati. Qua sotto vengono riportate prima le procedure ed i criteri comuni, poi le griglie di iperparametri specifiche per ogni modello.
-	
-	\subsubsection{Procedure comuni}
-	\begin{itemize}
-		\item \textbf{Preprocessing e batching:} i dati categorici sono codificati con \texttt{OneHotEncoder} (fit sul training) e le feature numeriche vengono scalate con \texttt{StandardScaler}.
-		\item \textbf{Protocollo di validazione:} viene impiegata una validazione incrociata annidata (nested CV) con \textbf{outer KFold = 5} e \textbf{inner KFold = 3}. L'inner loop esegue una Random Search sulle griglie di iperparametri; la migliore combinazione trovata viene riaddestrata sul sottoinsieme interno e valutata sul corrispondente outer test fold.
-		\item \textbf{Random Search:} le iterazioni \(n\) per ciascun modello sono state scelte con la logica probabilistica descritta in precedenza (obiettivo \(P=0.90\) di includere almeno una delle \(k=10\) migliori configurazioni). I valori adottati sono riportati nella sezione relativa a ciascun modello.
-		\item \textbf{Ottimizzazione (reti neurali):} \texttt{Adam} come ottimizzatore, \texttt{MSELoss} come funzione di perdita, regolarizzazione L2 opzionale (weight decay o termine esplicito). Epoche massime impostate a 1000 ma con early stopping attivo per interrompere prima il training, se non si osserva un miglioramento significativo.
-		\item \textbf{Modelli tree-based:} Random Forest e XGBoost sono addestrati in modo simile alle reti neurali, ma mediante la loro API nativa;
-		\item \textbf{Valutazione finale:} per ogni outer fold si raccolgono le metriche (MSE, MAE, MAPE, \(R^2\), R\(^2\)-adjusted, Max Error) e si calcolano gli intervalli di confidenza al 95\% per MSE/MAE/MAPE come descritto nella sezione metriche. È inoltre stimata la complessità del modello.
-	\end{itemize}
+	La strategia di training è stata omogenea per tutti i modelli considerati. Le procedure comuni adottate sono le seguenti: il preprocessing ed il batching sono gestiti con la codifica delle variabili categoriche tramite \texttt{OneHotEncoder} e la standardizzazione delle feature numeriche con \texttt{StandardScaler}. Il protocollo di validazione impiega una Nested CV con un outer KFold $= 5$ e un inner KFold $= 3$. Il ciclo interno esegue una Random Search sulle griglie di iperparametri. La migliore configurazione trovata viene riaddestrata sul sottoinsieme interno e valutata sul corrispondente outer test fold. Per la Random Search, il numero di iterazioni $n$ è stato scelto con una logica probabilistica per assicurare una probabilità del 90\% di includere almeno una delle 10 migliori configurazioni. Per le reti neurali, l'ottimizzazione è stata gestita con l'ottimizzatore \texttt{Adam} e la funzione di perdita \texttt{MSELoss}, con una regolarizzazione L2 opzionale. Le epoche massime sono 1000, ma con l'uso di un Early stopping per interrompere il training in caso di mancato miglioramento. Infine, la \textbf{valutazione finale} di ogni outer fold ha incluso il calcolo delle metriche (MSE, MAE, MAPE, $R^2$, $R^2$-adjusted, Max Error), degli intervalli di confidenza al 95\% per MSE, MAE e MAPE e della complessità del modello.
 	
 	\subsubsection{Griglie di iperparametri per modello}
 	\smallskip
@@ -1260,7 +1240,7 @@
 	
 	\section{Valutazione dei modelli}
 	
-	La figura~\ref{fig:comparison_models} sintetizza le principali metriche di performance con intervalli di confidenza al 95\% e la complessità dei modelli.
+	La figura \ref{fig:comparison_models} sintetizza le principali metriche di performance con intervalli di confidenza al 95\% e la complessità dei modelli.
 	
 	\begin{figure}[H]
 		\centering
@@ -1296,14 +1276,24 @@
 		\item Per ogni metodo di aggregazione si seleziona il modello con punteggio minimo (migliore).
 	\end{enumerate}
 	
-	\subsubsection{Risultati}
-	\begin{itemize}
-		\item \textbf{Equal Weight (1:1)} \(\rightarrow\) \textbf{XGBoost}
-		\item \textbf{Complexity Weighted (1:2)} \(\rightarrow\) \textbf{XGBoost}
-		\item \textbf{Extreme Complexity (1:3)} \(\rightarrow\) \textbf{XGBoost}
-		\item \textbf{Pareto Approach (40:60)} \(\rightarrow\) \textbf{XGBoost}
-	\end{itemize}
+	\subsection{Selezione del miglior modello}
+	Per identificare il modello più adatto al problema di regressione delle emissioni di CO2, è stata adottata una procedura che combina prestazione e complessità. Inizialmente, sono state definite le metriche di interesse e la rispettiva direzione di ottimizzazione, come mostrato di seguito: \\
 	
+	\begin{verbatim}
+		metrics = {
+			'MSE_Test'           : 'min',
+			'MAE_Test'           : 'min',
+			'MAPE_Test'          : 'min',
+			'R2_Test'            : 'max',
+			'R2_Adjusted_Test'   : 'max'
+		}
+	\end{verbatim}
+	
+	Per ciascuna metrica è stato calcolato il rank dei modelli (con il rank 1 che indica il migliore), tenendo conto della direzione appropriata (ascendente o discendente). Successivamente, è stato calcolato un \texttt{performance\_score} come media dei rank delle metriche di prestazione e un \texttt{Complexity\_rank} basato sul numero di parametri o nodi, dove il rank 1 corrisponde al modello meno complesso. \\
+	Infine, sono stati combinati i punteggi di performance e complessità in base a diverse strategie di ponderazione. Sono stati usati l'Equal Weight (1:1), che somma direttamente il \texttt{performance\_score} e il \texttt{Complexity\_rank}, e le varianti con peso maggiore sulla complessità, ovvero il Complexity Weighted (1:2) e l'Extreme Complexity (1:3). È stato inoltre applicato un Pareto Approach (40:60), che combina i punteggi normalizzati con una ponderazione di 0.4 per la performance e 0.6 per la complessità. Per ogni metodo di aggregazione, il modello con il punteggio minimo è stato selezionato come il migliore.
+	
+	\subsubsection{Risultati}
+	I risultati hanno mostrato una chiara prevalenza del modello XGBoost su tutte le metriche ponderate. Nello specifico, XGBoost è risultato il modello vincente in Equal Weight (1:1), Complexity Weighted (1:2), Extreme Complexity (1:3) e Pareto Approach (40:60). \\
 	Di seguito la tabella riassuntiva con i valori principali usati per il ranking (valori ricavati dall'analisi finale):
 	
 	\begin{table}[H]
@@ -1338,23 +1328,23 @@
 		\item MLP \quad (Params: 134{,}401 \;|\; MSE Test: 605.28)
 	\end{enumerate}
 	
+	\subsubsection{Conclusioni}
+	L'analisi ha portato a individuare XGBoost come il più adatto al problema. Questo modello non solo ha ottenuto le migliori performance assolute su tutte le metriche di regressione, ma ha anche la complessità stimata più bassa, rendendolo la scelta ideale per un deployment operativo. La rete KAN ha raggiunto un buon compromesso in termini di performance, sebbene la sua complessità stimata sia risultata elevata in rapporto al beneficio predittivo assoluto. L'MLP, pur avendo il maggior numero di parametri di XGBoost, ha conseguito performance inferiori rispetto ad esso in termini di MSE e MAE. Il Random Forest ha fornito risultati stabili e prestazioni intermedie, ma non è riuscito a superare XGBoost nel compromesso tra performance e complessità.
+	
+	La classifica dei tre migliori modelli, secondo il criterio \emph{complexity-weighted} (dal migliore al peggiore), è la seguente:
+	\begin{enumerate}
+		\item XGBoost (Parametri: 14,764 | MSE Test: 17.52)
+		\item Random Forest (Parametri: 46,944 | MSE Test: 511.72)
+		\item MLP (Parametri: 134,401 | MSE Test: 605.28)
+	\end{enumerate}
+	
 	\section{Studio di ablazione}
 	
 	\subsection{Ablation study: L1 pruning su MLP e KAN}
 	L'obiettivo è misurare il compromesso tra compressione del modello (numero di parametri attivi / rapporto di compressione) ed il mantenimento delle prestazioni (MSE, MAE, \(R^2\), MAPE).
 	
 	\subsubsection{Metodologia}
-	\begin{itemize}
-		\item \textbf{Tecnica di pruning:} pruning globale L1 applicato ai pesi lineari della MLP e ai coefficienti spline della KAN.
-		\item \textbf{Pruning ratios testati:} \(\{0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95\}\).
-		\item \textbf{Valutazione:} ogni versione pruned è stata valutata su test set e train set con le metriche MSE, MAE, MAPE, \(R^2\) e max error. Per ciascuna configurazione sono stati calcolati il numero di parametri totali, i parametri attivi dopo pruning e il rapporto di compressione (original params / active params).
-		\item \textbf{Definizioni operative:} 
-		\begin{itemize}
-			\item \textbf{baseline:} modello non pruned (pruning ratio \(=0.0\)).
-			\item \textbf{Punto di degrado significativo:} primo pruning ratio che comporta oltre il \(5\%\) di perdita relativa in \(R^2\) rispetto alla baseline.
-			\item \textbf{Best trade-off:} punto con massima compressione che causa \(\le 2\%\) di perdita relativa in \(R^2\).
-		\end{itemize}
-	\end{itemize}
+	La tecnica di pruning impiegata è il L1 post-training pruning, applicato ai pesi lineari della MLP ed ai coefficienti spline della KAN. Sono stati testati diversi pruning ratios, specificamente l'insieme ${0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,0.95}$. Ciascuna versione del modello potata è stata valutata sia sul test set che sul train set utilizzando le metriche MSE, MAE, MAPE, $R^2$ e max error. Per ogni configurazione, sono stati calcolati il numero totale di parametri, il numero di parametri attivi post-pruning ed il rapporto di compressione. Per interpretare i risultati, sono state definite alcune definizioni operative. La baseline è il modello non potato (pruning ratio $= 0.0$). Il punto di degrado significativo è il primo pruning ratio che comporta una perdita relativa in $R^2$ superiore al 5\% rispetto alla baseline. Il best trade-off è il punto di massima compressione che causa una perdita relativa in $R^2$ inferiore o uguale al 2\%.
 	
 	\subsubsection{Figura riassuntiva}
 	\begin{figure}[H]
@@ -1378,28 +1368,14 @@
 		\caption{Riepilogo dei punti di trade-off e dei punti di degrado osservati nello studio L1 pruning.}
 	\end{table}
 	
-	\begin{itemize}
-		\item \textbf{MLP:} baseline \(R^2=0.8467\). Fino a \(\mathbf{50\%}\) di pruning non si osserva perdita significativa in \(R^2\) (best trade-off: \(\approx 2\times\) compression con \(\le 2\%\) perdita relativa). La degradazione significativa del modello si manifesta intorno al \(\mathbf{60\%}\) di pruning (MSE e MAE aumentano drasticamente, \(R^2\) diventa negativo per pruning più aggressivi). Compressione massima sperimentata: \(\approx 20\times\) (pruning \(95\%\)), ma a questo livello la performance è inutilizzabile.
-		\item \textbf{KAN:} baseline \(R^2=0.9688\). Il miglior trade-off empirico è stato osservato a soli \(\mathbf{10\%}\) di pruning (compression \(\approx 3.1\times\)) con performance praticamente invariata. La degradazione significativa compare già a circa il \(\mathbf{20\%}\) di pruning; oltre tale soglia MSE e MAE aumentano velocemente. Compressione massima sperimentata: \(\approx 57.8\times\) (pruning \(95\%\)), ma con perdita di performance molto elevata.
-		\item \textbf{Osservazione generale:} KAN fornisce una baseline molto migliore (minore MSE, \(R^2\) vicino a 1) ma è più sensibile al pruning rispetto alla MLP; la MLP è più tollerante a pruning moderati fino al 50\% e può essere usata per compressioni moderate quando si richiede maggiore robustezza post-pruning.
-	\end{itemize}
+	La MLP ha una baseline \(R^2=0.8467\). Fino a un pruning del 50\%, non si osserva una perdita significativa in \(R^2\), rappresentando il miglior trade-off con una compressione di circa $2.0\times$. Il modello inizia a mostrare un degrado significativo intorno al 60\% di pruning, dove MSE e MAE aumentano drasticamente e l'\(R^2\) diventa negativo per pruning più aggressivi. La compressione massima sperimentata è di circa $20\times$ (pruning del 95\%), ma a questo livello la performance è inutilizzabile. \\
+	La KAN, con una baseline \(R^2=0.9688\), ha mostrato il suo miglior trade-off empirico con un pruning del 10\% con una compressione di circa $3.1\times$, mantenendo la performance praticamente invariata. Il degrado significativo compare già a circa il 20\% di pruning, oltre il quale MSE e MAE aumentano rapidamente. La massima compressione sperimentata è di circa $57.8\times$ (pruning del 95\%), ma con una perdita di performance molto elevata. \\
 	
 	\subsection{Ablation study: ensemble pruning su Random Forest e XGBoost}
 	Lo scopo è valutare il compromesso tra riduzione del modello (numero di alberi / rounds) e mantenimento delle prestazioni (qui riportate con metriche di regressione — MSE, \(R^2\), MAE.
 	
 	\subsubsection{Metodologia}
-	\begin{itemize}
-		\item \textbf{Rank-Based Pruning per Random Forest:} per ciascun albero si calcola una metrica di importanza. Gli alberi vengono ordinati per importanza e si rimuovono quelli con importanza minore fino alla frazione indicata dal \texttt{pruning\_ratio}.
-		\item \textbf{Cumulative Pruning per XGBoost:} si mantengono solo le prime iterazioni di boosting (rounds) fino al numero corrispondente a \((1 - \texttt{pruning\_ratio})\) della lunghezza originaria; in pratica si tronca la sequenza di boosting post-training limitando le predizioni ai primi $n$ alberi.
-		\item \textbf{Pruning ratios testati:} \(\{0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95\}\).
-		\item \textbf{Valutazione:} per ogni versione pruned si calcolano il numero di alberi totali e rimanenti, il rapporto di compressione (total / remaining), e le metriche di performance su train/test (MSE, MAE, MAPE, \(R^2\), max error).
-		\item \textbf{Definizioni operative:}
-		\begin{itemize}
-			\item \textbf{baseline:} pruning ratio = 0.0 (modello non modificato);
-			\item \textbf{Punto di degrado significativo:} primo \texttt{pruning\_ratio} che causa perdita relativa in misura di interesse (qui usiamo \(R^2\)) \(>5\%\);
-			\item \textbf{Best trade-off:} massima compressione che causa perdita relativa \(\le 2\%\).
-		\end{itemize}
-	\end{itemize}
+	La metodologia di pruning varia per i due modelli. Per il Random Forest, è stato utilizzato un Rank-Based Pruning: gli alberi sono stati ordinati per importanza e quelli meno rilevanti sono stati rimossi fino a raggiungere il \texttt{pruning\_ratio} desiderato. Per XGBoost, si è optato per un Cumulative Pruning, mantenendo solo le prime iterazioni di boosting fino al numero corrispondente a \((1 - \texttt{pruning\_ratio})\) della lunghezza originale, troncando di fatto la sequenza di boosting. Anche in questo caso, i pruning ratios testati sono stati ${0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,0.95}$. Per ogni versione potata, sono stati calcolati il numero totale e residuo di alberi, il rapporto di compressione e le metriche di performance su train e test set. Le definizioni operative di baseline, punto di degrado significativo ($R^2 >5\%$) e best trade-off ($R^2 \le 2\%$) sono rimaste le medesime.
 	
 	\subsubsection{Figura riassuntiva}
 	\begin{figure}[H]
@@ -1423,10 +1399,8 @@
 		\caption{Riepilogo sintetico dei punti di trade-off osservati per i due ensemble.}
 	\end{table}
 	
-	\begin{itemize}
-		\item \textbf{XGBoost (cumulative):} il modello è molto robusto a pruning moderati: fino al \(70\text{--}80\%\) di riduzione degli estimators la perdita in \(R^2\) è trascurabile; il best trade-off empirico trovato nello studio è al \(\mathbf{90\%}\) di pruning (mantenendo 29/300 trees, compression \(\approx 10.3\times\)) con una perdita relativa di \(R^2\) dell'ordine dell'\(\sim 1.3\%\). Oltre il \(90\%\) (es. 95\%) la performance cala rapidamente.
-		\item \textbf{Random Forest (rank-based):} la rimozione degli alberi meno performanti tende a mantenere o addirittura migliorare leggermente la generalizzazione (riduzione dell'overfitting). Nel nostro esperimento RF rimane stabile anche con pruning aggressivi: mantenendo solo 5 alberi su 100 (95\% pruning, compression 20×) la R\(^2\) test non peggiora e, in alcuni punti, migliora rispetto alla baseline.
-	\end{itemize}
+	XGBoost ha dimostrato di essere molto robusto anche con pruning aggressivi, mantenendo una perdita trascurabile in \(R^2\) fino ad una riduzione del 70-80\% degli estimators. Il miglior trade-off empirico si è verificato al 90\% di pruning, mantenendo 29 alberi su 300, con una compressione di circa $10.3\times$ ed una perdita relativa di \(R^2\) di appena l'1.3\%. Oltre questa soglia, le performance calano rapidamente. \\
+	Nel caso del Random Forest, il pruning rank-based ha mostrato una tendenza a mantenere o addirittura a migliorare leggermente la generalizzazione, riducendo l'overfitting. L'esperimento ha rivelato che il modello rimane stabile anche con pruning aggressivi: mantenendo solo 5 alberi su 100 (95\% di pruning, compressione $20\times$), l'\(R^2\) sul test set non peggiora e, in alcuni casi, migliora rispetto alla baseline.
 	
 	\subsection{Ablation study — Confronto complessivo (Neural Networks vs Ensemble)}
 	Per il confronto, sono stati considerati pruning ratios tipici: 30\%, 50\%, 70\%, 90\%.  
@@ -1475,22 +1449,88 @@
 	\end{table}
 	
 	\subsubsection{Confronto su soglie tipiche (30\%, 50\%, 70\%, 90\%)}
-	\begin{itemize}
-		\item \textbf{30\% pruning:} RF e XGBoost mantengono le prestazioni quasi invariate (\(R^2 \approx 0.894\) e 0.995); MLP resta stabile (\(R^2 = 0.8467\)); KAN degrada molto rapidamente (\(R^2 \approx 0.364\)).
-		\item \textbf{50\% pruning:} XGBoost conserva \(R^2 \approx 0.994\); RF migliora ulteriormente la generalizzazione (\(R^2 \approx 0.904\)); MLP resta stabile; KAN crolla sotto lo 0.
-		\item \textbf{70\% pruning:} XGBoost resta robusto (\(R^2 \approx 0.993\), compressione 3.3$\times$); RF migliora ancora (\(R^2 \approx 0.917\)); MLP degrada fortemente (\(R^2 < 0\)); KAN in pieno collasso prestazionale.
-		\item \textbf{90\% pruning:} RF mostra la miglior performance in termini di retention (\(R^2 \approx 0.9296\), compressione 11$\times$); XGBoost mantiene buone prestazioni (\(R^2 \approx 0.9823\), compressione 10.3$\times$); MLP e KAN risultano compromessi (R\(^2\) negativo).
-	\end{itemize}
+	Ad un pruning del 30\%, Random Forest e XGBoost mantengono le prestazioni quasi invariate (\(R^2 \approx 0.894\) e 0.995 rispettivamente), mentre la MLP rimane stabile (\(R^2 = 0.8467\)). La KAN, al contrario, degrada molto rapidamente (\(R^2 \approx 0.364\)). \\
+	Con un pruning del 50\%, XGBoost conserva un \(R^2 \approx 0.994\), e Random Forest migliora ulteriormente la generalizzazione (\(R^2 \approx 0.904\)). La MLP resta stabile, mentre la KAN crolla sotto lo 0. \\
+	Al 70\% di pruning, XGBoost si dimostra ancora robusto (\(R^2 \approx 0.993\), con una compressione di $3.3\times$. Il Random Forest continua a migliorare (\(R^2 \approx 0.917\)), mentre la MLP e la KAN subiscono un forte degrado, con un $R^2$ negativo. \\
+	A un pruning del 90\%, Random Forest mostra la migliore performance in termini di retention (\(R^2 \approx 0.9296\)) con una compressione di $11\times$. Anche XGBoost mantiene buone prestazioni (\(R^2 \approx 0.9823\), compressione $10.3\times$), mentre MLP e KAN risultano completamente compromessi.
 	
 	\subsubsection{Conclusioni}
 	\begin{enumerate}
-		\item \textbf{XGBoost:} risulta il modello più stabile sotto pruning aggressivo: fino al 90\% di riduzione mantiene \(R^2 > 0.98\) e compressione \(\approx 10.3\times\).
-		\item \textbf{Random Forest:} il pruning rank-based porta a un miglioramento netto della generalizzazione: con 90\% di pruning, \(R^2\) sale a 0.9296 (compressione \(\approx 11.1\times\)).
-		\item \textbf{MLP:} tollera pruning fino al 50\% (compressione 2$\times$) senza perdita di \(R^2\), ma degrada rapidamente oltre questa soglia.
-		\item \textbf{KAN:} estremamente sensibile al pruning: già al 20\% scende a \(R^2 \approx 0.893\), e crolla sotto lo 0 oltre il 40-50\%.
+		\item XGBoost si conferma il modello più stabile sotto pruning aggressivo, mantenendo un \(R^2 > 0.98\) ed una compressione di circa $10.3\times$ fino ad un pruning del 90\%.
+		\item Per il Random Forest, il pruning rank-based porta ad un notevole miglioramento della generalizzazione, con un \(R^2\) che sale a $0.9296$ con un pruning del 90\% ed una compressione di circa $11.1\times$.
+		\item La MLP tollera il pruning fino al 50\% (compressione $2\times$) senza perdita di $R^2$, ma degrada rapidamente oltre questa soglia.
+		\item La KAN è estremamente sensibile al pruning: già al 20\% l'$R^2$ scende a circa $0.893$, e crolla sotto lo 0 oltre il 40-50\%.
 	\end{enumerate}
 	
 	\chapter{Secondo Caso Studio: Classificazione di PM2.5}
+	
+	\section{Progettazione del caso di studio}
+	
+	\subsection{Tecnologie e librerie}
+	Il workflow sperimentale e di analisi è stato implementato in \texttt{Python}. Per le reti neurali (MLP e KAN) è stato utilizzato \textbf{PyTorch} (moduli \texttt{torch.nn}, \texttt{torch.optim}, \texttt{torch.nn.utils.prune} e utility custom per conteggio parametri e prunning). La famiglia degli ensemble è stata gestita con \textbf{scikit-learn} (Random Forest, pipeline e metriche) e con \textbf{XGBoost} per le sperimentazioni sul boosting e sul pruning cumulativo. Per l'elaborazione e la manipolazione dei dati si sono impiegati \texttt{pandas} e \texttt{numpy}; l'analisi statistica e il calcolo degli intervalli di confidenza (bootstrap) hanno fatto uso di \texttt{scipy.stats}. La visualizzazione è stata prodotta con \texttt{matplotlib} e \texttt{seaborn}. Tool ausiliari come \texttt{tqdm} sono stati adottati per le progress bar e \texttt{logging} per il tracciamento degli esperimenti; i risultati sperimentali sono stati serializzati in formato \texttt{JSON} con metadati (seed, configurazione, timestamp).
+	
+	\subsection{Ambienti di sviluppo e infrastruttura}
+	La prototipazione ed il debug sono stati condotti su Google Colab tramite notebook interattivi; il training e le sperimentazioni su GPU sono stati eseguiti sul Cluster HPC dell'Università di Bologna con sottomissione batch tramite SLURM. Per la riproducibilità sono stati utilizzati ambienti virtuali (venv) ed un file requirements.txt per fissare le dipendenze. Ogni esperimento salva la propria configurazione in JSON (parametri, seed, metadati) e le esecuzioni su cluster producono output e notebook convertiti in HTML per la reportistica.
+	
+	\subsection{Linguaggi, scripting e automazione del workflow}
+	Il linguaggio principale è Python; le analisi esplorative ed il reporting sono gestiti con Jupyter notebooks. La sottomissione batch e la gestione delle esecuzioni ripetute sono automatizzate con script bash e job SLURM; la conversione automatica ed esecuzione dei notebook viene eseguita tramite nbconvert. Per la ripetibilità ogni run registra il seed e i parametri in un file di configurazione JSON e utilizza logging strutturato per tracciare gli eventi salienti del training e delle valutazioni.
+	
+	\subsection{Script di sottomissione (Cluster GPU)}
+	Lo script utilizzato per lanciare l'esecuzione di un notebook Jupyter sul cluster GPU (versione attuale usata per le sperimentazioni) è il seguente:
+	
+	\begin{verbatim}
+		#!/bin/bash
+		#SBATCH --job-name=PM_India
+		#SBATCH --mail-type=ALL
+		#SBATCH --mail-user=martin.tomassi@studio.unibo.it
+		#SBATCH --time=120:00:00
+		#SBATCH --nodes=1
+		#SBATCH --ntasks-per-node=1
+		#SBATCH --cpus-per-task=4
+		#SBATCH --mem=40G
+		#SBATCH --partition=rtx2080
+		#SBATCH --output=output_jupyter_exec_job_%j.txt
+		#SBATCH --chdir=/scratch.hpc/martin.tomassi
+		#SBATCH --gres=gpu:1
+		
+		export JUPYTER_CONFIG_DIR=
+				"/scratch.hpc/martin.tomassi/jupyter_config_for_job_$SLURM_JOB_ID"
+		export MPLCONFIGDIR=
+				"/scratch.hpc/martin.tomassi/matplotlib_cache_for_job_$SLURM_JOB_ID"
+		mkdir -p "$JUPYTER_CONFIG_DIR"
+		mkdir -p "$MPLCONFIGDIR"
+		
+		source venv_pm/bin/activate
+		jupyter nbconvert --to notebook 
+				--execute Training_Evaluation_India.ipynb 
+				--output Training_Evaluation_India_trained.ipynb
+		jupyter nbconvert --to html Training_Evaluation_India_trained.ipynb
+		deactivate
+		
+		rm -rf "$JUPYTER_CONFIG_DIR"
+		rm -rf "$MPLCONFIGDIR"
+	\end{verbatim}
+	
+	\subsection{Scelte architetturali ed iperparametri}
+	% To Be Modified
+	Nella Tabella \ref{tab:model-config-pm} vengono mostrate le scelte finali, dopo l'ottimizzazione degli iperparametri, utilizzate per training, valutazioni comparative e studio di ablazione.
+	
+	\begin{table}[H]
+		\centering
+		\caption{Configurazioni finali dei modelli usati per il Training, dopo aver effettuato l'ottimizzazione degli iperparametri.}
+		\label{tab:model-config-pm}
+		\begin{tabular}{l p{0.65\linewidth}}
+			\toprule
+			\textbf{MLP} & \texttt{input\_dim = 1048}, \texttt{hidden\_sizes = (128,)}, \texttt{dropout = 0.1}; ottimizzatore: Adam; \texttt{lr = 1e-3}; \texttt{l2\_lambda = 1e-5}; \texttt{batch\_size = 32}. Early stopping applicato. \\
+			\midrule
+			\textbf{KAN} & \texttt{input\_dim = 1048}, \texttt{width = (16,8)}, \texttt{grid = 10}, \texttt{k = 4}, \texttt{seed = 0}; ottimizzatore: Adam; \texttt{lr = 1e-3}; \texttt{l2\_lambda = 1e-4}; \texttt{batch\_size = 32}. Early stopping applicato. \\
+			\midrule
+			\textbf{Random Forest} & \texttt{n\_estimators = 100}, \texttt{max\_depth = 30}, \texttt{min\_samples\_split = 20}, \texttt{min\_samples\_leaf = 5}, \texttt{max\_features = 'sqrt'}, \texttt{random\_state = 42}. \\
+			\midrule
+			\textbf{XGBoost} & \texttt{n\_estimators = 300}, \texttt{max\_depth = 6}, \texttt{learning\_rate = 0.1}, \texttt{subsample = 0.8}, \texttt{colsample\_bytree = 0.7}, \texttt{reg\_alpha = 2.0}, \texttt{reg\_lambda = 2.0}, \texttt{random\_state = 42}. \\
+			\bottomrule
+		\end{tabular}
+	\end{table}
 	
 	\section{Data preparation}
 	
@@ -1790,7 +1830,7 @@
 	
 	\section{Valutazione dei modelli}
 	
-	La figura ~\ref{fig:comparison_pm} sintetizza le principali metriche di performance (Accuracy, F1-weighted, F1-macro, AUC-ROC e AUC-PR) con intervalli di confidenza al 95\% (bootstrap) e la complessitá dei modelli.
+	La figura \ref{fig:comparison_pm} sintetizza le principali metriche di performance (Accuracy, F1-weighted, F1-macro, AUC-ROC e AUC-PR) con intervalli di confidenza al 95\% (bootstrap) e la complessitá dei modelli.
 	
 	\begin{figure}[H]
 		\centering
@@ -2025,9 +2065,126 @@
 	
 	\chapter{Terzo Caso Studio: Classificazione di età tramite immagini}
 	
+	\section{Data preparation}
+	
+	La preparazione dei dati è stata condotta seguendo un protocollo riproducibile e tracciabile, volto a trasformare il repository grezzo di immagini facciali e le informazioni codificate nei nomi dei file in insiemi di dati pronti per la fase di addestramento, valutazione e studio di ablazione. Il workflow adottato comprende: acquisizione e normalizzazione dei percorsi delle immagini, estrazione e pulizia delle etichette (età, genere, etnia), definizione di classi d'età coerenti con l'obiettivo sperimentale, bilanciamento numerico del dataset, controllo di integrità dei file immagine ed un'analisi esplorativa finalizzata all'identificazione di bias e anomalie.
+	
+	\subsection{Pre-processing e costruzione delle etichette}
+	
+	I nomi dei file seguono la convenzione \texttt{<age>\_<gender>\_<ethnic>\_...jpg} e sono stati analizzati per estrarre le tre etichette primarie: età, genere ed etnia. Le righe contenenti metadati non conformi o non numerici sono state scartate e le colonne rimanenti sono state convertite ai tipi più appropriati per l'elaborazione. \\
+	Per migliorare la leggibilità e la coerenza delle analisi successive, i codici numerici relativi a genere ed etnia sono stati mappati su etichette testuali (ad esempio \textit{Male}/\textit{Female} per il genere; tassonomia semantica per i gruppi etnici). Le colonne relative a genere ed etnia sono state trattate come variabili categoriche per ridurre l'occupazione di memoria e facilitare operazioni di aggregazione e raggruppamento. \\
+	La variabile età, originariamente numerica e molto dettagliata, è stata discretizzata in quattro fasce d'età: bambini ("child"), adolescenti ("young"), adulti ("adult") e anziani ("senior"). Tale scelta nasce dall'esigenza di un compromesso tra risoluzione predittiva e robustezza statistica: una granularità eccessiva porta a classi con numerosità troppo basse, compromettendo la capacità dei modelli di generalizzare.
+	
+	\subsubsection{Scelta della dimensione target e procedura di campionamento}
+	Per ottenere un dataset sperimentale con distribuzioni più bilanciate tra le fasce d'età, è stata definita una dimensione complessiva target del dataset e, a partire da questa, il numero target di esempi per ciascuna classe. Indichiamo con \(N_{tot}\) la dimensione target complessiva e con \(G\) il numero di gruppi (fasce d'età); il numero target per gruppo è calcolato come
+	\[
+	N_{\text{target}} \;=\; \left\lfloor \frac{N_{tot}}{G} \right\rfloor,
+	\]
+	con gestione del resto tramite possibile assegnazione di una o più istanze aggiuntive ad alcune classi. I campioni per ogni classe vengono concatenati ed infine rimescolati con seed fissato, ottenendo così il dataset sperimentale definitivo. Tale procedura controllata consente di limitare il bias dovuto a classi fortemente sbilanciate mantenendo riproducibilità e semplicità di implementazione.
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.8\textwidth]{img/pie_agegroup_image.png}
+		\caption{Distribuzione delle classi in percentuale.}
+	\end{figure}
+	
+	\subsubsection{Controllo di integrità dei file e politica di fallback}
+	Prima dell'estrazione finale dei tensori con immagini all'interno, si è eseguito un controllo di integrità su tutti i percorsi indicati nel DataFrame. Per ogni percorso, in caso di mancata corrispondenza tra entry e file reale, si sostituisce con un altro esempio appartenente alla stessa fascia d'età, selezionato a campione tra le istanze disponibili di quella fascia.
+	
+	\subsubsection{Trasformazioni immagine e criteri di normalizzazione}
+	Per la compatibilità con le architetture CNN impiegate, tutte le immagini sono state ridimensionate e ritagliate centralmente a risoluzione \(224\times224\) pixel, convertite in tensori e normalizzate canale per canale con parametri di media e deviazione standard comunemente adottati nelle reti pre-addestrate. Durante la fase di addestramento è stata valutata l'applicazione di data augmentation controllata (flip orizzontale, rotazioni leggere, leggere variazioni di luminosità e contrasto); l'ampiezza delle trasformazioni è stata limitata per non alterare i dettagli del viso che sono informazioni importanti per il compito di stima dell'età.
+	
+	\subsection{Data exploration}	
+	L'analisi esplorativa è stata finalizzata a identificare squilibri ed anomalie nei dati grezzi e a produrre una serie di visualizzazioni da inserire nella tesi per documentare lo stato del dataset. \\
+	La prima visualizzazione è una rappresentazione circolare (pie chart) della distribuzione percentuale delle età; le età con frequenza inferiore alla soglia dell'1\% sono state aggregate nella categoria "Others" al fine di migliorare chiarezza e leggibilità. \\
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.8\textwidth]{img/ages_image.png}
+		\caption{Distribuzione dell'etá in percentuale.}
+	\end{figure}
+	
+	A complemento della panoramica generale, sono stati prodotti tre grafici a barre posti in parallelo che mostrano la distribuzione per età del dataset complessivo, dei soli individui di genere maschile e femminile. Questa tripletta di visualizzazioni consente di osservare in maniera immediata eventuali bias di genere associati a singole età o fasce d'età. \\
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.8\textwidth]{img/ages_bygender_image.png}
+		\caption{Distribuzione dell'etá per genere.}
+	\end{figure}
+	
+	In aggiunta alla distribuzione delle fasce d'età, è stata analizzata la composizione di genere del dataset, che evidenzia la quasi perfetta parità tra soggetti maschili e femminili, condizione che riduce il rischio di bias sistematici legati al genere. 
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=0.6\textwidth]{img/pie_gender_images.png}
+		\caption{Distribuzione percentuale dei generi.}
+	\end{figure}
+	
+	Per indagare la relazione tra età e genere è stato inoltre prodotto un grafico a barre che mostra, per ciascuna età, la percentuale di individui maschi e femmine, che evidenzia come la distribuzione sia in generale bilanciata, pur mostrando variazioni locali dovute a squilibri demografici.
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=1.0\textwidth]{img/gender_byage_images.png}
+		\caption{Distribuzione percentuale di maschi e femmine, per ciascuna età.}
+	\end{figure} 
+	
+	La ripartizione etnica è stata analizzata mediante grafici a torta e conteggi per età distinti per ciascun gruppo etnico, in modo da mettere in evidenza potenziali disparità demografiche all'interno delle fasce d'età. \\
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=1.0\textwidth]{img/pie_ethnic_image.png}
+		\caption{Distribuzione delle etnie in percentuale.}
+	\end{figure}
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=1.0\textwidth]{img/bar_ethnic_asian_image.png}
+		\caption{Distribuzione dell'etnia asiatica per età.}
+	\end{figure}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=1.0\textwidth]{img/pie_ethnic_white_image.png}
+		\caption{Distribuzione dell'etnia con persone di carnagione bianca per età.}
+	\end{figure}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=1.0\textwidth]{img/pie_ethnic_black_image.png}
+		\caption{Distribuzione dell'etnia con persone di carnagione scura per età..}
+	\end{figure}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=1.0\textwidth]{img/pie_ethnic_others_image.png}
+		\caption{Distribuzione di altre etnie per età.}
+	\end{figure}
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=1.0\textwidth]{img/pie_ethnic_indian_image.png}
+		\caption{Distribuzione dell'etnia indiana per età.}
+	\end{figure}
+	
+	L'interazione tra etnia e genere è stata ulteriormente indagata con un grafico a barre con suddivisione per genere, utile per rilevare concentrazioni di genere in specifici cluster etnici. Per ricapitolare la composizione delle classi d'età, è stato infine elaborato un grafico a torta riepilogativo che sintetizza la quota relativa di ciascuna fascia definita nella fase di preprocessing. \\
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=1.0\textwidth]{img/ethnic_bygender_image.png}
+		\caption{Distribuzione dei generi per etnia.}
+	\end{figure}
+	
+	Per l'ispezione qualitativa, sono state generate delle griglie di immagini in formato $5\times5$ per triple "età–genere-etnia" specifiche. Tali griglie sono state impiegate per valutare variabilità intrinseca al dataset (pose, espressioni, illuminazione, qualità) e per motivare eventuali scelte di pulizia addizionale.
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=1.0\textwidth]{img/example_grid_image.png}
+		\caption{Esempio di Griglia di Immagini, in formato $5\times5$, di maschi con 26 anni di qualsiasi etnia.}
+	\end{figure}
+	
 	
 	
 	\chapter{Discussione comparativa sui Risultati dei casi studio}
+	
+	\section{Comparazione valutazione modelli}
+	
+	\section{Comparazione studio di ablazione dei modelli}
 	
 	\chapter{Conclusioni}
 	
