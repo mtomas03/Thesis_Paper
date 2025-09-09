@@ -1054,25 +1054,29 @@
 	
 	Se l'obiettivo è creare un modello più leggero da salvare o esportare, è possibile potare il modello in modo permanente. Questo si ottiene limitando l'ensemble agli alberi selezionati e salvando il nuovo modello ridotto. Questo processo è utile per ridurre l'occupazione di memoria e rendere il modello più efficiente per la distribuzione in produzione, una volta che la migliore configurazione è stata identificata tramite lo studio di ablazione.
 	
-	\chapter{Primo Caso Studio: Regressione su emissioni di automobili}
-	
-	\section{Progettazione del caso di studio}
+	\chapter{Progettazione dei casi di studio}
 	
 	\subsection{Tecnologie e librerie}
-	Il workflow sperimentale e di analisi è stato realizzato in \texttt{Python}. Per le reti neurali (MLP e KAN) si è fatto uso di \textbf{PyTorch} (moduli \texttt{torch.nn}, \texttt{torch.optim}, \texttt{torch.nn.utils.prune} e utility custom). La famiglia degli ensemble è stata gestita con \textbf{scikit-learn} (Random Forest, metriche, pipeline e validazione) e \textbf{XGBoost} (\texttt{xgboost.XGBRegressor}) per il boosting e la sperimentazione del pruning cumulativo. Per l'esplorazione e la manipolazione dei dati si é utilizzato \textbf{pandas} e \textbf{numpy}, mentre \texttt{scipy.stats} é stata usata per l'analisi statistica e la stima di intervalli di confidenza. La visualizzazione è stata prodotta con \textbf{matplotlib} e \textbf{seaborn}. Infine, sono stati impiegati tool ausiliari quali \texttt{tqdm} per la progress bar, \texttt{logging} per il tracciamento degli esperimenti e utility custom per salvataggio/serializzazione dei risultati e calcolo bootstrap al 95\%.
+	Il workflow sperimentale e di analisi è stato interamente sviluppato in \texttt{Python}, con un insieme di librerie comuni ai tre casi studio e componenti specifiche in base alla natura del problema affrontato. \\
+	Per la manipolazione dei dati si è fatto uso di \textbf{NumPy} e \textbf{pandas}, mentre la visualizzazione è stata realizzata con \textbf{matplotlib} e \textbf{seaborn} (con configurazione \texttt{sns.set\_theme()}). I moduli \texttt{json}, \texttt{os}, \texttt{inspect} e \texttt{copy} sono stati utilizzati per la gestione dei metadati, il salvataggio dei risultati e la serializzazione delle configurazioni. \\
+	Le reti neurali (MLP, KAN e loro estensioni CNN nel terzo caso studio) sono state implementate in \textbf{PyTorch}, facendo ricorso a \texttt{torch.nn}, \texttt{torch.optim}, \texttt{torch.utils.data} e \texttt{torch.nn.utils.prune}, con funzioni di supporto definite in \texttt{torch.nn.functional}. Nel terzo caso studio è stato inoltre utilizzato \textbf{torchvision} per le trasformazioni e la gestione delle immagini. La libreria \textbf{kan} è stata integrata in tutti i casi studio per l’implementazione della Kolmogorov-Arnold Network.
+	Per gli approcci ensemble, sono stati adottati \textbf{scikit-learn} (RandomForestRegressor, RandomForestClassifier, metriche di regressione e classificazione, pipeline, \texttt{ColumnTransformer}, scaling, encoding, \texttt{ParameterSampler}, \texttt{KFold}, \texttt{RandomizedSearchCV}, \texttt{TimeSeriesSplit}) e \textbf{XGBoost}. Nel secondo e terzo caso studio si è inoltre fatto uso di \textbf{imblearn} (\texttt{SMOTE}, \texttt{ImbPipeline}) per il bilanciamento delle classi. \\
+	Gli strumenti ausiliari hanno incluso \texttt{tqdm} per le progress bar (caso studio 3), \texttt{logging} per il tracciamento degli esperimenti e librerie standard come \texttt{random}, \texttt{time}, \texttt{glob}, \texttt{zipfile}, \texttt{pathlib} e \texttt{PIL.Image} per la gestione dei dataset e delle immagini.
 	
 	\subsection{Ambienti di sviluppo e infrastruttura}
-	Lo sviluppo è avvenuto in due contesti principali: prototipazione e debug interattivo su \textbf{Google Colab}, training e sperimentazione su GPU sul \textbf{Cluster HPC} dell'Universitá di Bologna. Per la riproducibilità delle dipendenze, si sono utilizzati ambienti virtuali (\texttt{venv}) e un file \texttt{requirements.txt}; i risultati sono stati salvati in formati standard (\texttt{JSON}) con metadati (seed, configurazione iperparametri, timestamp).
+	La prototipazione ed il debug sono stati effettuati su \textbf{Google Colab}, sfruttando notebook interattivi; le sperimentazioni su larga scala e l’addestramento intensivo dei modelli sono stati condotti sul \textbf{Cluster HPC} dell’Università di Bologna, con allocazione di GPU tramite SLURM. \\
+	Per la riproducibilità delle dipendenze, sono stati creati ambienti virtuali dedicati (\texttt{venv}) e un file \texttt{requirements.txt}. I risultati di ogni run, insieme a configurazioni ed iperparametri, sono stati serializzati in \texttt{JSON}, mentre i notebook eseguiti sul cluster sono stati automaticamente convertiti in HTML per la documentazione.
 	
-	\subsection{Linguaggi, automazione e pianificazione del workflow}
-	Il linguaggio principale è \texttt{Python}. L'attività esplorativa e il reporting sono stati condotti tramite Jupyter notebooks, mentre la pianificazione sperimentale è stata automatizzata con piccoli script bash per la sottomissione batch al cluster (SLURM), conversione dei notebook tramite \texttt{nbconvert} e serializzazione dei risultati. Ogni esperimento salva la propria configurazione in JSON (parametri, seed, metadati) ed i run sono riproducibili grazie a seed espliciti e logging strutturato. Per la sottomissione su cluster si è impiegato uno script SLURM (riportato di seguito) che esegue il notebook e salva il suo output.
+	\subsection{Linguaggi, scripting e automazione del workflow}
+	Il linguaggio principale è \texttt{Python}. Le analisi esplorative e la reportistica sono state realizzate in Jupyter notebooks, mentre l’automazione degli esperimenti e la sottomissione su cluster sono state gestite tramite script \texttt{bash} integrati con SLURM. \\
+	La conversione automatica ed esecuzione dei notebook è stata gestita con \texttt{nbconvert}, così da produrre sia versioni aggiornate in formato notebook che report in HTML. Ogni esperimento ha registrato seed, configurazioni ed eventi salienti del training con logging strutturato, assicurando piena riproducibilità.
 	
 	\subsection{Script di sottomissione (Cluster GPU)}
-	Lo script utilizzato per eseguire un notebook Jupyter su SLURM è il seguente:
+	La struttura degli script SLURM è risultata uniforme tra i casi studio, con differenze solo nelle risorse richieste, nel nome del job e nel notebook eseguito. Un esempio generico è riportato di seguito:
 	
 	\begin{verbatim}
 		#!/bin/bash
-		#SBATCH --job-name=Car_Emissions
+		#SBATCH --job-name=Generic_Case
 		#SBATCH --mail-type=ALL
 		#SBATCH --mail-user=martin.tomassi@studio.unibo.it
 		#SBATCH --time=120:00:00
@@ -1086,17 +1090,17 @@
 		#SBATCH --gres=gpu:1
 		
 		export JUPYTER_CONFIG_DIR=
-				"/scratch.hpc/martin.tomassi/jupyter_config_for_job_$SLURM_JOB_ID"
+				"/scratch.hpc/martin.tomassi/jupyter_config_$SLURM_JOB_ID"
 		export MPLCONFIGDIR=
-				"/scratch.hpc/martin.tomassi/matplotlib_cache_for_job_$SLURM_JOB_ID"
+				"/scratch.hpc/martin.tomassi/matplotlib_cache_$SLURM_JOB_ID"
 		mkdir -p "$JUPYTER_CONFIG_DIR"
 		mkdir -p "$MPLCONFIGDIR"
 		
-		source venv_car/bin/activate
-		jupyter nbconvert --to notebook 
-				--execute car_emissions.ipynb 
-				--output car_emissions_trained.ipynb
-		jupyter nbconvert --to html car_emissions_trained.ipynb
+		source venv_case/bin/activate
+		jupyter nbconvert --to notebook
+				--execute case_notebook.ipynb
+				--output case_notebook_trained.ipynb
+		jupyter nbconvert --to html case_notebook_trained.ipynb
 		deactivate
 		
 		rm -rf "$JUPYTER_CONFIG_DIR"
@@ -1104,24 +1108,9 @@
 	\end{verbatim}
 	
 	\subsection{Scelte architetturali ed iperparametri}
-	Nella Tabella \ref{tab:model-config} vengono mostrate le scelte finali, dopo l'ottimizzazione degli iperparametri, utilizzate per training, valutazioni comparative e studio di ablazione.
+	Le scelte architetturali e gli iperparametri finali sono stati specifici per ciascun caso studio. Le configurazioni dettagliate, incluse nelle tabelle dei singoli capitoli, documentano gli iperparametri selezionati dopo la fase di ottimizzazione. In tutti i casi, si è fatto ricorso a \textit{Early stopping} per migliorare la generalizzazione.
 	
-	\begin{table}[H]
-		\centering
-		\caption{Configurazioni finali dei modelli usati per il Training, dopo aver effettuato l'ottimizzazione degli iperparametri.}
-		\label{tab:model-config}
-		\begin{tabular}{l p{0.65\linewidth}}
-			\toprule
-			\textbf{MLP} & \texttt{input\_dim = 1048}, \texttt{hidden\_sizes = (128,)}, \texttt{dropout = 0.1}; ottimizzatore: Adam; \texttt{lr = 1e-3}; \texttt{l2\_lambda = 1e-5}; \texttt{batch\_size = 32}. Early stopping applicato. \\
-			\midrule
-			\textbf{KAN} & \texttt{input\_dim = 1048}, \texttt{width = (16,8)}, \texttt{grid = 10}, \texttt{k = 4}, \texttt{seed = 0}; ottimizzatore: Adam; \texttt{lr = 1e-3}; \texttt{l2\_lambda = 1e-4}; \texttt{batch\_size = 32}. Early stopping applicato. \\
-			\midrule
-			\textbf{Random Forest} & \texttt{n\_estimators = 100}, \texttt{max\_depth = 30}, \texttt{min\_samples\_split = 20}, \texttt{min\_samples\_leaf = 5}, \texttt{max\_features = 'sqrt'}, \texttt{random\_state = 42}. \\
-			\midrule
-			\textbf{XGBoost} & \texttt{n\_estimators = 300}, \texttt{max\_depth = 6}, \texttt{learning\_rate = 0.1}, \texttt{subsample = 0.8}, \texttt{colsample\_bytree = 0.7}, \texttt{reg\_alpha = 2.0}, \texttt{reg\_lambda = 2.0}, \texttt{random\_state = 42}. \\
-			\bottomrule
-		\end{tabular}
-	\end{table}
+	\chapter{Primo Caso Studio: Regressione su emissioni di automobili}
 	
 	\section{Data preparation}
 	Questo caso studio si concentra principalmente sulle fasi di allenamento, valutazione e studio di ablazione; pertanto il dataset utilizzato per l'addestramento è stato fornito già pre-elaborato da terze parti. Di seguito, viene mostrata una sintesi chiara e sintetica delle principali trasformazioni già applicate ai dati, senza entrare nel dettaglio operativo della preparazione dei dati.
@@ -1135,7 +1124,7 @@
 	\subsection{Ruolo nella tesi}
 	Poiché il preprocessing non rientra nelle attività svolte, nelle sezioni successive si assume che il dataset finale sia corretto e pronto per la modellazione. La trattazione si concentrerà pertanto su tre aspetti principali: la scelta delle architetture, la strategia di validazione e splitting utilizzata per evitare il data leakage, e, infine, le metriche di valutazione, il confronto tra modelli e lo studio di ablazione.
 	
-	\section{Addestramento modelli}
+	\section{Addestramento dei modelli}
 	
 	\subsection{Features e variabile target}
 	\begin{itemize}
@@ -1151,21 +1140,6 @@
 	
 	\subsection{Pipeline di preprocessing}
 	La pipeline di preprocessing prevede tre passaggi principali. Innanzitutto, si effettua una selezione delle features per mantenere solo le colonne più importanti per la previsione delle emissioni di CO2. Successivamente, le variabili categoriche vengono codificate con un \texttt{OneHotEncoder} e, infine, le variabili numeriche sono standardizzate con uno \texttt{StandardScaler}, quando il modello lo richiede.
-	
-	\subsection{Split dei dati}
-	\begin{itemize}
-		\item \textbf{Train/Test split iniziale}: si ottiene un test set indipendente con il 20\% del dataset.
-		\item \textbf{Train pool}: dal training residuo, é stato creato un "train pool" di 25000 osservazioni usato per la ricerca di iperparametri. Questo pool è poi suddiviso in:
-		\begin{itemize}
-			\item set di training interno: 22500 osservazioni;
-			\item set di validazione interno: 2500 osservazioni.
-		\end{itemize}
-		\item \textbf{Validazione incrociata annidata (nested CV) con Random search}: per la selezione degli iperparametri è stato usato il Random search tramite un approccio nested :
-		\begin{itemize}
-			\item \textbf{Outer CV}: KFold con 5 fold (outer\_folds = 5) — per stimare la performance generalizzata;
-			\item \textbf{Inner CV}: KFold con 3 fold (inner\_folds = 3) — per comparare le configurazioni campionate dalla Random Search.
-		\end{itemize}
-	\end{itemize}
 	
 	\subsection{Split dei dati}
 	Il dataset è stato suddiviso per le fasi di training e testing. Inizialmente, si è creato un test set indipendente, pari al 20\% del dataset totale. Dal restante 80\%, è stato selezionato un "training pool" di 25000 osservazioni, utilizzato per la ricerca degli iperparametri, che è stato ulteriormente suddiviso in un set di training interno (22500 osservazioni) e un set di validazione indipendente (2500 osservazioni), che verrà utilizzato durante lo studio di ablazione, oltre al test set indipendente per la valutazione finale. Per la selezione degli iperparametri, è stata impiegata una Nested CV con Random search, organizzata in un ciclo esterno (Outer CV) di 5 K-fold per stimare la performance generalizzata e un ciclo interno (Inner CV) di 3 K-fold per confrontare le configurazioni campionate dalla ricerca casuale.
@@ -1187,7 +1161,7 @@
 	Sono stati calcolati per MSE, MAE e MAPE gli intervalli di confidenza.
 	
 	\subsection{Strategia di training comune e griglie di iperparametri}
-	La strategia di training è stata omogenea per tutti i modelli considerati. Le procedure comuni adottate sono le seguenti: il preprocessing ed il batching sono gestiti con la codifica delle variabili categoriche tramite \texttt{OneHotEncoder} e la standardizzazione delle feature numeriche con \texttt{StandardScaler}. Il protocollo di validazione impiega una Nested CV con un outer KFold $= 5$ e un inner KFold $= 3$. Il ciclo interno esegue una Random Search sulle griglie di iperparametri. La migliore configurazione trovata viene riaddestrata sul sottoinsieme interno e valutata sul corrispondente outer test fold. Per la Random Search, il numero di iterazioni $n$ è stato scelto con una logica probabilistica per assicurare una probabilità del 90\% di includere almeno una delle 10 migliori configurazioni. Per le reti neurali, l'ottimizzazione è stata gestita con l'ottimizzatore \texttt{Adam} e la funzione di perdita \texttt{MSELoss}, con una regolarizzazione L2 opzionale. Le epoche massime sono 1000, ma con l'uso di un Early stopping per interrompere il training in caso di mancato miglioramento. Infine, la \textbf{valutazione finale} di ogni outer fold ha incluso il calcolo delle metriche (MSE, MAE, MAPE, $R^2$, $R^2$-adjusted, Max Error), degli intervalli di confidenza al 95\% per MSE, MAE e MAPE e della complessità del modello.
+	La strategia di training è stata omogenea per tutti i modelli considerati. Le procedure comuni adottate sono le seguenti: il protocollo di validazione impiega una Nested CV con un outer KFold $= 5$ e un inner KFold $= 3$. Il ciclo interno esegue una Random Search sulle griglie di iperparametri. La migliore configurazione trovata viene riaddestrata sul sottoinsieme interno e valutata sul corrispondente outer test fold. Per la Random Search, il numero di iterazioni $n$ è stato scelto con una logica probabilistica per assicurare una probabilità del 90\% di includere almeno una delle 10 migliori configurazioni. Per le reti neurali, l'ottimizzazione è stata gestita con l'ottimizzatore \texttt{Adam} e la funzione di perdita \texttt{MSELoss}, con una regolarizzazione L2 opzionale. Le epoche massime sono 1000, ma con l'uso di un Early stopping per interrompere il training in caso di mancato miglioramento. Infine, la \textbf{valutazione finale} di ogni outer fold ha incluso il calcolo delle metriche (MSE, MAE, MAPE, $R^2$, $R^2$-adjusted, Max Error), degli intervalli di confidenza al 95\% per MSE, MAE e MAPE e della complessità del modello. Inoltre, la funzione di attivazione della MLP é la ReLU.
 	
 	\subsubsection{Griglie di iperparametri per modello}
 	\smallskip
@@ -1238,6 +1212,26 @@
 		\item \texttt{random\_state:} 42
 	\end{itemize}
 	
+	\subsection{Scelte architetturali finali}
+	Nella Tabella \ref{tab:model-config-car} vengono mostrate le scelte finali, dopo l'ottimizzazione degli iperparametri, utilizzate per training, valutazioni comparative e studio di ablazione.
+	
+	\begin{table}[H]
+		\centering
+		\caption{Configurazioni finali dei modelli usati per il Training, dopo aver effettuato l'ottimizzazione degli iperparametri.}
+		\label{tab:model-config-car}
+		\begin{tabular}{l p{0.65\linewidth}}
+			\toprule
+			\textbf{MLP} & \texttt{input\_dim = 1048}, \texttt{hidden\_sizes = (128,)}, \texttt{dropout = 0.1}; ottimizzatore: Adam; \texttt{lr = 1e-3}; \texttt{l2\_lambda = 1e-5}; \texttt{batch\_size = 32}. Early stopping applicato. \\
+			\midrule
+			\textbf{KAN} & \texttt{input\_dim = 1048}, \texttt{width = (16,8)}, \texttt{grid = 10}, \texttt{k = 4}, \texttt{seed = 0}; ottimizzatore: Adam; \texttt{lr = 1e-3}; \texttt{l2\_lambda = 1e-4}; \texttt{batch\_size = 32}. Early stopping applicato. \\
+			\midrule
+			\textbf{Random Forest} & \texttt{n\_estimators = 100}, \texttt{max\_depth = 30}, \texttt{min\_samples\_split = 20}, \texttt{min\_samples\_leaf = 5}, \texttt{max\_features = 'sqrt'}, \texttt{random\_state = 42}. \\
+			\midrule
+			\textbf{XGBoost} & \texttt{n\_estimators = 300}, \texttt{max\_depth = 6}, \texttt{learning\_rate = 0.1}, \texttt{subsample = 0.8}, \texttt{colsample\_bytree = 0.7}, \texttt{reg\_alpha = 2.0}, \texttt{reg\_lambda = 2.0}, \texttt{random\_state = 42}. \\
+			\bottomrule
+		\end{tabular}
+	\end{table}
+	
 	\section{Valutazione dei modelli}
 	
 	La figura \ref{fig:comparison_models} sintetizza le principali metriche di performance con intervalli di confidenza al 95\% e la complessità dei modelli.
@@ -1248,33 +1242,6 @@
 		\caption{Confronto visivo della complessitá e prestazioni dei modelli, utilizzando come metriche $R^2$, MSE, MAE, MAPE e $R^2$ aggiustato.}
 		\label{fig:comparison_models}
 	\end{figure}
-	
-	\subsection{Selezione del miglior modello}
-	Per identificare il modello più adatto al problema di regressione delle emissioni di CO2 è stata adottata una procedura che combina prestazione e complessità dei modelli:
-	
-	\begin{enumerate}
-		\item Si definiscono le metriche di interesse e la direzione di ottimizzazione:
-		\begin{verbatim}
-			metrics = {
-				'MSE_Test'           : 'min',
-				'MAE_Test'           : 'min',
-				'MAPE_Test'          : 'min',
-				'R2_Test'            : 'max',
-				'R2_Adjusted_Test'   : 'max'
-			}
-		\end{verbatim}
-		\item Per ciascuna metrica si calcola il rank dei modelli (rank 1 = migliore) considerando la direzione appropriata (ascendente o discendente).
-		\item Si calcola un \texttt{performance\_score} come media dei rank delle metriche di prestazione.
-		\item Si calcola un \texttt{Complexity\_rank} in base al numero di parametri/nodi (rank 1 = meno complesso).
-		\item Si combinano performance e complessità secondo varie strategie:
-		\begin{itemize}
-			\item \textbf{Equal Weight (1:1):} \(\text{performance\_score} + \text{Complexity\_rank}\)
-			\item \textbf{Complexity Weighted (1:2):} \(\text{performance\_score} + 2 \times \text{Complexity\_rank}\)
-			\item \textbf{Extreme Complexity (1:3):} \(\text{performance\_score} + 3 \times \text{Complexity\_rank}\)
-			\item \textbf{Pareto Approach (40:60):} normalizzazione di performance e complexity e combinazione con peso \(0.4\) sulla performance e \(0.6\) sulla complessità.
-		\end{itemize}
-		\item Per ogni metodo di aggregazione si seleziona il modello con punteggio minimo (migliore).
-	\end{enumerate}
 	
 	\subsection{Selezione del miglior modello}
 	Per identificare il modello più adatto al problema di regressione delle emissioni di CO2, è stata adottata una procedura che combina prestazione e complessità. Inizialmente, sono state definite le metriche di interesse e la rispettiva direzione di ottimizzazione, come mostrato di seguito: \\
@@ -1290,9 +1257,7 @@
 	\end{verbatim}
 	
 	Per ciascuna metrica è stato calcolato il rank dei modelli (con il rank 1 che indica il migliore), tenendo conto della direzione appropriata (ascendente o discendente). Successivamente, è stato calcolato un \texttt{performance\_score} come media dei rank delle metriche di prestazione e un \texttt{Complexity\_rank} basato sul numero di parametri o nodi, dove il rank 1 corrisponde al modello meno complesso. \\
-	Infine, sono stati combinati i punteggi di performance e complessità in base a diverse strategie di ponderazione. Sono stati usati l'Equal Weight (1:1), che somma direttamente il \texttt{performance\_score} e il \texttt{Complexity\_rank}, e le varianti con peso maggiore sulla complessità, ovvero il Complexity Weighted (1:2) e l'Extreme Complexity (1:3). È stato inoltre applicato un Pareto Approach (40:60), che combina i punteggi normalizzati con una ponderazione di 0.4 per la performance e 0.6 per la complessità. Per ogni metodo di aggregazione, il modello con il punteggio minimo è stato selezionato come il migliore.
-	
-	\subsubsection{Risultati}
+	Infine, sono stati combinati i punteggi di performance e complessità in base a diverse strategie di ponderazione. Sono stati usati l'Equal Weight (1:1), che somma direttamente il \texttt{performance\_score} e il \texttt{Complexity\_rank}, e le varianti con peso maggiore sulla complessità, ovvero il Complexity Weighted (1:2) e l'Extreme Complexity (1:3). È stato inoltre applicato un Pareto Approach (40:60), che combina i punteggi normalizzati con una ponderazione di 0.4 per la performance e 0.6 per la complessità. Per ogni metodo di aggregazione, il modello con il punteggio minimo è stato selezionato come il migliore. \\
 	I risultati hanno mostrato una chiara prevalenza del modello XGBoost su tutte le metriche ponderate. Nello specifico, XGBoost è risultato il modello vincente in Equal Weight (1:1), Complexity Weighted (1:2), Extreme Complexity (1:3) e Pareto Approach (40:60). \\
 	Di seguito la tabella riassuntiva con i valori principali usati per il ranking (valori ricavati dall'analisi finale):
 	
@@ -1314,23 +1279,7 @@
 	\end{table}
 	
 	\subsubsection{Conclusioni}
-	\begin{itemize}
-		\item \textbf{XGBoost} ottiene la performance assoluta migliore sulle metriche di regressione e ha la complessità stimata più bassa: per questi motivi è il modello più adatto per il deployment operativo.
-		\item \textbf{KAN} raggiunge un buon compromesso in termini di performance, ma la sua complessità stimata è elevata rispetto al beneficio assoluto di predizione.
-		\item \textbf{MLP} mostra performance inferiori in termini di MSE/MAE rispetto a XGBoost pur avendo un elevato numero di parametri.
-		\item \textbf{Random Forest} fornisce risultati stabili e prestazioni intermedie, ma non raggiunge XGBoost nel compromesso performance/complessità.
-	\end{itemize}
-	
-	La classifica dei tre migliori modelli, secondo il criterio \emph{complexity-weighted} (dal migliore al peggiore), è la seguente:
-	\begin{enumerate}
-		\item XGBoost \quad (Params: 14{,}764 \;|\; MSE Test: 17.52)
-		\item Random Forest \quad (Params: 46{,}944 \;|\; MSE Test: 511.72)
-		\item MLP \quad (Params: 134{,}401 \;|\; MSE Test: 605.28)
-	\end{enumerate}
-	
-	\subsubsection{Conclusioni}
-	L'analisi ha portato a individuare XGBoost come il più adatto al problema. Questo modello non solo ha ottenuto le migliori performance assolute su tutte le metriche di regressione, ma ha anche la complessità stimata più bassa, rendendolo la scelta ideale per un deployment operativo. La rete KAN ha raggiunto un buon compromesso in termini di performance, sebbene la sua complessità stimata sia risultata elevata in rapporto al beneficio predittivo assoluto. L'MLP, pur avendo il maggior numero di parametri di XGBoost, ha conseguito performance inferiori rispetto ad esso in termini di MSE e MAE. Il Random Forest ha fornito risultati stabili e prestazioni intermedie, ma non è riuscito a superare XGBoost nel compromesso tra performance e complessità.
-	
+	L'analisi ha portato a individuare XGBoost come il più adatto al problema. Questo modello non solo ha ottenuto le migliori performance assolute su tutte le metriche di regressione, ma ha anche la complessità stimata più bassa, rendendolo la scelta ideale per un deployment operativo. La rete KAN ha raggiunto un buon compromesso in termini di performance, sebbene la sua complessità stimata sia risultata elevata in rapporto al beneficio predittivo assoluto. L'MLP, pur avendo il maggior numero di parametri di XGBoost, ha conseguito performance inferiori rispetto ad esso in termini di MSE e MAE. Il Random Forest ha fornito risultati stabili e prestazioni intermedie, ma non è riuscito a superare XGBoost nel compromesso tra performance e complessità. \\
 	La classifica dei tre migliori modelli, secondo il criterio \emph{complexity-weighted} (dal migliore al peggiore), è la seguente:
 	\begin{enumerate}
 		\item XGBoost (Parametri: 14,764 | MSE Test: 17.52)
@@ -1464,74 +1413,6 @@
 	
 	\chapter{Secondo Caso Studio: Classificazione di PM2.5}
 	
-	\section{Progettazione del caso di studio}
-	
-	\subsection{Tecnologie e librerie}
-	Il workflow sperimentale e di analisi è stato implementato in \texttt{Python}. Per le reti neurali (MLP e KAN) è stato utilizzato \textbf{PyTorch} (moduli \texttt{torch.nn}, \texttt{torch.optim}, \texttt{torch.nn.utils.prune} e utility custom per conteggio parametri e prunning). La famiglia degli ensemble è stata gestita con \textbf{scikit-learn} (Random Forest, pipeline e metriche) e con \textbf{XGBoost} per le sperimentazioni sul boosting e sul pruning cumulativo. Per l'elaborazione e la manipolazione dei dati si sono impiegati \texttt{pandas} e \texttt{numpy}; l'analisi statistica e il calcolo degli intervalli di confidenza (bootstrap) hanno fatto uso di \texttt{scipy.stats}. La visualizzazione è stata prodotta con \texttt{matplotlib} e \texttt{seaborn}. Tool ausiliari come \texttt{tqdm} sono stati adottati per le progress bar e \texttt{logging} per il tracciamento degli esperimenti; i risultati sperimentali sono stati serializzati in formato \texttt{JSON} con metadati (seed, configurazione, timestamp).
-	
-	\subsection{Ambienti di sviluppo e infrastruttura}
-	La prototipazione ed il debug sono stati condotti su Google Colab tramite notebook interattivi; il training e le sperimentazioni su GPU sono stati eseguiti sul Cluster HPC dell'Università di Bologna con sottomissione batch tramite SLURM. Per la riproducibilità sono stati utilizzati ambienti virtuali (venv) ed un file requirements.txt per fissare le dipendenze. Ogni esperimento salva la propria configurazione in JSON (parametri, seed, metadati) e le esecuzioni su cluster producono output e notebook convertiti in HTML per la reportistica.
-	
-	\subsection{Linguaggi, scripting e automazione del workflow}
-	Il linguaggio principale è Python; le analisi esplorative ed il reporting sono gestiti con Jupyter notebooks. La sottomissione batch e la gestione delle esecuzioni ripetute sono automatizzate con script bash e job SLURM; la conversione automatica ed esecuzione dei notebook viene eseguita tramite nbconvert. Per la ripetibilità ogni run registra il seed e i parametri in un file di configurazione JSON e utilizza logging strutturato per tracciare gli eventi salienti del training e delle valutazioni.
-	
-	\subsection{Script di sottomissione (Cluster GPU)}
-	Lo script utilizzato per lanciare l'esecuzione di un notebook Jupyter sul cluster GPU (versione attuale usata per le sperimentazioni) è il seguente:
-	
-	\begin{verbatim}
-		#!/bin/bash
-		#SBATCH --job-name=PM_India
-		#SBATCH --mail-type=ALL
-		#SBATCH --mail-user=martin.tomassi@studio.unibo.it
-		#SBATCH --time=120:00:00
-		#SBATCH --nodes=1
-		#SBATCH --ntasks-per-node=1
-		#SBATCH --cpus-per-task=4
-		#SBATCH --mem=40G
-		#SBATCH --partition=rtx2080
-		#SBATCH --output=output_jupyter_exec_job_%j.txt
-		#SBATCH --chdir=/scratch.hpc/martin.tomassi
-		#SBATCH --gres=gpu:1
-		
-		export JUPYTER_CONFIG_DIR=
-				"/scratch.hpc/martin.tomassi/jupyter_config_for_job_$SLURM_JOB_ID"
-		export MPLCONFIGDIR=
-				"/scratch.hpc/martin.tomassi/matplotlib_cache_for_job_$SLURM_JOB_ID"
-		mkdir -p "$JUPYTER_CONFIG_DIR"
-		mkdir -p "$MPLCONFIGDIR"
-		
-		source venv_pm/bin/activate
-		jupyter nbconvert --to notebook 
-				--execute Training_Evaluation_India.ipynb 
-				--output Training_Evaluation_India_trained.ipynb
-		jupyter nbconvert --to html Training_Evaluation_India_trained.ipynb
-		deactivate
-		
-		rm -rf "$JUPYTER_CONFIG_DIR"
-		rm -rf "$MPLCONFIGDIR"
-	\end{verbatim}
-	
-	\subsection{Scelte architetturali ed iperparametri}
-	% To Be Modified
-	Nella Tabella \ref{tab:model-config-pm} vengono mostrate le scelte finali, dopo l'ottimizzazione degli iperparametri, utilizzate per training, valutazioni comparative e studio di ablazione.
-	
-	\begin{table}[H]
-		\centering
-		\caption{Configurazioni finali dei modelli usati per il Training, dopo aver effettuato l'ottimizzazione degli iperparametri.}
-		\label{tab:model-config-pm}
-		\begin{tabular}{l p{0.65\linewidth}}
-			\toprule
-			\textbf{MLP} & \texttt{input\_dim = 1048}, \texttt{hidden\_sizes = (128,)}, \texttt{dropout = 0.1}; ottimizzatore: Adam; \texttt{lr = 1e-3}; \texttt{l2\_lambda = 1e-5}; \texttt{batch\_size = 32}. Early stopping applicato. \\
-			\midrule
-			\textbf{KAN} & \texttt{input\_dim = 1048}, \texttt{width = (16,8)}, \texttt{grid = 10}, \texttt{k = 4}, \texttt{seed = 0}; ottimizzatore: Adam; \texttt{lr = 1e-3}; \texttt{l2\_lambda = 1e-4}; \texttt{batch\_size = 32}. Early stopping applicato. \\
-			\midrule
-			\textbf{Random Forest} & \texttt{n\_estimators = 100}, \texttt{max\_depth = 30}, \texttt{min\_samples\_split = 20}, \texttt{min\_samples\_leaf = 5}, \texttt{max\_features = 'sqrt'}, \texttt{random\_state = 42}. \\
-			\midrule
-			\textbf{XGBoost} & \texttt{n\_estimators = 300}, \texttt{max\_depth = 6}, \texttt{learning\_rate = 0.1}, \texttt{subsample = 0.8}, \texttt{colsample\_bytree = 0.7}, \texttt{reg\_alpha = 2.0}, \texttt{reg\_lambda = 2.0}, \texttt{random\_state = 42}. \\
-			\bottomrule
-		\end{tabular}
-	\end{table}
-	
 	\section{Data preparation}
 	
 	Questa sezione descrive in dettaglio le operazioni svolte per il caricamento, la normalizzazione, la pulizia e l'arricchimento del dataset utilizzato nel caso studio. Lo scopo principale della fase di Data preparation è trasformare i dati grezzi in una rappresentazione coerente, completa e utilizzabile per la successiva fase di allenamento.
@@ -1541,32 +1422,14 @@
 	Un file ausiliario, denominato stations\_info.csv, contiene la mappatura tra i file contenenti le misure e informazioni di contesto (stato, città, agenzia responsabile, data di inizio rilevamento), permettendo in tal modo una gestione centralizzata dei metadati associati alle stazioni di monitoraggio.
 	
 	\subsection{Caricamento dati e organizzazione iniziale}
-	Il caricamento del dataset é stato effettuato tramite la lettura dei file compressi estratti in una directory dedicata in locale o su Google Colab. Per ogni file contenente le misure di una singola stazione vengono eseguite le seguenti operazioni:
-	
-	\begin{enumerate}
-		\item estrazione del contenuto dell'archivio ZIP in una directory strutturata per stato;
-		\item lettura dei metadati (file stations\_info.csv) e rimozione di colonne non necessarie per l'analisi, al fine di semplificare la tabella dei metadati;
-		\item costruzione di un insieme aggregato: per ogni stato, vengono individuati automaticamente tutti i file CSV che condividono il prefisso identificativo dello stato; ogni file viene letto, alla tabella vengono aggiunte le colonne "city" e "state" ed infine tutte le tabelle sono concatenate in un unico DataFrame nazionale.
-	\end{enumerate}
-	
-	Il risultato di questa fase é un DataFrame unico contenente le misurazioni orarie con colonne per le concentrazioni degli inquinanti, le variabili meteorologiche e gli identificatori geografici.
+	Il caricamento del dataset è stato effettuato tramite la lettura dei file compressi estratti in una directory locale o su Google Colab. Per ogni file contenente le misure di una singola stazione, sono state eseguite diverse operazioni. Innanzitutto, il contenuto di ciascun archivio ZIP è stato estratto in una directory strutturata per stato. In seguito, sono stati letti i metadati dal file \texttt{stations\_info.csv} e sono state rimosse le colonne non necessarie per l'analisi, al fine di semplificare la tabella. Infine, è stato costruito un insieme aggregato: per ogni stato, sono stati individuati automaticamente tutti i file CSV con il prefisso identificativo dello stato, ogni file è stato letto e arricchito con le colonne "city" e "state", e tutte le tabelle sono state concatenate in un unico DataFrame nazionale. \\
+	Il risultato di questa fase è un DataFrame unico che contiene le misurazioni orarie con colonne per le concentrazioni degli inquinanti, le variabili meteorologiche e gli identificatori geografici.
 	
 	\subsection{Indicizzazione temporale}
-	Nel dataset originale sono presenti due colonne che definiscono la finestra temporale di misurazione: "From Date" e "To Date". Per semplificare la gestione delle serie storiche si é adottata la seguente procedura:
-	\begin{itemize}
-		\item conversione della colonna "From Date" in tipo datetime;
-		\item rinomina di "From Date" in "datetime" ed impostazione di tale colonna come indice temporale del DataFrame;
-		\item rimozione della colonna "To Date" (ridondante per l'analisi);
-	\end{itemize}
-	Questa trasformazione consente di sfruttare le funzionalità native di raggruppamento e ricampionamento temporale offerte dalle librerie di manipolazione delle serie temporali.
+	Nel dataset originale, le finestre temporali di misurazione sono definite dalle colonne "From Date" e "To Date". Per semplificare la gestione delle serie storiche, la colonna "From Date" è stata convertita in tipo datetime, quindi rinominata in "datetime" ed impostata come indice temporale del DataFrame. La colonna "To Date", ridondante per l'analisi, è stata rimossa. Questa trasformazione permette di sfruttare le funzionalità native di raggruppamento e ricampionamento temporale offerte dalle librerie per la manipolazione delle serie storiche.
 	
 	\subsection{Riduzione e unificazione di feature ridondanti}
-	Dall'esplorazione iniziale, é emersa la presenza di colonne duplicate o varianti dello stesso nome (per esempio, "Ozone (ug/m3)" e "Ozone (ppb)"). Per evitare rappresentazioni inconsistenti della stessa grandezza sono state seguite le operazioni:
-	\begin{enumerate}
-		\item identificazione di gruppi di colonne equivalenti tramite l'analisi grafica dei trend (andamento delle medie annue) e confronto delle statistiche di base (media, deviazione standard, minimo, massimo);
-		\item definizione di un mapping di riduzione: ad esempio, tutte le varianti di Xylene sono state aggregate in una colonna comune;
-		\item per ciascun gruppo di colonne, i valori non nulli provenienti dalle colonne secondarie sono stati trasferiti nella colonna principale; successivamente le colonne ridondanti sono state eliminate.
-	\end{enumerate}
+	Durante l'esplorazione iniziale è emersa la presenza di colonne duplicate o varianti dello stesso nome, come "Ozone (ug/m3)" e "Ozone (ppb)". Per evitare rappresentazioni inconsistenti della stessa grandezza, sono state seguite alcune operazioni. In primo luogo, sono stati identificati i gruppi di colonne equivalenti tramite l'analisi grafica dei trend (andamento delle medie annue) ed il confronto delle statistiche di base. Successivamente, è stato definito un mapping di riduzione, ad esempio aggregando tutte le varianti di Xilene in una singola colonna comune. Infine, per ogni gruppo, i valori non nulli provenienti dalle colonne secondarie sono stati trasferiti nella colonna principale, e le colonne ridondanti sono state eliminate.
 	
 	\begin{figure}[H]
 		\centering
@@ -1575,7 +1438,7 @@
 	\end{figure}
 	
 	\subsection{Verifica e gestione dei valori mancanti}
-	La quantificazione dei valori mancanti \`e stata effettuata calcolando il numero assoluto e la percentuale di missing per ogni variabile. 
+	La quantificazione dei valori mancanti è stata effettuata calcolando il numero assoluto e la percentuale di missing per ogni variabile.
 	
 	\begin{figure}[H]
 		\centering
@@ -1583,23 +1446,10 @@
 		\caption{Percentuali dei Valori Mancanti.}
 	\end{figure}
 	
-	Sono stati applicati i seguenti criteri:
-	\begin{itemize}
-		\item rimozione delle osservazioni completamente vuote e delle colonne completamente vuote;
-		\item eliminazione delle colonne con una proporzione di valori mancanti superiore alla soglia del 40\% (soglia scelta per bilanciare trade-off tra perdita informativa e robustezza statistica);
-		\item per le restanti colonne numeriche, i valori NaN vengono sostituiti tramite il metodo di interpolazione forward-fill (propagazione dell'ultimo valore valido, non NaN, di quella feature), seguita da una sostituzione tramite media per eventuali rimanenze;
-	\end{itemize}
+	Sono stati applicati i seguenti criteri: la rimozione delle osservazioni completamente vuote e delle colonne completamente vuote; l'eliminazione delle colonne con una proporzione di valori mancanti superiore al 40\%, una soglia scelta per bilanciare la perdita informativa con la robustezza statistica; e, per le restanti colonne numeriche, la sostituzione dei valori NaN. Questa sostituzione è stata eseguita tramite il metodo di interpolazione \texttt{forward-fill} (propagazione dell'ultimo valore valido), seguita da una sostituzione tramite la media per eventuali valori mancanti residui. Questa strategia è comunemente adottata nelle serie temporali, poiché preserva la dinamica locale dei segnali ed evita l'introduzione di discontinuità.
 	
-	Questa strategia é comunemente adottata quando si lavora con serie temporali, poiché preserva la dinamica locale dei segnali evitando di introdurre forti discontinuità.
-	
-	\subsection{Analisi esplorativa (EDA) e selezione delle feature rilevanti}
-	Per esplorare relazioni e correlazioni tra le variabili sono state eseguite le seguenti analisi:
-	
-	\begin{enumerate}
-		\item calcolo delle medie raggruppate su più frequenze temporali (giorno, mese, anno) e visualizzazione dei trend con grafici a linee;
-		\item utilizzo di pairplot per ispezionare le relazioni bivariate e le distribuzioni univariate;
-		\item costruzione della matrice di correlazione e visualizzazione tramite heatmap per quantificare le correlazioni lineari. Sono state identificate, come features potenzialmente rilevanti, quelle con correlazione assoluta maggiore di 0.4 con "PM2.5".
-	\end{enumerate}
+	\subsection{Analisi esplorativa e selezione delle feature rilevanti}
+	Per esplorare le relazioni e le correlazioni tra le variabili, sono state eseguite diverse analisi. Sono state calcolate le medie su diverse frequenze temporali (giorno, mese, anno) per visualizzare i trend con grafici a linee. È stato utilizzato il pairplot per ispezionare le relazioni bivariate e le distribuzioni univariate. Inoltre, è stata costruita la matrice di correlazione e visualizzata tramite una heatmap per quantificare le correlazioni lineari, identificando come potenziali feature rilevanti quelle con una correlazione assoluta superiore a 0.4 con "PM2.5".
 	
 	\begin{figure}[H]
 		\centering
@@ -1646,14 +1496,7 @@
 	\end{verbatim}
 	
 	\subsection{Rilevamento e rimozione degli outlier}
-	Per l'identificazione di outlier nei valori delle concentrazioni degli inquinanti, si é utilizzato l'algoritmo Isolation Forest, un metodo ensemble noto per la sua efficacia nell'identificare valori anomali indipendentemente dalla distribuzione a priori dei dati \cite{liu2009iforest}. I punti principali dell'approccio sono:
-	
-	\begin{itemize}
-		\item scelta di un insieme limitato di variabili su cui applicare il rilevamento (in questo caso, "PM2.5", "CO", "Ozone", "NOx");
-		\item inizializzazione del modello con un valore di contamination pari a 0.01 (assumendo quindi che circa l'1\% delle istanze sia anomala) ed un random\_state fissato per la riproducibilità;
-		\item addestramento del modello ed uso del metodo predict per etichettare le istanze anomale con -1 e le normali con 1;
-		\item rimozione delle osservazioni etichettate come outlier e verifica della distribuzione pre/post tramite istogrammi.
-	\end{itemize}
+	Per l'identificazione degli outlier nelle concentrazioni degli inquinanti, si è utilizzato l'algoritmo Isolation Forest, un metodo ensemble efficace per l'identificazione di valori anomali indipendentemente dalla distribuzione a priori dei dati \cite{liu2009iforest}. I punti principali dell'approccio sono stati: la scelta di un insieme limitato di variabili ("PM2.5", "CO", "Ozone", "NOx"); l'inizializzazione del modello con un valore di \texttt{contamination} pari a $0.01$ ed un \texttt{random\_state} fisso per la riproducibilità; l'addestramento del modello e l'utilizzo del metodo \texttt{predict} per etichettare le istanze anomale (-1) e quelle normali (1); infine, la rimozione delle osservazioni etichettate come outlier e la verifica della distribuzione prima e dopo tramite istogrammi.
 	
 	\begin{figure}[H]
 		\centering
@@ -1702,17 +1545,8 @@
 	
 	\subsection{Creazione di lag-features e categorizzazione di PM2.5}
 	
-	Per catturare l'informazione storica intrinseca nelle serie temporali, sono state create delle lag-features per alcune delle variabili più rilevanti, che consentono ai modelli di sfruttare dipendenze temporali (ad esempio stagionalità annua, effetto di breve periodo (giorni/settimane) e persistenti condizioni mensili) e rappresentano una tecnica consolidata nella preparazione dei dati per serie temporali.
-	
-	In questo caso, sono state generate le seguenti tipologie di lag:
-	\begin{itemize}
-		\item a lungo termine: 1 e 2 anni;
-		\item a medio termine: 1 mese;
-		\item a breve termine: 1 settimana ed ultimi 3 giorni dall'osservazione selezionata.
-	\end{itemize}
-	
-	\subsection{Categorizzazione PM2.5}
-	Per trasformare la variabile target "PM2.5" da continua a discreta, con l'obiettivo di passare da un problema di regressione ad uno di classificazione, si é deciso di mappare i valori di PM2.5 in sei categorie dell'AQI (Good, Moderate, Unhealthy for Sensitive, Unhealthy, Very Unhealthy, Hazardous) usando le soglie standard corrispondenti ai breakpoints AQI per "PM2.5" (National Ambient Air Quality Standards for PM). \\
+	Per catturare l'informazione storica intrinseca nelle serie temporali, sono state create delle lag-features per alcune delle variabili più rilevanti, che consentono ai modelli di sfruttare dipendenze temporali (ad esempio stagionalità annua, effetto di breve periodo (giorni/settimane) e persistenti condizioni mensili) e rappresentano una tecnica consolidata nella preparazione dei dati per serie temporali. In questo caso, sono state generate lag a lungo termine (1 e 2 anni), a medio termine (1 mese) ed a breve termine (1 settimana e ultimi 3 giorni). \\
+	Per trasformare la variabile target "PM2.5" da continua a discreta, con l'obiettivo di passare da un problema di regressione ad uno di classificazione, si é deciso di mappare i valori di PM2.5 in sei categorie dell'AQI (Good, Moderate, Unhealthy for Sensitive, Unhealthy, Very Unhealthy, Hazardous) usando le soglie standard corrispondenti ai breakpoints AQI per "PM2.5" (National Ambient Air Quality Standards for PM). Questo passaggio è motivato dalla volontà di concentrarsi sulla valutazione della qualità dell'aria in termini di rischio per la salute, piuttosto che sulla semplice previsione del valore esatto della concentrazione. Per molte applicazioni, è più utile sapere se la qualità dell'aria rientra in una categoria di rischio "pericoloso" o "buono", piuttosto che prevedere un valore numerico preciso, che potrebbe non essere immediatamente interpretabile.\\
 	Le soglie utilizzate, misurate in $\mu g/m^3$, sono le seguenti:
 	\begin{itemize}
 		\item \textbf{GOOD:} 0-9.0
@@ -1727,22 +1561,11 @@
 	\section{Addestramento dei modelli}
 	
 	\subsection{Pipeline di preprocessing}
-	\begin{enumerate}
-		\item \textbf{Selezione di variabili:} le feature indipendenti includono variabili temporali (\texttt{year, month, dayofmonth, dayofweek, dayofyear, weekofyear, quarter}), l'identificativo geografico (\texttt{state}) e le lag-features (p.es. \texttt{pm\_lag\_1D}, \texttt{pm\_lag\_1W}, \texttt{pm\_lag\_1M}, \texttt{pm\_lag\_1Y}, ecc.).
-		\item \textbf{Rimozione NaN derivanti dalle lag:} per confrontare i modelli in condizioni omogenee si é applicato un "drop" delle righe contenenti valori mancanti generati dalle lag-features.
-		\item \textbf{Trasformazioni:} le colonne numeriche sono standardizzate tramite \texttt{StandardScaler}; la variabile categorica "state" é codificata con \texttt{OneHotEncoder}. Le trasformazioni sono incapsulate in un \texttt{ColumnTransformer} e usate come primo step nelle pipeline di training.
-		\item \textbf{Bilanciamento delle classi in fase di training:} per i modelli che beneficiano di un dataset bilanciato, si applica SMOTE all'interno della pipeline. Lo SMOTE é eseguito esclusivamente sul training fold in ogni ripetizione di cross-validation per evitare data leakage. \cite{chawla2011smote}
-	\end{enumerate}
-	
-	\paragraph{Nota su XGBoost} XGBoost é in grado di gestire internamente i valori mancanti; tuttavia, per rendere i confronti equi con modelli che non supportano questa funzionalità internamente, si é deciso di rimuovere direttamente tutte le righe con NaN nelle lag-features prima di tutti gli esperimenti.
+	La pipeline di preprocessing è stata definita per preparare i dati in modo omogeneo per tutti i modelli. Le variabili indipendenti includono feature temporali (\texttt{year, month, dayofmonth, dayofweek, dayofyear, weekofyear, quarter}), l'identificativo geografico (\texttt{state}) e le lag-features. Per garantire un confronto equo tra i modelli, è stata effettuata una rimozione delle righe contenenti valori mancanti (NaN) derivanti dalle lag-features. Successivamente, le colonne numeriche sono state standardizzate tramite \texttt{StandardScaler} e la variabile categorica "state" è stata codificata con \texttt{OneHotEncoder}. Tutte queste trasformazioni sono state incapsulate in un \texttt{ColumnTransformer} che agisce come primo step nelle pipeline di training. Per i modelli che beneficiano di un dataset bilanciato, si è applicato SMOTE all'interno della pipeline, eseguendolo esclusivamente sul training fold di ogni iterazione di cross-validation per prevenire il data leakage. \\
+	È importante notare che, sebbene XGBoost sia in grado di gestire internamente i valori mancanti, si è scelto di rimuovere le righe con NaN prima di tutti gli esperimenti per garantire una base di confronto omogenea con i modelli che non supportano tale funzionalità.
 	
 	\subsection{Split dei dati}
-	Il dataset é stato suddiviso in due partizioni principali nel rispetto dell'ordine cronologico delle osservazioni:
-	
-	\begin{itemize}
-		\item \textbf{Training set (80\%)}: utilizzato per la fase di ricerca degli iperparametri con Random Search mediante Time Series Cross Validation;
-		\item \textbf{Test set (20\%)}: tenuto separato e mai usato durante la ricerca degli iperparametri; impiegato esclusivamente per la valutazione finale comparativa fra i modelli. Ció permette di avere una stima realistica delle prestazioni su dati non visti e previene il data leakage.
-	\end{itemize}
+	Il dataset è stato suddiviso in due partizioni principali, rispettando l'ordine cronologico delle osservazioni per preservare la struttura temporale dei dati. L'80\% del dataset è stato destinato al training set, utilizzato per la ricerca degli iperparametri tramite Time Series Cross Validation e Random Search. Il restante 20\% è stato riservato come test set, tenuto completamente separato e mai utilizzato durante la fase di ricerca degli iperparametri. Questo approccio garantisce una stima realistica delle prestazioni su dati non visti e previene efficacemente il data leakage.
 	
 	\subsection{Metriche e intervalli di confidenza}
 	Vengono utilizzati le seguenti metriche per valutare i diversi modelli sperimentali:
@@ -1753,9 +1576,13 @@
 		\item \textbf{Bootstrap di intervalli di confidenza (CI95\%)} per F1-weighted, F1-macro e AUC.
 	\end{itemize}
 	
-	\subsection{Random Forest}
+	\subsection{Strategia di training comune e griglie di iperparametri}
+	La strategia di training adottata è sostanzialmente omogenea per tutti i modelli considerati, con alcune specificità legate all'architettura di ciascun modello. Per la Random Search, il numero di iterazioni $n$ è stato scelto con una logica probabilistica per assicurare una probabilità del 90\% di includere almeno una delle 10 migliori configurazioni. Per le reti neurali (MLP e KAN), l'addestramento è stato gestito con l'ottimizzatore Adam, la funzione di perdita CrossEntropyLoss (che richiede etichette 0-indexed) ed una regolarizzazione L2 opzionale. La dimensione del batch è fissata a 32 ed il calcolo viene eseguito su GPU, se disponibile. Per evitare l'overfitting, è stato implementato un sistema di early stopping con parametri configurabili (\texttt{patience} e \texttt{min\_delta}). Inoltre, la funzione di attivazione della MLP é la ReLU.
 	
-	\paragraph{Spazio degli iperparametri}
+	\subsubsection{Griglie di iperparametri per modello}
+	
+	\smallskip
+	\noindent\textbf{Random Forest} \quad (Random Search: $n=49$)
 	\begin{itemize}
 		\item \texttt{n\_estimators}: [100, 150, 200]
 		\item \texttt{max\_samples}: [0.5, 0.7, 0.9]
@@ -1765,10 +1592,8 @@
 		\item \texttt{max\_features}: ['sqrt', 'log2']
 	\end{itemize}
 	
-	\subsection{XGBoost}
-	XGBoost richiede etichette 0-indexed per la funzione obiettivo "multi:softprob". Le etichette numeriche sono pertanto convertite sottraendo 1 alle classi originali.
-	
-	\paragraph{Spazio degli iperparametri}
+	\smallskip
+	\noindent\textbf{XGBoost} \quad (Random Search: $n=98$)
 	\begin{itemize}
 		\item \texttt{max\_depth}: [3, 5]
 		\item \texttt{learning\_rate}: [0.01, 0.05, 0.1]
@@ -1779,54 +1604,45 @@
 		\item \texttt{min\_child\_weight}: [1, 5]
 	\end{itemize}
 	
-	\subsection{MLP}
-	
-	\subsubsection{Strategia di training}
+	\smallskip
+	\noindent\textbf{MLP} \quad (Random Search: $n=26$)
 	\begin{itemize}
-		\item \textbf{Ottimizzatore:} Adam;
-		\item \textbf{Funzione di attivazione:} ReLU per gli strati nascosti;
-		\item \textbf{Loss:} CrossEntropyLoss (richiede etichette 0-indexed);
-		\item \textbf{Regolarizzazione:} L2 opzionale (l2\_lambda);
-		\item \textbf{Batch size:} 32 (configurabile);
-		\item \textbf{Device:} GPU se disponibile (altrimenti CPU);
-		\item \textbf{Early stopping:} EarlyStopper con parametri patience e min\_delta configurabili per interrompere l'allenamento in caso di mancato miglioramento sulla validation loss;
+		\item \texttt{hidden\_sizes}: [(64,64), (128,), (128,64), (256,128), (512,256)];
+		\item \texttt{dropout}: [0.0, 0.2, 0.5];
+		\item \texttt{lr} (learning rate): [$10^{-3}$, $10^{-4}$];
+		\item \texttt{l2\_lambda} (coefficiente L2): [0.0, $10^{-5}$, $10^{-4}$, $10^{-3}$].
 	\end{itemize}
 	
-	\subsubsection{Spazio degli iperparametri}
+	\smallskip
+	\noindent\textbf{KAN} \quad (Random Search: $n=43$)
 	\begin{itemize}
-		\item \textbf{\texttt{input\_dim}}: [input\_dim] (numero di features dopo il preprocessing);
-		\item \textbf{\texttt{hidden\_sizes}}: [(64,64), (128,), (128,64), (256,128), (512,256)];
-		\item \textbf{\texttt{dropout}}: [0.0, 0.2, 0.5];
-		\item \textbf{\texttt{lr}} (learning rate): [1e-3, 1e-4];
-		\item \textbf{\texttt{num\_classes}}: [num\_classes] (numero di classi);
-		\item \textbf{\texttt{l2\_lambda}} (coefficiente L2): [0.0, 1e-5, 1e-4, 1e-3].
+		\item \texttt{width}: [(8,4), (16,8), (32,16), (64,32)] (struttura a livelli della rete);
+		\item \texttt{grid}: [5, 10, 20] (dimensione della griglia interna);
+		\item \texttt{k}: [2, 4] (ordine/complessit\`a della combinazione);
+		\item \texttt{seed}: [0] (per riproducibilit\`a);
+		\item \texttt{lr}: [$10^{-3}$, $10^{-4}$];
+		\item \texttt{l2\_lambda}: [0.0, $10^{-3}$, $10^{-4}$, $10^{-5}$].
 	\end{itemize}
 	
-	\subsection{KAN}
+	\subsection{Scelte architetturali finali}
+	Nella Tabella \ref{tab:model-config-pm} vengono mostrate le scelte finali, dopo l'ottimizzazione degli iperparametri, utilizzate per training, valutazioni comparative e studio di ablazione.
 	
-	\subsubsection{Strategia di training}
-	L'addestramento segue una strategia simile a quella adottata per la rete MLP, con alcune specificità legate all'architettura:
-	
-	\begin{itemize}
-		\item \textbf{Ottimizzatore:} Adam;
-		\item \textbf{Loss:} CrossEntropyLoss (etichette 0-indexed);
-		\item \textbf{Regularizzazione:} L2 opzionale (l2\_lambda);
-		\item \textbf{Batch size:} 32 (configurabile);
-		\item \textbf{Device:} GPU se disponibile;
-		\item \textbf{Early stopping:} EarlyStopper con patience e min\_delta configurabili;
-	\end{itemize}
-	
-	\subsubsection{Spazio degli iperparametri}
-	\begin{itemize}
-		\item \textbf{\texttt{input\_dim}}: [input\_dim] (numero di features dopo preprocessing);
-		\item \textbf{\texttt{width}}: [(8,4), (16,8), (32,16), (64,32)] (struttura a livelli della rete);
-		\item \textbf{\texttt{grid}}: [5, 10, 20] (dimensione della griglia interna);
-		\item \textbf{\texttt{k}}: [2, 4] (ordine/complessit\`a della combinazione);
-		\item \textbf{\texttt{seed}}: [0] (per riproducibilit\`a);
-		\item \textbf{\texttt{lr}}: [1e-3, 1e-4];
-		\item \textbf{\texttt{num\_classes}}: [num\_classes];
-		\item \textbf{\texttt{l2\_lambda}}: [0.0, 1e-5, 1e-4, 1e-3].
-	\end{itemize}
+	\begin{table}[H]
+		\centering
+		\caption{Configurazioni finali dei modelli usati per il Training, dopo aver effettuato l'ottimizzazione degli iperparametri.}
+		\label{tab:model-config-pm}
+		\begin{tabular}{l p{0.65\linewidth}}
+			\toprule
+			\textbf{MLP} & \texttt{input\_dim = 49}; \texttt{hidden\_sizes = (64, 64)}; \texttt{dropout = 0.2}; \texttt{ottimizzatore = Adam}; \texttt{lr = 1e-04}; \texttt{l2\_lambda = 1e-03}; \texttt{batch\_size = 32}. Early stopping applicato. \\
+			\midrule
+			\textbf{KAN} & \texttt{input\_dim = 49}; \texttt{width = (16,8)}; \texttt{grid = 5}; \texttt{k = 4}, \texttt{seed = 0}; \texttt{ottimizzatore = Adam}; \texttt{lr = 1e-04}; \texttt{l2\_lambda = 1e-05}; \texttt{batch\_size = 32}. Early stopping applicato. \\
+			\midrule
+			\textbf{Random Forest} & \texttt{n\_estimators = 100}; \texttt{max\_depth = 15}; \texttt{min\_samples\_split = 5}; \texttt{min\_samples\_leaf = 2}; \texttt{max\_features = 'sqrt'}; \texttt{max\_samples = 0.7}; \texttt{random\_state = 42}. \\
+			\midrule
+			\textbf{XGBoost} & \texttt{n\_estimators = 300}; \texttt{max\_depth = 5}; \texttt{learning\_rate = 0.05}; \texttt{subsample = 0.9}; \texttt{colsample\_bytree = 0.7}; \texttt{min\_child\_weight = 1}; \texttt{gamma = 0.2}; \texttt{objective = 'multi:softprob'}; \texttt{eval\_metric = 'mlogloss'}; \texttt{random\_state = 42}. \\
+			\bottomrule
+		\end{tabular}
+	\end{table}
 	
 	\section{Valutazione dei modelli}
 	
@@ -1840,94 +1656,53 @@
 	\end{figure}
 	
 	\subsection{Selezione del miglior modello}
-	Per identificare il modello più adatto alla risoluzione del problema, si é deciso di costruire un sistema di classificazione che combina prestazione e complessità di ogni modello. La procedura implementata é la seguente:
+	Per identificare il modello più adatto al problema di classificazione, è stata adottata una procedura di ranking multi-criterio che combina le prestazioni con la complessità. Inizialmente, sono state definite le metriche di interesse e la rispettiva direzione di ottimizzazione, come indicato nel seguente blocco di codice:
 	
-	\begin{enumerate}
-		\item Si definiscono le metriche di interesse e la direzione di ottimizzazione:
-		\begin{verbatim}
-			metrics = {
-				'Accuracy_Test': 'max',
-				'F1_Weighted_Test': 'max',
-				'F1_Macro_Test': 'max',
-				'AUC_ROC_OVR_Weighted': 'max',
-				'AUC_PR_OVR_Weighted': 'max'
-			}
-		\end{verbatim}
-		\item Per ciascuna metrica si calcola il "rank" dei modelli (rank 1 = migliore) considerando la direzione appropriata (ascendente o discendente).
-		\item Si calcola un "performance\_score" come media dei rank delle metriche di prestazione.
-		\item Si calcola un "Complexity\_rank" in base al numero di parametri/nodi (rank 1 = meno complesso).
-		\item Si combinano performance e complessità secondo varie strategie:
-		\begin{itemize}
-			\item \textbf{Equal Weight (1:1):} performance\_score + Complexity\_rank
-			\item \textbf{Complexity Weighted (1:2):} performance\_score + 2 $\times$ Complexity\_rank
-			\item \textbf{Extreme Complexity (1:3):} performance\_score + 3 $\times$ Complexity\_rank
-			\item \textbf{Pareto Approach (40:60):} normalizzazione di performance e complexity e combinazione con peso 0.4 sulla performance e 0.6 sulla complessità.
-		\end{itemize}
-		\item Per ogni metodo di aggregazione si sceglie il modello con punteggio minimo (migliore).
-	\end{enumerate}
+	\begin{verbatim}
+		metrics = {
+			'Accuracy_Test': 'max',
+			'F1_Weighted_Test': 'max',
+			'F1_Macro_Test': 'max',
+			'AUC_ROC_OVR_Weighted': 'max',
+			'AUC_PR_OVR_Weighted': 'max'
+		}
+	\end{verbatim}
 	
-	\subsubsection{Risultati}
-	Di seguito sono riassunti i risultati della procedura di ranking: i punteggi minimi identificano il migliore modello per ciascun metodo di aggregazione.
-	
-	\begin{itemize}
-		\item \textbf{Equal Weight (1:1)} $\rightarrow$ \textbf{XGBoost}
-		\item \textbf{Complexity Weighted (1:2)} $\rightarrow$ \textbf{MLP}
-		\item \textbf{Extreme Complexity (1:3)} $\rightarrow$ \textbf{MLP}
-		\item \textbf{Pareto Approach (40:60)} $\rightarrow$ \textbf{XGBoost}
-	\end{itemize}
-	
-	Di seguito la tabella riassuntiva con i valori principali usati per il ranking (valori ricavati dall'analisi finale):
+	Per ciascuna metrica, è stato calcolato il "rank" dei modelli (rank 1 = migliore). Successivamente, un performance\_score è stato calcolato come media dei rank di prestazione, mentre un Complexity\_rank è stato determinato in base al numero di parametri/nodi (rank 1 = meno complesso). Infine, performance e complessità sono state combinate attraverso diverse strategie di ponderazione: Equal Weight (1:1), dato dalla somma di performance\_score e Complexity\_rank; Complexity Weighted (1:2), che attribuisce un peso doppio alla complessità; Extreme Complexity (1:3), con un peso triplo; e il Pareto Approach (40:60), che normalizza i punteggi e li combina con pesi di 0.4 per la performance e 0.6 per la complessità. Per ogni metodo, è stato scelto il modello con il punteggio più basso. \\
+	I risultati di questa procedura di ranking mostrano che XGBoost è il migliore secondo i criteri di Equal Weight (1:1) e Pareto Approach (40:60), mentre la MLP risulta vincente nei criteri Complexity Weighted (1:2) ed Extreme Complexity (1:3). I valori principali utilizzati per il ranking sono riassunti nella tabella seguente:
 	
 	\begin{table}[H]
 		\centering
-		\setlength{\tabcolsep}{2pt}
-		\begin{tabular}{lcccccc}
+		\setlength{\tabcolsep}{6pt}
+		\caption{Riepilogo ranking aggiornato: conteggio parametri, performance media (rank-based) e ranks per metodo di aggregazione.}
+		\begin{tabular}{lrrrrrr}
 			\toprule
 			\textbf{Model} & \textbf{Param\_Count} & \textbf{Avg\_Perf} & \textbf{Compl\_Rank} & \textbf{Equal\_Rank} & \textbf{Ext\_Rank} & \textbf{Pareto\_Rank} \\
 			\midrule
-			MLP           & 7,174   & 4.0 & 1 & 2 & 1 & 2 \\
-			KAN           & 7,680   & 3.0 & 2 & 2 & 2 & 3 \\
-			XGB           & 87,674  & 1.2 & 3 & 1 & 3 & 1 \\
-			RF 			  & 826,018 & 1.8 & 4 & 4 & 4 & 4 \\
+			KAN           & 7,680    & 3.0 & 1 & 1 & 1 & 1 \\
+			xgboost       & 90,416   & 1.0 & 2 & 1 & 2 & 2 \\
+			MLP           & 7,750    & 4.0 & 3 & 3 & 2 & 3 \\
+			random\_forest& 412,430  & 2.0 & 4 & 3 & 4 & 4 \\
 			\bottomrule
 		\end{tabular}
-		\caption{Riepilogo ranking: conteggio parametri, performance media (rank-based) e ranks per metodo di aggregazione.}
 	\end{table}
 	
 	\subsubsection{Conclusioni}
-	Dalla procedura di ranking multi-criterio:
-	\begin{itemize}
-		\item \textbf{XGBoost} presenta la performance assoluta più alta sulle metriche di classificazione (F1-weighted migliore), ma ha una complessità significativamente maggiore rispetto alle reti neurali;
-		\item \textbf{KAN} mostra ottime performance ed un numero di parametri relativamente contenuto, risultando un'opzione solida quando si ricerca maggiore accuratezza senza far esplodere la complessità;
-		\item \textbf{MLP} raggiunge un buon compromesso: performance competitive con bassa complessità, risultando il modello raccomandato dal criterio di "complexity-weighted ranking";
-		\item \textbf{Random Forest} ottiene metriche competitive ma con una complessità molto elevata, il che ne riduce l'attrattivitá se si dà peso alla parsimonia del modello.
-	\end{itemize}
-	
-	Classifica dei tre migliori modelli, secondo il criterio "complexity-weighted" (dal migliore al peggiore):
+	Dalla procedura di ranking multi-criterio, XGBoost presenta le performance assolute più elevate sulle metriche di classificazione (in particolare l'F1-weighted), ma richiede una complessità molto maggiore rispetto alle reti neurali testate. KAN offre un eccellente compromesso fra accuratezza e parsimonia e, nelle strategie che penalizzano la complessità, risulta il modello raccomandato per il deployment. La MLP mantiene un buon rapporto performance/complessità, ma è lievemente inferiore a KAN, secondo il criterio complexity-weighted. Il Random Forest, pur competitivo in termini di metriche assolute, è meno interessante quando la parsimonia del modello è un vincolo operativo. \\
+	La classifica dei tre migliori modelli, basata sul criterio "complexity-weighted" (dal migliore al peggiore), è la seguente:
 	\begin{enumerate}
-		\item MLP \quad (Params: 7,174 \;|\; F1-Weighted: 0.7589)
 		\item KAN \quad (Params: 7,680 \;|\; F1-Weighted: 0.7823)
-		\item XGBoost \quad (Params: 87,674 \;|\; F1-Weighted: 0.8087)
+		\item xgboost \quad (Params: 90,416 \;|\; F1-Weighted: 0.8107)
+		\item MLP \quad (Params: 7,750 \;|\; F1-Weighted: 0.7654)
 	\end{enumerate}
-	Quindi, applicando un bilanciamento tra performance e complessitá, MLP risulta la scelta più equilibrata per un deployment efficiente nel contesto considerato. XGBoost é la scelta migliore se il criterio primario è la massima performance, mentre KAN rappresenta una valida alternativa con buon compromesso performance/complessità.
 	
 	\section{Studio di ablazione}
 	
 	\subsection{Ablation study: L1 pruning su MLP e KAN}
-	L'obiettivo è misurare il compromesso tra compressione del modello (numero di parametri attivi / rapporto di compressione) e il mantenimento delle prestazioni (Accuracy, F1-weighted, AUC).
+	L'obiettivo è misurare il compromesso tra compressione del modello (numero di parametri attivi / rapporto di compressione) e il mantenimento delle prestazioni (Accuracy, F1, AUC).
 	
 	\subsubsection{Metodologia}
-	\begin{itemize}
-		\item \textbf{Tecnica di pruning:} pruning globale L1 applicato ai pesi lineari della MLP ed ai coefficienti spline della KAN.
-		\item \textbf{Pruning ratios testati:} \(\{0.0, 0.1, 0.2, 0.3, 0.5, 0.7, 0.8, 0.9, 0.95\}\).
-		\item \textbf{Valutazione:} ogni versione pruned è stata valutata sul test set e sul train set sulle stesse metriche definite precedentemente. Sono stati calcolati il numero di parametri totali, i parametri attivi dopo pruning ed il rapporto di compressione.
-		\item \textbf{Definizioni operative:} 
-		\begin{itemize}
-			\item \textbf{baseline:} modello non pruned (pruning ratio 0.0).
-			\item \textbf{Punto di degrado significativo:} primo pruning ratio che comporta oltre il 5\% di perdita relativa in F1-weighted rispetto alla baseline.
-			\item \textbf{Best trade-off:} punto con massima compressione che causa \(\le 2\%\) di perdita relativa in F1-weighted.
-		\end{itemize}
-	\end{itemize}
+	La tecnica di pruning impiegata è il L1 post-training pruning, applicato ai pesi lineari della MLP ed ai coefficienti spline della KAN. Sono stati testati diversi pruning ratios, specificamente l'insieme ${0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,0.95}$. Ciascuna versione del modello potata è stata valutata sia sul test set che sul train set sulle stesse metriche definite precedentemente. Per ogni configurazione, sono stati calcolati il numero totale di parametri, il numero di parametri attivi post-pruning ed il rapporto di compressione. Per interpretare i risultati, sono state definite alcune definizioni operative. La baseline è il modello non potato (pruning ratio $= 0.0$). Il punto di degrado significativo è il primo pruning ratio che comporta una perdita relativa in \texttt{F1-Weighted} superiore al 5\% rispetto alla baseline. Il best trade-off è il punto di massima compressione che causa una perdita relativa in \texttt{F1-Weighted} inferiore o uguale al 2\%.
 	
 	\subsubsection{Figura riassuntiva}
 	\begin{figure}[H]
@@ -1944,35 +1719,22 @@
 			\toprule
 			\textbf{Model} & \textbf{Total params} & \textbf{Baseline F1} & \textbf{Best trade-off} & \textbf{Sign. degr.} \\
 			\midrule
-			MLP & 7,174   & 0.7589 & 80\% pruning (5.0x compression) & 90\% pruning \\
-			KAN & 7,680   & 0.7823 & 70\% pruning (3.0x compression) & 90\% pruning \\
+			MLP & 7,750   & 0.7654 & 50\% pruning (2.0$\times$ compression) & 70\% pruning \\
+			KAN & 7,680   & 0.7823 & 70\% pruning (3.0$\times$ compression) & 90\% pruning \\
 			\bottomrule
 		\end{tabular}
-		\caption{Riepilogo dei punti di trade-off e dei punti di degrado osservati nello studio L1 pruning.}
+		\caption{Riepilogo dei punti di trade-off e dei punti di degrado osservati nello studio L1 pruning (valori aggiornati).}
 	\end{table}
 	
-	\begin{itemize}
-		\item \textbf{MLP:} baseline F1-weighted = \(\mathbf{0.7589}\). Il miglior punto di trade-off trovato nello studio aggiornato è al \(\mathbf{80\%}\) di pruning (compression \(\approx 5\times\)) con F1-weighted \(\approx 0.7542\) (perdita relativa \(\approx 0.6\%\) rispetto alla baseline). La degradazione significativa (>\,5\% perdita relativa) si osserva a \(\mathbf{90\%}\) di pruning; a livelli estremi (\(\ge 95\%\)) la perdita diventa elevata.
-		\item \textbf{KAN:} baseline F1-weighted = \(\mathbf{0.7823}\). Il modello risulta più robusto per pruning moderati: il miglior trade-off è al \(\mathbf{70\%}\) di pruning (compression \(\approx 3\times\)) con F1-weighted \(\approx 0.7710\) (perdita relativa \(\approx 1.4\%\)). La soglia di degrado significativa si posiziona intorno al \(\mathbf{90\%}\) di pruning.
-		\item \textbf{Compressione massima raggiunta:} rispettivamente \(\approx 20\times\) (MLP, pruning 95\%) e \(\approx 17.8\times\) (KAN, pruning 95\%). Tuttavia tali livelli di compressione comportano perdite di performance troppo elevate per essere considerati praticabili in deployment senza ulteriori tecniche.
-	\end{itemize}
+	La MLP, con baseline \texttt{F1-Weighted} = \(\mathbf{0.7654}\), mostra il miglior trade-off al \(\mathbf{50\%}\) di pruning: in questa condizione la compressione è di circa \(2\times\) e la variazione relativa in F1-weighted è trascurabile (ossia \(\le 0.2\%\) in termini assoluti, nel nostro run si è misurata una variazione leggermente positiva rispetto alla baseline). Il punto di degrado significativo per la MLP si evidenzia a partire da circa il \(\mathbf{70\%}\) di pruning, oltre il quale la perdita di performance diventa marcata; a pruning estremi (\(\ge 90\%\)) le prestazioni decadono drasticamente. \\
+	La KAN, con baseline \texttt{F1-Weighted} = \(\mathbf{0.7823}\), risulta più robusta per pruning moderati: il miglior trade-off osservato è al \(\mathbf{70\%}\) di pruning, corrispondente a una compressione di circa \(3\times\) e a una perdita relativa in F1-weighted dell'ordine di \(\approx 1.4\%\). La soglia di degrado significativo per KAN si trova invece intorno al \(\mathbf{90\%}\) di pruning. \\
+	La compressione massima raggiungibile nei test è stata dell'ordine di $\sim 20\times$ per la MLP e $\sim 17.8\times$ per la KAN (pruning $95\%$), ma tali livelli estremi comportano perdite di prestazione troppo elevate per essere considerati praticabili in un contesto di deployment senza ulteriori tecniche (ad esempio, retraining post-pruning).
 	
 	\subsection{Ablation study: ensemble pruning su Random Forest e XGBoost}
 	Lo scopo è valutare il compromesso tra riduzione del modello (numero di alberi / rounds) e mantenimento delle prestazioni (F1-weighted, accuracy, AUC).
 	
 	\subsubsection{Metodologia}
-	\begin{itemize}
-		\item \textbf{Rank-based pruning per Random Forest:} per ogni albero viene calcolata una metrica di importanza (somma delle feature importances dell'albero). Gli alberi vengono ordinati per importanza e si rimuovono quelli con importanza inferiore fino alla frazione indicata dal pruning ratio.
-		\item \textbf{Cumulative pruning per XGBoost:} si mantengono solo le prime iterazioni di boosting (rounds) corrispondenti a \((1 - \texttt{pruning\_ratio})\) della lunghezza originaria della sequenza di rounds; in pratica si tronca la sequenza di alberi di boosting.
-		\item \textbf{Pruning ratios testati:} \(\{0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,0.95\}\).
-		\item \textbf{Valutazione:} per ogni versione pruned sono state calcolate: numero di alberi totali e rimanenti, rapporto di compressione (total/remaining), Accuracy, F1-weighted, F1-macro, AUC-ROC e AUC-PR (quando calcolabili).
-		\item \textbf{Definizioni operative:}
-		\begin{itemize}
-			\item \textbf{baseline:} pruning ratio 0.0.
-			\item \textbf{Punto di degrado significativo:} primo pruning ratio che causa una perdita relativa in F1-weighted \(>\,5\%\).
-			\item \textbf{Best trade-off:} massima compressione con perdita relativa in F1-weighted \(\leq 2\%\).
-		\end{itemize}
-	\end{itemize}
+	La metodologia di pruning varia per i due modelli. Per il Random Forest, è stato utilizzato un Rank-based Pruning: gli alberi sono stati ordinati per importanza (somma delle feature importances dell'albero) e quelli meno rilevanti sono stati rimossi fino a raggiungere il \texttt{pruning\_ratio} desiderato. Per XGBoost, si è optato per un Cumulative Pruning, mantenendo solo le prime iterazioni di boosting fino al numero corrispondente a \((1 - \texttt{pruning\_ratio})\) della lunghezza originale, troncando di fatto la sequenza di boosting. Anche in questo caso, i pruning ratios testati sono stati ${0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,0.95}$. Per ogni versione potata, sono stati calcolati il numero totale e residuo di alberi, il rapporto di compressione e le metriche di performance su train e test set. Le definizioni operative di baseline, punto di degrado significativo ($\texttt{F1-Weighted} >5\%$) e best trade-off ($\texttt{F1-Weighted} \le 2\%$) sono rimaste le medesime.
 	
 	\subsubsection{Figura riassuntiva}
 	\begin{figure}[H]
@@ -1989,32 +1751,19 @@
 			\toprule
 			\textbf{Model} & \textbf{Total trees} & \textbf{Baseline F1} & \textbf{Best trade-off (pruning)} & \textbf{Sign. degr.} \\
 			\midrule
-			RF     & 200 & 0.8041 & 80\% (\(5.1\times\) compression) & no degr. rilevata \\
-			XGB    & 300 & 0.8087 & 70\% (\(3.3\times\) compression) & no degr. rilevata \\
+			Random Forest & 100 & 0.8011 & 90\% (9 trees rimasti, $\approx 11.1\times$ compression) & nessuna degr. rilevata \\
+			XGBoost       & 300 & 0.8107 & 60\% (120 rounds rimasti, $\approx 2.5\times$ compression) & nessuna degr. rilevata \\
 			\bottomrule
 		\end{tabular}
-		\caption{Riepilogo sintetico dei punti di trade-off osservati per i due ensemble.}
+		\caption{Riepilogo sintetico dei punti di trade-off osservati per i due ensemble (valori aggiornati).}
 	\end{table}
 	
-	\begin{itemize}
-		\item \textbf{XGBoost:} conserva buona parte delle prestazioni anche riducendo il numero di rounds. Il punto di miglior compromesso è al \(\mathbf{70\%}\) di pruning (mantenendo i primi 90 rounds su 300), con compressione \(\approx 3.3\times\) e perdita relativa in F1-weighted \(\approx 1.9\%\).
-		\item \textbf{Random Forest:} il rank-based pruning riduce significativamente il numero di alberi mantenendo le prestazioni. Nel run corrente il best trade-off risulta al \(\mathbf{80\%}\) di pruning (39 alberi rimanenti, \(\approx 5.1\times\) compression) con F1-weighted \(\approx 0.7946\) (perdita relativa \(\approx 1.2\%\)). Non è stata osservata una degradazione significativa (\(>\,5\%\)) nell'intervallo testato.
-		\item \textbf{Compressione massima raggiunta:} fino a \(\approx 20\times\) per Random Forest (\(\texttt{pruning}=0.95\)) e fino a \(\approx 25\times\) per XGBoost (\(\texttt{pruning}=0.95\)), ma questi livelli estremi comportano perdite di performance più marcate e vanno considerati con cautela.
-	\end{itemize}
+	XGBoost mantiene buona parte delle prestazioni riducendo il numero di rounds. Il miglior compromesso osservato nel run corrente è stato al $60\%$ di pruning, con i primi 120 rounds su 300, corrispondente a una compressione di $\approx 2.5\times$ ed ad una perdita relativa in F1-weighted di circa $1.5\%$ rispetto alla baseline. \\
+	Random Forest dimostra elevata robustezza: l'approccio rank-based permette di rimuovere un gran numero di alberi mantenendo metriche stabili; nel nostro esperimento il best trade-off si è verificato al $90\%$ di pruning (9 alberi rimanenti), con una compressione $\approx 11.11\times$ ed una perdita relativa in F1-weighted di circa $1.7\%$. In nessuno dei due casi si è osservata una perdita relativa superiore al $5\%$ nell'intervallo di pruning testato. \\
+	La compressione massima sperimentata è stata dell'ordine di $\sim 20\times$ per Random Forest e $\sim 25\times$ per XGBoost (pruning $95\%$), tuttavia tali livelli estremi comportano perdite di prestazione significativamente maggiori e risultano poco praticabili senza interventi aggiuntivi (es. fine-tuning post-pruning, distillazione o quantizzazione).
 	
 	\subsection{Ablation study — Confronto complessivo (Neural Networks vs Ensemble)}
-	Per il confronto, sono stati estratti i risultati di ogni modello a soglie tipiche: \(30\%\), \(50\%\), \(70\%\), \(90\%\).
-	
-	\subsubsection{Metriche e output considerati}
-	Per ogni modello sono state raccolte le seguenti misure:
-	\begin{itemize}
-		\item \textbf{Accuracy} (test);
-		\item \textbf{F1-Weighted} (test);
-		\item \textbf{F1-Macro} (test);
-		\item \textbf{AUC-ROC e AUC-PR weighted} quando calcolabili;
-		\item \textbf{Compression ratio}: rapporto tra dimensione modello baseline e dimensione dopo pruning;
-		\item statistiche di performance retention (pruned / baseline).
-	\end{itemize}
+	Per un confronto complessivo, sono stati estratti i risultati di ogni modello a soglie tipiche di pruning: 30\%, 50\%, 70\% e 90\%. Le metriche e gli output considerati includono: Accuracy (test), F1-Weighted (test), F1-Macro (test), AUC-ROC e AUC-PR weighted (quando calcolabili), il rapporto di compressione e le statistiche di performance retention (pruned/baseline).
 	
 	\subsubsection{Figure riassuntive}
 	\begin{figure}[H]
@@ -2037,30 +1786,31 @@
 		\centering
 		\begin{tabular}{lccc}
 			\toprule
-			\textbf{Model} & \textbf{Baseline F1 (weighted)} & \textbf{Best trade-off} & \textbf{Compression} \\
+			\textbf{Model} & \textbf{Baseline F1 (weighted)} & \textbf{Best trade-off (pruning)} & \textbf{Compression} \\
 			\midrule
-			MLP      & 0.7589 & 0.7542 @ 80\% pr & \(\approx 5.0\times\) \\
-			RF       & 0.8041 & 0.7946 @ 80\% pr & \(\approx 5.1\times\) \\
-			XGB      & 0.8087 & 0.7935 @ 70\% pr & \(\approx 3.3\times\) \\
-			KAN      & 0.7823 & 0.7710 @ 70\% pr & \(\approx 3.0\times\) \\
+			MLP      & 0.7654 & 0.7662 @ 50\% pr & $\approx 2.0\times$ \\
+			KAN      & 0.7823 & 0.7710 @ 70\% pr & $\approx 3.0\times$ \\
+			RF       & 0.8011 & 0.7878 @ 90\% pr & $\approx 11.1\times$ \\
+			XGBoost  & 0.8107 & 0.7982 @ 60\% pr & $\approx 2.5\times$ \\
 			\bottomrule
 		\end{tabular}
-		\caption{Riepilogo sintetico dei principali punti di trade-off e compressione.}
+		\caption{Riepilogo sintetico dei principali punti di trade-off e compressione (valori aggiornati).}
 	\end{table}
 	
-	\subsubsection{Confronto su soglie tipiche (30\%, 50\%, 70\%, 90\%)}
-	\begin{itemize}
-		\item \textbf{30\% pruning:} tutti i metodi mantengono o migliorano lievemente le prestazioni rispetto alla baseline. MLP mostra un piccolo aumento di accuracy/F1 a questa soglia; XGBoost e KAN conservano prestazioni molto alte (F1 praticamente invariata).
-		\item \textbf{50\% pruning:} MLP mantiene o migliora la F1 (trade-off ottimo a \(\sim 2\times\) compression); Random Forest e XGBoost restano stabili con diminuzioni contenute.
-		\item \textbf{70\% pruning:} XGBoost permette ancora compressioni \(\sim 3.3\times\) con perdita relativa contenuta (\(\approx 1.9\%\)); MLP continua a preservare buona parte della performance fino a soglie elevate; KAN si mantiene relativamente robusto.
-		\item \textbf{90\% pruning:} le reti neurali mostrano degrado sensibile oltre certe soglie (specialmente MLP a 90\% la performance cala in modo marcato), mentre XGBoost e Random Forest conservano ancora ritenzioni accettabili se il pruning sugli alberi è effettuato in modo controllato; Random Forest risulta particolarmente resistente al rank-based pruning fino a livelli molto alti.
-	\end{itemize}
+	Al 30\% di pruning, tutti i modelli mantengono o presentano leggeri miglioramenti rispetto alla baseline nelle metriche principali: MLP mostra un lieve incremento dell'F1-weighted, mentre KAN e XGBoost mantengono prestazioni molto elevate. A 50\% di pruning la MLP raggiunge il suo miglior trade-off operativo (compressione $\sim 2\times$ con F1-weighted sostanzialmente invariata rispetto alla baseline), mentre KAN e gli ensemble rimangono stabili. A 70\% di pruning XGBoost continua a mostrare una ritenzione delle prestazioni accettabile (nelle soglie tra il 50\% ed il 70\% la perdita relativa di F1 è inferiore al 2\%), KAN risulta robusto fino a questo livello e la MLP inizia a evidenziare un degrado più marcato oltre certe soglie di sparsity. A 90\% di pruning le reti neurali presentano una degradazione significativa (più pronunciata per MLP), mentre gli ensemble (in particolare Random Forest con pruning rank-based) conservano una retention relativamente migliore fino a livelli molto elevati di riduzione.
 	
 	\subsubsection{Conclusioni}
 	\begin{enumerate}
-		\item \textbf{XGBoost:} è la scelta primaria quando la priorità è massimizzare la performance assoluta (F1-weighted baseline: 0.8087). Riducendo i rounds fino al \(50\text{--}70\%\) si ottiene un buon compromesso (2--3.3\(\times\) compression) con perdita contenuta (\(\lesssim 2\%\)).
-		\item \textbf{MLP / KAN:} L1 pruning consente compressioni significative con perdite limitate. MLP raggiunge un best trade-off operativo a \(\mathbf{80\%}\) (5.0\(\times\) compression, perdita relativa \(\approx 0.6\%\)), mentre KAN mostra robustezza fino al \(70\%\) (3.0\(\times\), perdita \(\approx 1.4\%\)).
-		\item \textbf{Random Forest:} il rank-based pruning consente riduzioni sostanziali del numero di alberi mantenendo la qualità predittiva: il best trade-off è a \(80\%\) (39 alberi rimanenti, \(\approx 5.1\times\) compression) con F1-weighted \(\approx 0.7946\) (perdita relativa \(\approx 1.2\%\)). Questo lo rende interessante quando si può sacrificare qualche albero per risparmio di memoria/latency senza dover ri-addestrare il modello.
+		\item XGBoost è la scelta primaria quando la priorità è massimizzare la performance assoluta (F1-weighted baseline: $0.8087$). Riducendo i rounds fino al 50-70\%, si ottiene un buon compromesso con una compressione di $2-3.3\times$ ed una perdita contenuta (minore del 2\%).
+		\item MLP e KAN dimostrano che l'L1 pruning consente compressioni significative con perdite limitate. La MLP raggiunge il suo best trade-off operativo all'80\% di pruning (compressione del 5.0$\times$ con una perdita relativa di circa 0.6\%), mentre la KAN mostra robustezza fino al 70\% (compressione del 3.0$\times$ con una perdita relativa di circa 1.4\%).
+		\item Random Forest si distingue per il suo pruning rank-based, che permette riduzioni sostanziali del numero di alberi pur mantenendo la qualità predittiva. Il suo best trade-off è ad un pruning dell'80\% (39 alberi rimanenti con una compressione del 5.1$\times$), con un F1-weighted di circa $0.7946$ (perdita relativa di circa 1.2\%). Questo lo rende particolarmente interessante quando si cerca un risparmio di memoria o una riduzione della latenza senza la necessità di un ri-addestramento.
+	\end{enumerate}
+	
+	\subsubsection{Conclusioni}
+	\begin{enumerate}
+		\item XGBoost è la scelta consigliata quando l'obiettivo primario è massimizzare la performance assoluta (F1-weighted baseline: $0.8107$). Ridurre i rounds fino a circa il $50\%-60\%$ ha permesso di ottenere un buon compromesso (compressione $\sim 2.0$-$2.5\times$) con una perdita contenuta in F1 (tipicamente $<2\%$).
+		\item Le reti MLP e KAN rispondono bene all'L1 pruning: la MLP ottiene il miglior trade-off operativo al $50\%$ di pruning (compressione $\sim 2\times$ con F1 invariata o leggermente superiore), mentre KAN risulta più robusta fino al $70\%$ (compressione $\sim 3\times$ con perdita relativa contenuta $\sim 1\%$--$1.5\%$).
+		\item Random Forest presenta un comportamento interessante con il rank-based pruning: è possibile rimuovere gran parte degli alberi mantenendo performance stabili; il best trade-off è risultato ad un pruning molto elevato (90\%), con 9 alberi rimasti (compressione $\approx 11.1\times$) ed una perdita relativa in F1 dell'ordine di $1\%$-$2\%$. Questo rende la RF particolarmente utile quando si desidera una forte riduzione del modello senza operare ri-addestramenti complessi.
 	\end{enumerate}
 	
 	\chapter{Terzo Caso Studio: Classificazione di età tramite immagini}
@@ -2178,7 +1928,72 @@
 		\caption{Esempio di Griglia di Immagini, in formato $5\times5$, di maschi con 26 anni di qualsiasi etnia.}
 	\end{figure}
 	
+	\section{Addestramento dei modelli}
 	
+	\subsection{Pipeline di preprocessing}
+	La pipeline di preprocessing è stata definita per preparare in modo omogeneo le immagini prima dell'addestramento. Le operazioni principali includono il ridimensionamento e ritaglio centrale a risoluzione \(224\times224\), la conversione in tensore e la normalizzazione canale-per-canale con parametri standard (media e deviazione standard). Per aumentare la robustezza dei modelli si è fatto uso di data augmentation controllata (flip orizzontale, rotazioni lievi, jitter di luminosità/contrasto), applicata esclusivamente durante la fase di training. Per mitigare squilibri residui nelle classi d'età, le tecniche di bilanciamento in fase di training includono il calcolo di pesi di classe e l'uso di un \texttt{WeightedRandomSampler} nei DataLoader. Tutte le trasformazioni sono incapsulate in pipeline di preprocessing riutilizzabili per garantire riproducibilità tra esperimenti.
+	
+	\subsection{Split dei dati}
+	Il dataset è stato suddiviso in due partizioni mantenendo l'ordine originale degli esempi come criterio di split (quando rilevante) o mescolando con seed fissato per garantire riproducibilità. Le partizioni standard adottate sono:
+	\begin{itemize}
+		\item \textbf{Training set (80\%)}: utilizzato per l'ottimizzazione dei pesi e per la Random Search sugli iperparametri;
+		\item \textbf{Test set (20\%)}: tenuto separato e mai utilizzato durante la ricerca degli iperparametri; impiegato esclusivamente per la valutazione finale.
+	\end{itemize}
+	Il mantenimento della separazione tra training e test set è stato fondamentale per evitare data leakage e per ottenere stime realistiche delle prestazioni su dati non visti.
+	
+	\subsection{Metriche e intervalli di confidenza}
+	Per la valutazione comparativa dei modelli sono state adottate le seguenti metriche, calcolate sia sul training set (durante la selezione) sia sul test set (per la valutazione finale):
+	\begin{itemize}
+		\item \textbf{Accuracy}, \textbf{F1-score (weighted)} e \textbf{F1-score (macro)};
+		\item \textbf{Classification report} e \textbf{confusion matrix} per analisi per-classe;
+		\item \textbf{AUC-ROC} (one-vs-rest, weighted) e \textbf{AUC-PR} quando disponibili (modelli che forniscono probabilità);
+		\item \textbf{Bootstrap di intervalli di confidenza (CI95\%)} per metriche principali (es. F1-weighted, AUC) utilizzando ripetuti resampling con reinserimento sul test set.
+	\end{itemize}
+	
+	\subsection{Strategia di training comune e criteri di arresto}
+	La strategia di training adottata è stata uniforme per entrambe le architetture, salvo specifiche architetturali. I punti principali sono: ottimizzatore Adam, funzione di perdita \texttt{CrossEntropyLoss} (richiede etichette 0-indexed), batch size configurabile (tipicamente 32), regularizzazione L2 opzionale e dropout sui layer fully-connected. Per prevenire overfitting è stato utilizzato l'early stopping basato sulla validation loss con parametri \texttt{patience} e \texttt{min\_delta} regolabili. L'addestramento è stato eseguito su device GPU, se disponibile, altrimenti su CPU. Per la ricerca degli iperparametri si è impiegata una Random Search con K-Fold cross-validation. Il numero di iterazioni \(n\) per la Random Search è stato scelto con una logica probabilistica per garantire, con alta probabilità, l'inclusione di configurazioni vicino all'ottimo (probabilità desiderata \(P=0.90\) di includere almeno una delle migliori \(k\) configurazioni in uno spazio totale \(M\)).
+	
+	\subsubsection{Griglie di iperparametri per modello} 
+	\smallskip
+	\noindent\textbf{CNN + MLP} \quad (Random Search: $n=11$)  
+	Il modello adotta una rete convoluzionale come feature extractor, composta da due blocchi di convoluzione + pooling. Per un input di dimensione \(224\times224\), la prima convoluzione con kernel \(3\times3\) e successivo max pooling riduce la dimensione spaziale a \(111\times111\). La seconda convoluzione seguita da max pooling produce una mappa finale di \(16\times54\times54\), corrispondente a un vettore flatten di dimensione \(\text{feature\_dim} = 46,656\).
+	
+	Questo vettore viene passato ad una MLP configurabile, in cui sono stati esplorati diversi insiemi di iperparametri, quali:  
+	\begin{itemize}
+		\item \textbf{hidden\_sizes}: [(120, 84, 20), (64, 32), (128, 64, 32)];
+		\item \textbf{dropout}: [0.0, 0.2, 0.5];
+		\item \textbf{lr}: [$10^{-3}$, $10^{-4}$];
+		\item \textbf{l2\_lambda}: [0.0, $10^{-4}$, $10^{-5}$];
+	\end{itemize}
+	
+	\smallskip
+	\noindent\textbf{CNN + KAN} \quad (Random Search: $n=15$)  
+	La variante CNN+KAN utilizza la stessa CNN di base per garantire comparabilità. Le feature estratte sono fornite come input ad una KAN. Questo vettore viene passato ad una KAN configurabile, in cui sono stati esplorati diversi insiemi di iperparametri, quali: 
+	\begin{itemize}
+		\item \textbf{width}: [(8,4), (16,8), (32,16)];
+		\item \textbf{grid}: [5, 10];
+		\item \textbf{k}: [2, 3];
+		\item \textbf{lr}: [$10^{-3}$, $10^{-4}$];
+		\item \textbf{l2\_lambda}: [0.0, $10^{-4}$, $10^{-5}$];
+		\item \textbf{seed}: 0 per riproducibilità.
+	\end{itemize}
+	
+	\subsection{Scelte architetturali finali (DA MODIFICARE)}
+	% To Be Modified
+	Nella Tabella \ref{tab:model-config-image} vengono mostrate le scelte finali, dopo l'ottimizzazione degli iperparametri, utilizzate per training, valutazioni comparative e studio di ablazione.
+	
+	\begin{table}[H]
+		\centering
+		\caption{Configurazioni finali dei modelli usati per il Training, dopo aver effettuato l'ottimizzazione degli iperparametri.}
+		\label{tab:model-config-image}
+		\begin{tabular}{l p{0.65\linewidth}}
+			\toprule
+			\textbf{MLP} & \texttt{input\_dim = 49}; \texttt{hidden\_sizes = (64, 64)}; \texttt{dropout = 0.2}; \texttt{ottimizzatore = Adam}; \texttt{lr = 0.0001}; \texttt{l2\_lambda = 0.001}; \texttt{batch\_size = 32}. Early stopping applicato. \\
+			\midrule
+			\textbf{KAN} & \texttt{input\_dim = 49}; \texttt{width = (16,8)}; \texttt{grid = 5}; \texttt{k = 4}, \texttt{seed = 0}; \texttt{ottimizzatore = Adam}; \texttt{lr = 0.0001}; \texttt{l2\_lambda = 1e-05}; \texttt{batch\_size = 32}. Early stopping applicato. \\
+			\bottomrule
+		\end{tabular}
+	\end{table}
 	
 	\chapter{Discussione comparativa sui Risultati dei casi studio}
 	
