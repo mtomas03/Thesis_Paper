@@ -23,13 +23,30 @@
 \onehalfspacing
 \usepackage{hyperref}
 
-\title{Analisi Comparativa di KAN, MLP, Random forest e XGBoost con Tecniche di Ottimizzazione}
-\author{Martin Tomassi \\ Università di Bologna \\ Corso di Laurea in Ingegneria e Scienze Informatiche}
-\date{Settembre 2025}
-
 \begin{document}
 	
-	\maketitle
+	\begin{titlepage}
+		\begin{center}
+			\includegraphics[width=0.6\textwidth]{img/logo_unibo.png}
+		\end{center}
+		\begin{center}
+			\vspace{2cm}
+			\textbf{CORSO DI LAUREA IN INGEGNERIA E SCIENZE INFORMATICHE}
+			
+			\vspace{2cm}
+			\textbf{\Large Valutazione Metodologica ed Applicativa di KAN, MLP, Random Forest e XGBoost con Tecniche di Ottimizzazione su differenti casi di studio}
+			
+			\vspace{2cm}
+			\begin{tabular}{p{0.8\textwidth} p{0.8\textwidth}}
+				\textbf{Relatore:} & \textbf{Presentata da:} \\
+				\textbf{Prof. Damiana Lazzaro} & \textbf{Martin Tomassi} \\
+			\end{tabular}
+			
+			\vspace{2cm}
+			\textbf{Sessione Settembre 2025} \\
+			\textbf{Anno Accademico 2024/2025}
+		\end{center}
+	\end{titlepage}
 	
 	\tableofcontents
 	
@@ -255,51 +272,55 @@
 	Dopo aver calcolato le attivazioni in tutti gli strati intermedi, l'uscita dello strato finale ($\mathbf{a}_{\text{out}}$) costituisce la previsione della rete. Se il problema è di regressione, l'ultima funzione di attivazione può essere identità (o lineare); se è di classificazione binaria, si può usare la sigmoide; se è multi-classe, si usa tipicamente la softmax. Ad esempio, in una classificazione a $K$ classi lo strato di output contiene $K$ neuroni con softmax, e ciascuna uscita $a_k \in (0,1)$ rappresenta la probabilità assegnata alla classe $k$. L'output finale è dunque un vettore di predizioni che dipende dalle scelte di pesi, bias e funzioni di attivazione attraverso la rete. Infine, confrontando $\mathbf{a}_{\text{out}}$ con il valore target (ground truth) del training si calcola una funzione di perdita che misura l'errore di previsione (ad esempio, MSE per regressione o cross-entropy per classificazione). Questa funzione di perdita viene poi utilizzata nell'allenamento per aggiornare i pesi tramite backpropagation.
 	
 	\section{Algoritmo di backpropagation}
-	L'algoritmo di backpropagation è fondamentale per l'addestramento delle reti neurali, poiché calcola come i pesi della rete devono essere modificati per minimizzare l'errore. Questo processo si basa sull'applicazione della regola della catena (chain rule) per derivare il gradiente della funzione di perdita $L$ rispetto a ogni peso $w$.
+	L'algoritmo di backpropagation è fondamentale per l'addestramento delle reti neurali, poiché calcola come i pesi della rete devono essere modificati per minimizzare l'errore. Questo processo si basa sull'applicazione della regola della catena (chain rule) per derivare il gradiente della funzione di perdita \(L\) rispetto a ogni peso \(w\).
 	
 	\subsection{Derivazione del gradiente}
-	Il processo inizia con la definizione dell'errore, calcolato attraverso una funzione di perdita $L$, che misura la differenza tra il valore previsto dalla rete e il valore target effettivo. Ad esempio, per la regressione si può usare l'errore quadratico medio (MSE), mentre per la classificazione si ricorre spesso alla cross-entropy. \\
-	Una volta definito l'errore, l'algoritmo procede calcolando la derivata parziale della funzione di perdita $L$ rispetto all'attivazione netta di ciascun neurone. Questo valore è noto come "errore locale" o $\delta_j$ per il neurone $j$, ed è una misura di quanto l'errore di output sia influenzato dall'input di quel neurone prima dell'applicazione della funzione di attivazione.
+	Il processo inizia con la definizione dell'errore, calcolato attraverso una funzione di perdita \(L\), che misura la differenza tra il valore previsto dalla rete e il valore target effettivo. Ad esempio, per la regressione si può usare l'errore quadratico medio (MSE), mentre per la classificazione si ricorre spesso alla cross-entropy. \\
+	Una volta definito l'errore, l'algoritmo procede calcolando la derivata parziale della funzione di perdita \(L\) rispetto all'attivazione netta di ciascun neurone. Questo valore è noto come "errore locale" o \(\delta_j\) per il neurone \(j\), ed è una misura di quanto l'errore di output sia influenzato dall'input di quel neurone prima dell'applicazione della funzione di attivazione.
 	\[
 	\delta_j = \frac{\partial L}{\partial z_j}.
-	\]
-	Per un neurone nello strato di output, questo calcolo è diretto, ma per i neuroni nei layer nascosti, $\delta_j$ viene determinato propagando a ritroso gli errori dei neuroni successivi. In pratica, ogni neurone riceve contributi di errore da tutti i neuroni a cui è connesso nel layer seguente. Questo meccanismo di propagazione a ritroso è il cuore della backpropagation. \\
-	L'applicazione della chain rule permette di ottenere il gradiente di $L$ rispetto ad ogni peso $w_{ji}$ che connette il neurone $i$ al neurone $j$:
+	\]\\
+	Per un neurone nello strato di output, il calcolo di \(\delta_j\) è diretto (dipende dalla perdita e dalla derivata dell'attivazione). Per i neuroni nei layer nascosti, invece, \(\delta_j\) si determina propagando a ritroso gli errori dei neuroni del layer successivo: ogni neurone nascosto riceve contributi di errore da tutti i neuroni a cui è collegato nel layer seguente. In forma esplicita, se indichiamo con \(k\) gli indici dei neuroni del layer successivo e con \(w_{k j}\) il peso che connette il neurone \(j\) (nascosto) al neurone \(k\) (del layer successivo), allora
 	\[
-	\frac{\partial L}{\partial w_{ji}} = a_i \delta_j,
+	\delta_j \;=\; \sigma'(z_j)\,\sum_{k} w_{k j}\,\delta_k^{(\text{next})},
 	\]
-	dove $a_i$ è l'output del neurone $i$ nel layer precedente e $\delta_j$ è l'errore locale del neurone $j$. In parole semplici, l'algoritmo calcola l'errore di output e lo distribuisce a ritroso attraverso i layer, moltiplicandolo per le derivate delle funzioni di attivazione. Si ottiene così un vettore di gradienti che indica la direzione in cui i pesi devono essere aggiornati per ridurre l'errore complessivo.
+	dove \(z_j\) è la net-input del neurone \(j\) e \(\sigma'\) è la derivata della funzione di attivazione valutata in \(z_j\). Questa formula mostra chiaramente due passaggi: si sommano i contributi di errore \(\delta_k^{(\text{next})}\) dei neuroni del layer successivo pesati dai corrispondenti pesi \(w_{k j}\) ed il risultato viene moltiplicato per \(\sigma'(z_j)\) per tener conto della non linearità locale del neurone \(j\). \\
+	L'applicazione della chain rule permette quindi di ottenere il gradiente della perdita rispetto a ciascun peso \(w_{ji}\) che connette il neurone \(i\) al neurone \(j\):
+	\[
+	\frac{\partial L}{\partial w_{ji}} = a_i\,\delta_j,
+	\]
+	dove \(a_i\) è l'output (attivazione) del neurone \(i\) nel layer precedente e \(\delta_j\) è l'errore locale del neurone \(j\) calcolato come sopra. Quindi, l'algoritmo calcola l'errore allo strato di output e lo distribuisce a ritroso lungo la rete, scalando i contributi con le derivate delle attivazioni; il prodotto \(a_i\delta_j\) fornisce per ogni peso la misura del suo contributo all'errore complessivo e, quindi, la direzione in cui occorre modificarlo per ridurre la perdita.
 	
 	\subsection{Aggiornamento dei pesi}
-	Una volta noti i gradienti parziali $\frac{\partial L}{\partial w}$, i pesi vengono aggiornati solitamente tramite discesa del gradiente (gradient descent). Con un learning rate $\eta$, l'aggiornamento è dato da:
+	Una volta noti i gradienti parziali \(\frac{\partial L}{\partial w}\), i pesi vengono aggiornati solitamente tramite discesa del gradiente (gradient descent). Con un learning rate \(\eta\), l'aggiornamento è dato da:
 	\[
 	w \leftarrow w - \eta\,\frac{\partial L}{\partial w}.
 	\]
-	Questo modifica ogni peso nella direzione negativa del gradiente per ridurre la perdita. In termini di formula, per l'esempio di un singolo campione e peso $w_{ji}$:
+	Questo modifica ogni peso nella direzione negativa del gradiente per ridurre la perdita. In termini di formula, per l'esempio di un singolo campione e peso \(w_{ji}\):
 	\[
 	\Delta w_{ji} = -\,\eta\,\frac{\partial L}{\partial w_{ji}} = -\,\eta\,\delta_j\,a_i.
 	\]
 	Questa è la regola standard di backpropagation con discesa del gradiente. In pratica, si iterano più epoche di allenamento aggiornando i pesi in base a molti esempi, eventualmente con varianti come la discesa del gradiente stocastico (SGD) oppure con algoritmi avanzati (momentum, Adam, ecc.). Tra un passo di forward e il successivo di backward, possono essere applicate tecniche di batching: l'errore può essere aggregato su minibatch di esempi per stabilizzare l'aggiornamento. In ogni caso, il principio fondamentale è che i pesi vengono "aggiustati" proporzionalmente al proprio contributo all'errore complessivo, come descritto nelle sezioni precedenti.
 	
 	\subsection{Tecniche di regolarizzazione}
-	Affinché la rete abbia un'ottima capacitá di generalizzazione (non si limiti a riprodurre il rumore dei dati di training), si usano tecniche di regolarizzazione:
+	Affinché la rete abbia un'ottima capacit\'a di generalizzazione (non si limiti a riprodurre il rumore dei dati di training), si usano tecniche di regolarizzazione:
 	\begin{itemize}
-		\item \textbf{Dropout:} durante la fase di training, in ciascuna iterazione si disattiva casualmente una parte di neuroni in alcuni layer, impostando le loro attivazioni a zero. Questo costringe la rete a non fare affidamento eccessivo su singoli neuroni, favorendo lo sviluppo di rappresentazioni ridondanti e riducendo l’overfitting. Ad esempio, con una dropout probability $p$, un neurone viene disattivato con probabilità $p$ e gli altri sono scalati di $1/(1-p)$ per compensazione.
+		\item \textbf{Dropout:} durante la fase di training, in ciascuna iterazione si disattiva casualmente una parte di neuroni in alcuni layer, impostando le loro attivazioni a zero. Questo costringe la rete a non fare affidamento eccessivo su singoli neuroni, favorendo lo sviluppo di rappresentazioni ridondanti e riducendo l'overfitting. Ad esempio, con una dropout probability \(p\), un neurone viene disattivato con probabilità \(p\) e gli altri sono scalati di \(1/(1-p)\) per compensazione.
 		\item \textbf{Regolarizzazione L1 (LASSO):} si aggiunge alla loss un termine proporzionale alla somma dei valori assoluti dei pesi:
 		\[
 		L'(w)=L(w) + \lambda \|w\|_1 = L(w) + \lambda\sum_i |w_i|,
 		\]
-		con $\lambda>0$. La funzione di penalità \(\ell_1\) induce sparsitá: molte componenti dei pesi vengono impostate a zero, facilitando la selezione di feature e l'interpretabilità del modello.
+		con \(\lambda>0\). La funzione di penalità \(\ell_1\) induce sparsit\`a: molte componenti dei pesi vengono impostate a zero, facilitando la selezione di feature e l'interpretabilità del modello.
 		\item \textbf{Regolarizzazione L2 (Ridge):} si aggiunge il quadrato della norma dei pesi:
 		\[
 		L'(w)=L(w) + \tfrac{\lambda}{2}\|w\|_2^2 = L(w) + \tfrac{\lambda}{2}\sum_i w_i^2.
 		\]
-		Il termine $\ell_2$ non produce soluzioni esattamente sparse ma riduce la magnitudine di tutti i pesi verso lo zero.
+		Il termine \(\ell_2\) non produce soluzioni esattamente sparse ma riduce la magnitudine di tutti i pesi verso lo zero.
 		\item \textbf{Combinazione L1+L2 (Elastic Net):} combina entrambe le precedenti penalità:
 		\[
 		L'(w)=L(w) + \alpha\left(\lambda_1\|w\|_1 + \tfrac{\lambda_2}{2}\|w\|_2^2\right),
 		\]
-		e viene scelta per ottenere sia sparsitá (L1) sia stabilità (L2) quando le features sono correlate. Elastic Net é spesso preferibile quando il numero di variabili supera il numero di osservazioni o quando ci sono gruppi di variabili fortemente correlate.
+		e viene scelta per ottenere sia sparsit\`a (L1) sia stabilit\`a (L2) quando le features sono correlate. Elastic Net \`e spesso preferibile quando il numero di variabili supera il numero di osservazioni o quando ci sono gruppi di variabili fortemente correlate.
 	\end{itemize}
 	
 	\section{Vantaggi e limiti}
@@ -334,7 +355,7 @@
 	f(x_1,\dots,x_n)=\sum_{q=1}^{2n+1}\Phi_q\!\Biggl(\sum_{p=1}^n \phi_{q,p}(x_p)\Biggr),
 	\]
 	per \(q=1,\dots,2n+1\). \\
-	In altre parole, ogni funzione multivariata può essere ricondotta a combinazioni di funzioni unidimensionali tramite opportune funzioni interne \(\phi_{q,p}\), che agiscono come "feature extractors" individuali, cioè estraggono informazioni rilevanti da ciascuna dimensione dei dati in modo indipendente, ed esterne \(\Phi_q\), che agiscono come un "classificatore" di queste features, cioè combinano le caratteristiche estratte per prendere una decisione. Questo risultato afferma che qualsiasi funzione continua di più variabili può essere completamente rappresentata tramite combinazioni di funzioni continue di una sola variabile.
+	Ciò signifca che ogni funzione continua multivariata può essere scomposta in una somma di funzioni univariate più semplici \(\Phi_q\), (dette funzioni esterne), ciascuna delle quali dipende da una combinazione lineare delle variabili originali trasformate tramite funzioni univariate, dette funzioni  interne \(\phi_{q,p}\). In questo contesto le funzioni interne agiscono da "features extractor", cioè estraggono informazioni rilevanti da ciascuna variabile, mentre le funzioni esterne combinano queste caratteristiche per produrre il valore finalle della funzione, agendo in modo simile ad un classificatore delle features estratte. Questo risultato afferma che qualsiasi funzione continua di più variabili può essere completamente rappresentata tramite combinazioni di funzioni continue di una sola variabile.
 	
 	\subsection{Sulla natura "non costruttiva" delle dimostrazioni}
 	Le dimostrazioni originali del KART, eseguite da Kolmogorov nel 1957 e successivamente Arnold nel 1967, sono di natura esistenziale: garantiscono l'esistenza delle funzioni \(\phi_{q,p}\) e \(\Phi_q\), ma non forniscono una procedura esplicita o una formula chiusa per costruirle. Pertanto il teorema è fondamentale dal punto di vista teorico ma, senza ulteriori risultati costruttivi, ha un'utilità pratica limitata per la costruzione diretta di architetture neurali basate su tali funzioni, spingendo i ricercatori a privilegiare le reti neurali multistrato (MLP) che, pur con i loro limiti, erano più facili da implementare.
@@ -1054,7 +1075,9 @@
 	
 	Se l'obiettivo è creare un modello più leggero da salvare o esportare, è possibile potare il modello in modo permanente. Questo si ottiene limitando l'ensemble agli alberi selezionati e salvando il nuovo modello ridotto. Questo processo è utile per ridurre l'occupazione di memoria e rendere il modello più efficiente per la distribuzione in produzione, una volta che la migliore configurazione è stata identificata tramite lo studio di ablazione.
 	
-	\chapter{Progettazione dei casi di studio}
+	\chapter{Casi Studio}
+	
+	\section{Progettazione dei casi di studio}
 	
 	\subsection{Tecnologie e librerie}
 	Il workflow sperimentale e di analisi è stato interamente sviluppato in \texttt{Python}, con un insieme di librerie comuni ai tre casi studio e componenti specifiche in base alla natura del problema affrontato. \\
@@ -1112,21 +1135,17 @@
 	
 	\chapter{Primo Caso Studio: Regressione su emissioni di automobili}
 	
+	\section{Introduzione}
+	Il presente caso studio affronta la previsione delle emissioni di CO2 di veicoli a partire da caratteristiche tecniche e di consumo (anno di produzione, cilindrata, tipo di trasmissione e carburante, consumo L/100km, ecc.). Il dataset utilizzato deriva dalla fusione di tre sorgenti ufficiali: i dati originali provengono dalla Vehicle Certification Agency (VCA) del Department for Transport del Regno Unito, dal sito ufficiale del Governo canadese e dal Instituto para la Diversificación y Ahorro de la Energía (IDAE), istituzione spagnola; il materiale è stato fornito in forma pre-elaborata da terze parti \cite{olivi2024car}. Per questo motivo, la trattazione qui riportata si concentra sulle fasi di modellazione, validazione e analisi dei risultati, più che sulle operazioni di preprocessing. Per ottenere stime di performance affidabili si adotta un protocollo di validazione rigoroso (Nested CV con Random Search per l’ottimizzazione degli iperparametri) ed una valutazione che combina indicatori di accuratezza con misure di complessità e intervalli di confidenza. Inoltre, sono condotti studi di ablazione che valutano l’impatto di tecniche di pruning sui diversi tipi di modello per investigare il trade-off tra compressione e mantenimento della qualità predittiva. Nel capitolo seguente vengono presentati, in ordine: una sintetica nota sull’origine e lo stato del dataset; la pipeline di preprocessing e le scelte di split; la descrizione delle procedure di training e ottimizzazione; i risultati principali con le valutazioni comparative e gli esperimenti di ablazione con le considerazioni finali sul compromesso performance/complessità.
+	
 	\section{Data preparation}
-	Questo caso studio si concentra principalmente sulle fasi di allenamento, valutazione e studio di ablazione; pertanto il dataset utilizzato per l'addestramento è stato fornito già pre-elaborato da terze parti. Di seguito, viene mostrata una sintesi chiara e sintetica delle principali trasformazioni già applicate ai dati, senza entrare nel dettaglio operativo della preparazione dei dati.
 	
-	\subsection{Nota sull'origine e stato del dataset}
-	Il dataset finale è il risultato della fusione di tre sorgenti ufficiali sulle emissioni automobilistiche (Regno Unito, Spagna, Canada). La preparazione è stata svolta prima della presente analisi e ha incluso operazioni di armonizzazione dei nomi di colonna, conversione di unità, pulizia testuale di campi, rimozione di osservazioni non pertinenti e rimozioni conservative per valori mancanti ritenuti non critici.
-	
-	\subsection{Riassunto sintetico delle principali trasformazioni}
+	\subsection{Riassunto delle principali trasformazioni}
 	Le principali trasformazioni applicate includono: l'unione delle tre sorgenti in un unico dataframe coerente; l'omogeneizzazione degli schemi attraverso la mappatura e la ridenominazione delle colonne per ottenere uno schema comune; la pulizia testuale con la standardizzazione e capitalizzazione dei valori e la rimozione di suffissi o annotazioni spurie. Inoltre, è stata effettuata un'imputazione conservativa, utilizzando la mediana (globale o per gruppo/categoria) per riempire i valori mancanti numerici significativi, con eliminazioni conservative per categoria quando necessario. Infine, sono stati applicati dei filtri per eliminare righe prive della variabile target (\texttt{CO2\_Emissions}) o prive di attributi ritenuti fondamentali per l'allenamento dei modelli.
-	
-	\subsection{Ruolo nella tesi}
-	Poiché il preprocessing non rientra nelle attività svolte, nelle sezioni successive si assume che il dataset finale sia corretto e pronto per la modellazione. La trattazione si concentrerà pertanto su tre aspetti principali: la scelta delle architetture, la strategia di validazione e splitting utilizzata per evitare il data leakage, e, infine, le metriche di valutazione, il confronto tra modelli e lo studio di ablazione.
 	
 	\section{Addestramento dei modelli}
 	
-	\subsection{Features e variabile target}
+	Il dataset comprende le seguenti features:
 	\begin{itemize}
 		\item \texttt{Year}: anno di produzione del veicolo (numerica);
 		\item \texttt{Manufacturer}: casa automobilistica (categorica);
@@ -1136,7 +1155,7 @@
 		\item \texttt{Fuel\_type}: Petrol / Diesel / LPG / \ldots (categorica);
 		\item \texttt{Fuel\_consumption}: L/100km (numerica).
 	\end{itemize}
-	La variabile target è \texttt{CO2\_Emissions} (g/km).
+	La variabile target da prevedere è \texttt{CO2\_Emissions} (g/km).
 	
 	\subsection{Pipeline di preprocessing}
 	La pipeline di preprocessing prevede tre passaggi principali. Innanzitutto, si effettua una selezione delle features per mantenere solo le colonne più importanti per la previsione delle emissioni di CO2. Successivamente, le variabili categoriche vengono codificate con un \texttt{OneHotEncoder} e, infine, le variabili numeriche sono standardizzate con uno \texttt{StandardScaler}, quando il modello lo richiede.
@@ -1161,9 +1180,9 @@
 	Sono stati calcolati per MSE, MAE e MAPE gli intervalli di confidenza.
 	
 	\subsection{Strategia di training comune e griglie di iperparametri}
-	La strategia di training è stata omogenea per tutti i modelli considerati. Le procedure comuni adottate sono le seguenti: il protocollo di validazione impiega una Nested CV con un outer KFold $= 5$ e un inner KFold $= 3$. Il ciclo interno esegue una Random Search sulle griglie di iperparametri. La migliore configurazione trovata viene riaddestrata sul sottoinsieme interno e valutata sul corrispondente outer test fold. Per la Random Search, il numero di iterazioni $n$ è stato scelto con una logica probabilistica per assicurare una probabilità del 90\% di includere almeno una delle 10 migliori configurazioni. Per le reti neurali, l'ottimizzazione è stata gestita con l'ottimizzatore \texttt{Adam} e la funzione di perdita \texttt{MSELoss}, con una regolarizzazione L2 opzionale. Le epoche massime sono 1000, ma con l'uso di un Early stopping per interrompere il training in caso di mancato miglioramento. Infine, la \textbf{valutazione finale} di ogni outer fold ha incluso il calcolo delle metriche (MSE, MAE, MAPE, $R^2$, $R^2$-adjusted, Max Error), degli intervalli di confidenza al 95\% per MSE, MAE e MAPE e della complessità del modello. Inoltre, la funzione di attivazione della MLP é la ReLU.
+	La strategia di training è stata omogenea per tutti i modelli considerati. Le procedure comuni adottate sono le seguenti: il protocollo di validazione impiega una Nested CV con un outer KFold $= 5$ e un inner KFold $= 3$. Il ciclo interno esegue una Random Search sulle griglie di iperparametri. La migliore configurazione trovata viene riaddestrata sul sottoinsieme interno e valutata sul corrispondente outer test fold. Per la Random Search, il numero di iterazioni $n$ è stato scelto con una logica probabilistica per assicurare una probabilità del 90\% di includere almeno una delle 10 migliori configurazioni. Per le reti neurali, l'ottimizzazione è stata gestita con l'ottimizzatore \texttt{Adam} e la funzione di perdita \texttt{MSELoss}, con una regolarizzazione L2 opzionale. Le epoche massime sono 1000, ma con l'uso di un Early stopping per interrompere il training in caso di mancato miglioramento. Infine, la \textbf{valutazione finale} di ogni outer fold ha incluso il calcolo delle metriche (MSE, MAE, MAPE, $R^2$, $R^2$-adjusted, Max Error), degli intervalli di confidenza al 95\% per MSE, MAE e MAPE e della complessità del modello. Inoltre, la funzione di attivazione della MLP é la ReLU. \\
 	
-	\subsubsection{Griglie di iperparametri per modello}
+	Di seguito sono riportate le griglie di iperparametri entro cui la Random Search esplora le combinazioni, al fine di individuare quelle che forniscono i risultati migliori per ciascun modello.
 	\smallskip
 	\noindent\textbf{MLP} \quad (Random Search: $n=15$)
 	\begin{itemize}
@@ -1242,6 +1261,12 @@
 		\caption{Confronto visivo della complessitá e prestazioni dei modelli, utilizzando come metriche $R^2$, MSE, MAE, MAPE e $R^2$ aggiustato.}
 		\label{fig:comparison_models}
 	\end{figure}
+	
+	\subsection{Risultati sperimentali}
+	
+	L’analisi dei risultati ha messo in evidenza differenze significative tra le reti neurali e i modelli ensemble, sia in termini di accuratezza sia di complessità computazionale. \\
+	Per quanto riguarda le reti neurali, la \textbf{MLP} ha ottenuto un $R^2$ in test pari a $0.8467$ e un $R^2$ aggiustato di $0.8451$, con un errore quadratico medio (MSE) di circa $605$ e un errore assoluto medio (MAE) pari a $18.9$. Il valore di MAPE si attesta attorno al $10.5\%$, mentre il massimo errore assoluto in test ha raggiunto circa $136.5$. Queste prestazioni sono accettabili ma non particolarmente competitive, soprattutto considerando il numero relativamente elevato di parametri del modello (circa $134$k), che lo rende più pesante da addestrare e meno efficiente rispetto ad altre soluzioni. La \textbf{KAN} ha invece fornito risultati decisamente migliori, raggiungendo un $R^2$ test pari a $0.9688$ e un $R^2$ aggiustato di $0.9687$, con un MSE di $123$ e un MAE di $9.0$. Anche il MAPE, pari a circa $4.6\%$, conferma l’elevata accuratezza, mentre il massimo errore assoluto in test è stato di circa $108.3$. Questo incremento di precisione è stato ottenuto al costo di una complessità ancora maggiore, pari a circa $220$k parametri. Nel complesso, le reti neurali hanno mostrato un buon compromesso tra capacità di generalizzazione e accuratezza, ma con differenze marcate: l’MLP è risultato il meno competitivo, mentre KAN ha dimostrato una notevole capacità di modellare il problema, pur a fronte di un costo parametrico elevato. \\
+	I modelli ensemble hanno mostrato un comportamento altrettanto interessante. La \textbf{Random Forest} ha raggiunto un $R^2$ test pari a $0.8704$ e un $R^2$ aggiustato di $0.8654$, con MSE di $511$ e MAE di $15.9$. Il MAPE ha raggiunto un valore medio del $10.9\%$, mentre il massimo errore assoluto è stato di circa $134.9$. Le sue prestazioni sono state quindi superiori a quelle dell’MLP, ma comunque meno accurate di quelle della KAN e soprattutto di XGBoost. La complessità del modello, stimata in circa $47$k parametri, lo rende più leggero delle reti neurali, ma non sufficientemente performante da rappresentare la soluzione migliore. \textbf{XGBoost}, al contrario, si è distinto come il modello più efficace: il suo $R^2$ test ha raggiunto il valore di $0.9956$ con un $R^2$ aggiustato di $0.9968$, accompagnato da un MSE di appena $17.5$ e un MAE pari a $2.5$. Il MAPE medio in test si attesta intorno all’$1.5\%$, e il massimo errore assoluto è stato limitato a circa $70.2$, valori che lo rendono nettamente superiore agli altri modelli. Oltre all’elevata precisione, un ulteriore vantaggio di XGBoost è l’efficienza, poiché la sua complessità è di soli $15$k parametri, rendendolo non solo il più accurato ma anche il più scalabile e pratico da utilizzare. \\
 	
 	\subsection{Selezione del miglior modello}
 	Per identificare il modello più adatto al problema di regressione delle emissioni di CO2, è stata adottata una procedura che combina prestazione e complessità. Inizialmente, sono state definite le metriche di interesse e la rispettiva direzione di ottimizzazione, come mostrato di seguito: \\
@@ -1577,10 +1602,9 @@
 	\end{itemize}
 	
 	\subsection{Strategia di training comune e griglie di iperparametri}
-	La strategia di training adottata è sostanzialmente omogenea per tutti i modelli considerati, con alcune specificità legate all'architettura di ciascun modello. Per la Random Search, il numero di iterazioni $n$ è stato scelto con una logica probabilistica per assicurare una probabilità del 90\% di includere almeno una delle 10 migliori configurazioni. Per le reti neurali (MLP e KAN), l'addestramento è stato gestito con l'ottimizzatore Adam, la funzione di perdita CrossEntropyLoss (che richiede etichette 0-indexed) ed una regolarizzazione L2 opzionale. La dimensione del batch è fissata a 32 ed il calcolo viene eseguito su GPU, se disponibile. Per evitare l'overfitting, è stato implementato un sistema di early stopping con parametri configurabili (\texttt{patience} e \texttt{min\_delta}). Inoltre, la funzione di attivazione della MLP é la ReLU.
+	La strategia di training adottata è sostanzialmente omogenea per tutti i modelli considerati, con alcune specificità legate all'architettura di ciascun modello. Per la Random Search, il numero di iterazioni $n$ è stato scelto con una logica probabilistica per assicurare una probabilità del 90\% di includere almeno una delle 10 migliori configurazioni. Per le reti neurali (MLP e KAN), l'addestramento è stato gestito con l'ottimizzatore Adam, la funzione di perdita CrossEntropyLoss (che richiede etichette 0-indexed) ed una regolarizzazione L2 opzionale. La dimensione del batch è fissata a 32 ed il calcolo viene eseguito su GPU, se disponibile. Per evitare l'overfitting, è stato implementato un sistema di early stopping con parametri configurabili (\texttt{patience} e \texttt{min\_delta}). Inoltre, la funzione di attivazione della MLP é la ReLU. \\
 	
-	\subsubsection{Griglie di iperparametri per modello}
-	
+	Di seguito sono riportate le griglie di iperparametri entro cui la Random Search esplora le combinazioni, al fine di individuare quelle che forniscono i risultati migliori per ciascun modello.
 	\smallskip
 	\noindent\textbf{Random Forest} \quad (Random Search: $n=49$)
 	\begin{itemize}
@@ -1654,6 +1678,12 @@
 		\caption{Confronto visivo delle prestazioni dei modelli (Accuracy train vs test, F1-weighted / F1-macro con CI95\%, AUC-ROC e AUC-PR OVR weighted, e complessità in parametri/nodi).}
 		\label{fig:comparison_pm}
 	\end{figure}
+	
+	\subsection{Risultati sperimentali}
+	
+	L’analisi dei risultati ha messo in evidenza che, dal punto di vista delle metriche di classificazione, le differenze tra i modelli testati sono complessivamente ridotte: accuratezza, F1-score, AUC-ROC e AUC-PR si collocano su valori molto simili, con scarti percentuali spesso marginali. La vera distinzione tra i modelli emerge quindi principalmente sul piano della complessità architetturale. \\
+	Per quanto riguarda le reti neurali, la \textbf{MLP} ha ottenuto un’accuratezza complessiva in test pari al $76\%$, con un F1-weighted di $0.7654$, un F1-macro di $0.7421$, un AUC-ROC pari a $0.938$ ed un AUC-PR di $0.800$. Nonostante valori complessivamente accettabili, la sensibilità sulle classi minoritarie si è dimostrata ridotta, limitando l’efficacia in scenari caratterizzati da distribuzioni sbilanciate. Con circa $7.750$ parametri, il modello si presenta come una soluzione leggera e facilmente scalabile, ma meno competitiva sul piano delle performance rispetto alle alternative. La \textbf{KAN} ha invece fornito risultati più equilibrati, raggiungendo un’accuratezza in test pari al $78\%$, con un F1-weighted di $0.7823$ e un F1-macro di $0.7608$, insieme a un AUC-ROC di $0.948$ e un AUC-PR di $0.840$. Questo incremento di precisione, unito al basso numero di parametri (circa $7.680$), conferma la capacità della KAN di garantire un buon compromesso tra accuratezza e parsimonia architetturale, rendendola una candidata ideale per scenari efficienza-aware. \\
+	I modelli ensemble hanno mostrato un comportamento altrettanto interessante. La \textbf{Random Forest}, con circa $412$k nodi, ha raggiunto un’accuratezza dell’$80\%$, con un F1-weighted di $0.7997$ e un F1-macro di $0.7750$, supportati da un AUC-ROC di $0.952$ e un AUC-PR di $0.858$. Le sue prestazioni si sono dimostrate competitive e non molto distanti da quelle di MLP e KAN, ma la complessità computazionale rimane molto elevata, rendendolo meno adatto quando l’efficienza costituisce un vincolo operativo. \textbf{XGBoost}, infine, si è distinto come il modello leggermente più performante: l’accuratezza in test ha raggiunto l’$81\%$, con un F1-weighted di $0.8107$ e un F1-macro di $0.7901$, accompagnati da un AUC-ROC di $0.957$ e un AUC-PR di $0.875$. Tuttavia, tali miglioramenti rispetto a KAN e Random Forest sono marginali, mentre la complessità architetturale (circa $90$k parametri) risulta nettamente superiore rispetto alle reti leggere come MLP e KAN, pur restando inferiore alla Random Forest. \\
 	
 	\subsection{Selezione del miglior modello}
 	Per identificare il modello più adatto al problema di classificazione, è stata adottata una procedura di ranking multi-criterio che combina le prestazioni con la complessità. Inizialmente, sono state definite le metriche di interesse e la rispettiva direzione di ottimizzazione, come indicato nel seguente blocco di codice:
@@ -1798,13 +1828,6 @@
 	\end{table}
 	
 	Al 30\% di pruning, tutti i modelli mantengono o presentano leggeri miglioramenti rispetto alla baseline nelle metriche principali: MLP mostra un lieve incremento dell'F1-weighted, mentre KAN e XGBoost mantengono prestazioni molto elevate. A 50\% di pruning la MLP raggiunge il suo miglior trade-off operativo (compressione $\sim 2\times$ con F1-weighted sostanzialmente invariata rispetto alla baseline), mentre KAN e gli ensemble rimangono stabili. A 70\% di pruning XGBoost continua a mostrare una ritenzione delle prestazioni accettabile (nelle soglie tra il 50\% ed il 70\% la perdita relativa di F1 è inferiore al 2\%), KAN risulta robusto fino a questo livello e la MLP inizia a evidenziare un degrado più marcato oltre certe soglie di sparsity. A 90\% di pruning le reti neurali presentano una degradazione significativa (più pronunciata per MLP), mentre gli ensemble (in particolare Random Forest con pruning rank-based) conservano una retention relativamente migliore fino a livelli molto elevati di riduzione.
-	
-	\subsubsection{Conclusioni}
-	\begin{enumerate}
-		\item XGBoost è la scelta primaria quando la priorità è massimizzare la performance assoluta (F1-weighted baseline: $0.8087$). Riducendo i rounds fino al 50-70\%, si ottiene un buon compromesso con una compressione di $2-3.3\times$ ed una perdita contenuta (minore del 2\%).
-		\item MLP e KAN dimostrano che l'L1 pruning consente compressioni significative con perdite limitate. La MLP raggiunge il suo best trade-off operativo all'80\% di pruning (compressione del 5.0$\times$ con una perdita relativa di circa 0.6\%), mentre la KAN mostra robustezza fino al 70\% (compressione del 3.0$\times$ con una perdita relativa di circa 1.4\%).
-		\item Random Forest si distingue per il suo pruning rank-based, che permette riduzioni sostanziali del numero di alberi pur mantenendo la qualità predittiva. Il suo best trade-off è ad un pruning dell'80\% (39 alberi rimanenti con una compressione del 5.1$\times$), con un F1-weighted di circa $0.7946$ (perdita relativa di circa 1.2\%). Questo lo rende particolarmente interessante quando si cerca un risparmio di memoria o una riduzione della latenza senza la necessità di un ri-addestramento.
-	\end{enumerate}
 	
 	\subsubsection{Conclusioni}
 	\begin{enumerate}
@@ -1953,7 +1976,7 @@
 	\subsection{Strategia di training comune e criteri di arresto}
 	La strategia di training adottata è stata uniforme per entrambe le architetture, salvo specifiche architetturali. I punti principali sono: ottimizzatore Adam, funzione di perdita \texttt{CrossEntropyLoss} (richiede etichette 0-indexed), batch size configurabile (tipicamente 32), regularizzazione L2 opzionale e dropout sui layer fully-connected. Per prevenire overfitting è stato utilizzato l'early stopping basato sulla validation loss con parametri \texttt{patience} e \texttt{min\_delta} regolabili. L'addestramento è stato eseguito su device GPU, se disponibile, altrimenti su CPU. Per la ricerca degli iperparametri si è impiegata una Random Search con K-Fold cross-validation. Il numero di iterazioni \(n\) per la Random Search è stato scelto con una logica probabilistica per garantire, con alta probabilità, l'inclusione di configurazioni vicino all'ottimo (probabilità desiderata \(P=0.90\) di includere almeno una delle migliori \(k\) configurazioni in uno spazio totale \(M\)).
 	
-	\subsubsection{Griglie di iperparametri per modello} 
+	Di seguito sono riportate le griglie di iperparametri entro cui la Random Search esplora le combinazioni, al fine di individuare quelle che forniscono i risultati migliori per ciascun modello.
 	\smallskip
 	\noindent\textbf{CNN + MLP} \quad (Random Search: $n=11$)  
 	Il modello adotta una rete convoluzionale come feature extractor, composta da due blocchi di convoluzione + pooling. Per un input di dimensione \(224\times224\), la prima convoluzione con kernel \(3\times3\) e successivo max pooling riduce la dimensione spaziale a \(111\times111\). La seconda convoluzione seguita da max pooling produce una mappa finale di \(16\times54\times54\), corrispondente a un vettore flatten di dimensione \(\text{feature\_dim} = 46,656\).
@@ -2123,6 +2146,9 @@
 		
 		\bibitem{chawla2011smote}
 		N.W. Chawla et al. , \emph{SMOTE: Synthetic Minority Over-sampling Technique}, 2011.\url{https://arxiv.org/pdf/1106.1813}
+		
+		\bibitem{olivi2024car}
+		P. Olivi et al. , \emph{Car Emissions Dataset}, 2024. \url{https://github.com/pietroolivi/dia-project}
 	\end{thebibliography}
 		
 \end{document}
