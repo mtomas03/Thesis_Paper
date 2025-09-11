@@ -1075,7 +1075,7 @@
 	
 	Se l'obiettivo è creare un modello più leggero da salvare o esportare, è possibile potare il modello in modo permanente. Questo si ottiene limitando l'ensemble agli alberi selezionati e salvando il nuovo modello ridotto. Questo processo è utile per ridurre l'occupazione di memoria e rendere il modello più efficiente per la distribuzione in produzione, una volta che la migliore configurazione è stata identificata tramite lo studio di ablazione.
 	
-	\chapter{Casi Studio}
+	\chapter{Casi di studio}
 	
 	\section{Progettazione dei casi di studio}
 	
@@ -1133,10 +1133,124 @@
 	\subsection{Scelte architetturali ed iperparametri}
 	Le scelte architetturali e gli iperparametri finali sono stati specifici per ciascun caso studio. Le configurazioni dettagliate, incluse nelle tabelle dei singoli capitoli, documentano gli iperparametri selezionati dopo la fase di ottimizzazione. In tutti i casi, si è fatto ricorso a \textit{Early stopping} per migliorare la generalizzazione.
 	
+	\section{Addestramento dei modelli}
+	
+	In tutti i casi studio considerati (regressione CO2, classificazione PM2.5, classificazione età da immagini) è stata adottata una pipeline di addestramento omogenea che mira a garantire comparabilità sperimentale tra le architetture (MLP, KAN, Random Forest, XGBoost).
+	
+	\subsection{Pipeline di preprocessing}
+	Le trasformazioni iniziali applicate alle variabili indipendenti sono state incapsulate in pipeline riutilizzabili (ad es. \texttt{ColumnTransformer}) per evitare data leakage e garantire riproducibilità. La selezione delle feature ha rimosso colonne non informative o ridondanti; le variabili categoriche sono state codificate con \texttt{OneHotEncoder} eseguito all'interno della pipeline; le feature numeriche sono state standardizzate tramite \texttt{StandardScaler}. I missing values sono stati trattati in modo coerente tra gli esperimenti: dove possibile si è preferita la rimozione controllata delle righe; si sottolinea che, sebbene XGBoost gestisca NaN nativamente, per confronto omogeneo i NaN sono stati generalmente eliminati. Per i dataset di immagini il preprocessing include resize e crop centrato a $224\times224$, normalizzazione canale-per-canale e data augmentation (flip orizzontale, rotazioni lievi, jitter di luminosità/contrasto) applicata esclusivamente in fase di training. Per problemi di classificazione sbilanciata si è fatto ricorso a tecniche di bilanciamento approcciate esclusivamente sul training fold (SMOTE per dati tabellari, pesi di classe o \texttt{WeightedRandomSampler} per immagini).
+	
+	\subsection{Suddivisione dei dati e validazione}
+	Il dataset è stato suddiviso in test set indipendente (circa 20\%) e training pool (circa 80\%). Per i dataset non temporali si è impiegata una Nested Cross-Validation con outer KFold = 5 e inner KFold = 3 in combinazione con Random Search per la selezione degli iperparametri e la stima della performance generalizzata. Per i dataset temporali si è usata una Time Series Cross Validation che rispetta l'ordine cronologico delle osservazioni.
+	
+	\subsection{Metriche e intervalli di confidenza}
+	Le metriche sono state scelte in funzione del tipo di problema. Per i compiti di regressione, sono state utilizzate:
+	\begin{itemize}
+		\item \textbf{MSE} (Mean Squared Error): \(\text{MSE} = \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2\).
+		\item \textbf{MAE} (Mean Absolute Error): \(\text{MAE} = \frac{1}{n} \sum_{i=1}^{n} |y_i - \hat{y}_i|\).
+		\item \textbf{MAPE} (Mean Absolute Percentage Error): \(\text{MAPE} = \frac{100}{n} \sum_{i=1}^{n} \left| \frac{y_i - \hat{y}_i}{y_i} \right|\), calcolata escludendo i casi con \(y_i=0\) o valori non finiti.
+		\item \textbf{R\(^2\)} e \textbf{R\(^2\)-adjusted}:
+		\[
+		R^2 = 1 - \frac{\sum (y_i - \hat{y}_i)^2}{\sum (y_i - \bar{y})^2}, \qquad
+		R^2_{adj} = 1 - (1 - R^2)\frac{n-1}{n-k-1},
+		\]
+		dove \(n\) è il numero di osservazioni e \(k\) il numero di predittori.
+		\item \textbf{Max Error}: \(\max_i |y_i - \hat{y}_i|\).
+	\end{itemize}
+	
+	Per i compiti di classificazione, sono state considerate:
+	\begin{itemize}
+		\item \textbf{Accuracy}:
+		\[
+		\text{Accuracy} = \frac{\text{Numero di predizioni corrette}}{\text{Numero totale di predizioni}} = \frac{\sum_{i=1}^{N} \mathbb{I}(y_i = \hat{y}_i)}{N}
+		\]
+		dove $y_i$ è il valore vero, $\hat{y}_i$ è il valore predetto e $\mathbb{I}(\cdot)$ è la funzione indicatrice.
+		
+		\item \textbf{Precisione} ($P$) e \textbf{Recall} ($R$):
+		\[
+		P = \frac{\text{TP}}{\text{TP} + \text{FP}}, \quad R = \frac{\text{TP}}{\text{TP} + \text{FN}}
+		\]
+		dove TP = True Positives, FP = False Positives, FN = False Negatives.
+		
+		\item \textbf{F1-score}: basato su Precisione e Recall della classe specifica.
+		\[
+		F1 = 2 \cdot \frac{P \cdot R}{P + R}
+		\]
+		
+		\item \textbf{F1-score macro e weighted}:
+		\[
+		F1_{\text{macro}} = \frac{1}{C} \sum_{c=1}^{C} F1_c
+		\]
+		\[
+		F1_{\text{weighted}} = \sum_{c=1}^{C} F1_c \cdot \frac{N_c}{N}
+		\]
+		dove $C$ è il numero di classi, $F1_c$ è l'F1-score della classe $c$, $N_c$ è il numero di istanze della classe $c$, e $N$ è il numero totale di istanze.
+		
+		\item \textbf{Confusion Matrix}: la matrice di confusione è una tabella che riassume la performance di un modello di classificazione. Per un problema di classificazione binaria, la sua struttura è:
+		\[
+		\begin{array}{c|c|c|}
+			\multicolumn{1}{c}{} & \multicolumn{2}{c}{\textbf{Predetto}} \\
+			\cline{2-3}
+			\multicolumn{1}{c}{\textbf{Reale}} & \text{Positivo} & \text{Negativo} \\
+			\cline{2-3}
+			\text{Positivo} & \text{TP} & \text{FN} \\
+			\cline{2-3}
+			\text{Negativo} & \text{FP} & \text{TN} \\
+			\cline{2-3}
+		\end{array}
+		\]
+		dove TP = True Positives, FP = False Positives, FN = False Negatives, TN = True Negatives.
+		
+		\item \textbf{AUC-ROC weighted}: l'area sotto la curva ROC (Receiver Operating Characteristic), che traccia il True Positive Rate (TPR) contro il False Positive Rate (FPR) per diverse soglie.
+		\[
+		\text{TPR} = \frac{\text{TP}}{\text{TP} + \text{FN}}, \quad \text{FPR} = \frac{\text{FP}}{\text{FP} + \text{TN}}
+		\]
+		L'AUC-ROC weighted è la media pesata dell'AUC di ogni classe.
+		
+		\item \textbf{AUC-PR weighted}: l'area sotto la curva Precision-Recall, che traccia la Precisione in funzione del Recall.
+		\[
+		\text{AUC-PR} = \int_{0}^{1} \text{Precision}(\text{Recall}) \, d(\text{Recall})
+		\]
+		L'AUC-PR weighted è la media pesata dell'AUC-PR di ogni classe.
+	\end{itemize}
+	
+	\paragraph{Intervalli di confidenza}  
+	Per tutte le metriche principali è stata stimata l’incertezza statistica tramite bootstrap, un metodo di ricampionamento che approssima la distribuzione empirica delle metriche. La procedura consiste nel generare $B$ campioni bootstrap $S_1, S_2, \dots, S_B$ estraendo con ripetizione $N$ elementi dal test set $S$; su ciascun campione viene calcolata la metrica $\text{M}(S_i)$. L’intervallo di confidenza al livello $(1-\alpha)$ si ottiene quindi dai percentili della distribuzione delle metriche:  
+	\[
+	\text{CI}_{(1-\alpha)} = \left( \text{Percentile}_{\alpha/2}(\text{M}), \; \text{Percentile}_{1-\alpha/2}(\text{M}) \right).
+	\]
+	Nel presente lavoro sono riportati intervalli al 95\%, calcolati in modo uniforme in tutti i casi studio per le seguenti metriche:
+	\begin{itemize}
+		\item Regressione: $R^2$, MSE, MAE, MAPE;
+		\item Classificazione: Accuracy, F1 macro, F1 weighted, AUC-ROC weighted, AUC-PR weighted.
+	\end{itemize}
+	
+	\paragraph{Complessitá dei modelli}
+	Oltre alle metriche predittive, per tutti i casi studio è stata calcolata la complessità dei modelli:
+	\begin{itemize}
+		\item Per le KAN, la formula per calcolare la sua complessità è:
+		\[
+		P_{\text{KAN}} = \sum_{i=0}^{L-1} (N_i \cdot N_{i+1}) \cdot (G+k+3) + N_{i+1}
+		\]
+		dove $L$ è il numero di strati, $N_i$ indica le dimensioni dello strato $i$, $G$ è la dimensione della griglia e $k$ è l'ordine della spline.
+		
+		\item Per le MLP, la formula è:
+		\[
+		P_{\text{MLP}} = \sum_{i=1}^{L-1} N_i \cdot N_{i+1} + N_{i+1}
+		\]
+		
+		\item Per Random Forest e XGBoost, la complessità è il numero totale di nodi in tutti gli alberi dell'ensemble.
+		\[
+		\text{Complessità}_{\text{Albero}} = \sum_{i=1}^{T} \text{Nodi}_i
+		\]
+		dove $T$ è il numero totale di alberi nell'ensemble e $\text{Nodi}_i$ è il numero di nodi nell'albero $i$.
+	\end{itemize}
+	
 	\chapter{Primo Caso Studio: Regressione su emissioni di automobili}
 	
 	\section{Introduzione}
-	Il presente caso studio affronta la previsione delle emissioni di CO2 di veicoli a partire da caratteristiche tecniche e di consumo (anno di produzione, cilindrata, tipo di trasmissione e carburante, consumo L/100km, ecc.). Il dataset utilizzato deriva dalla fusione di tre sorgenti ufficiali: i dati originali provengono dalla Vehicle Certification Agency (VCA) del Department for Transport del Regno Unito, dal sito ufficiale del Governo canadese e dal Instituto para la Diversificación y Ahorro de la Energía (IDAE), istituzione spagnola; il materiale è stato fornito in forma pre-elaborata da terze parti \cite{olivi2024car}. Per questo motivo, la trattazione qui riportata si concentra sulle fasi di modellazione, validazione e analisi dei risultati, più che sulle operazioni di preprocessing. Per ottenere stime di performance affidabili si adotta un protocollo di validazione rigoroso (Nested CV con Random Search per l’ottimizzazione degli iperparametri) ed una valutazione che combina indicatori di accuratezza con misure di complessità e intervalli di confidenza. Inoltre, sono condotti studi di ablazione che valutano l’impatto di tecniche di pruning sui diversi tipi di modello per investigare il trade-off tra compressione e mantenimento della qualità predittiva. Nel capitolo seguente vengono presentati, in ordine: una sintetica nota sull’origine e lo stato del dataset; la pipeline di preprocessing e le scelte di split; la descrizione delle procedure di training e ottimizzazione; i risultati principali con le valutazioni comparative e gli esperimenti di ablazione con le considerazioni finali sul compromesso performance/complessità.
+	Il presente caso studio affronta la previsione delle emissioni di CO2 di veicoli a partire da caratteristiche tecniche e di consumo (anno di produzione, cilindrata, tipo di trasmissione e carburante, consumo L/100km, ecc.). Il dataset utilizzato deriva dalla fusione di tre sorgenti ufficiali: i dati originali provengono dalla Vehicle Certification Agency (VCA) del Department for Transport del Regno Unito, dal sito ufficiale del Governo canadese e dal Instituto para la Diversificación y Ahorro de la Energía (IDAE), istituzione spagnola; il materiale è stato fornito in forma pre-elaborata da terze parti \cite{olivi2024car}. Per questo motivo, la trattazione qui riportata si concentra sulle fasi di modellazione, validazione ed analisi dei risultati, più che sulle operazioni di preprocessing. Per ottenere stime di performance affidabili si adotta il Nested CV con Random Search per l’ottimizzazione degli iperparametri ed una valutazione che combina indicatori di accuratezza con misure di complessità ed intervalli di confidenza. Inoltre, sono condotti studi di ablazione che valutano l’impatto di tecniche di pruning sui diversi tipi di modello per investigare il trade-off tra compressione e mantenimento della qualità predittiva. \\
+	Nel capitolo seguente vengono presentati, in ordine: una sintetica nota sull’origine e lo stato del dataset; la pipeline di preprocessing e le scelte di split; la descrizione delle procedure di training e ottimizzazione; i risultati principali con le valutazioni comparative e gli esperimenti di ablazione con le considerazioni finali sul compromesso performance/complessità.
 	
 	\section{Data preparation}
 	
@@ -1145,7 +1259,7 @@
 	
 	\section{Addestramento dei modelli}
 	
-	Il dataset comprende le seguenti features:
+	Il dataset finale comprende le seguenti features:
 	\begin{itemize}
 		\item \texttt{Year}: anno di produzione del veicolo (numerica);
 		\item \texttt{Manufacturer}: casa automobilistica (categorica);
@@ -1156,28 +1270,6 @@
 		\item \texttt{Fuel\_consumption}: L/100km (numerica).
 	\end{itemize}
 	La variabile target da prevedere è \texttt{CO2\_Emissions} (g/km).
-	
-	\subsection{Pipeline di preprocessing}
-	La pipeline di preprocessing prevede tre passaggi principali. Innanzitutto, si effettua una selezione delle features per mantenere solo le colonne più importanti per la previsione delle emissioni di CO2. Successivamente, le variabili categoriche vengono codificate con un \texttt{OneHotEncoder} e, infine, le variabili numeriche sono standardizzate con uno \texttt{StandardScaler}, quando il modello lo richiede.
-	
-	\subsection{Split dei dati}
-	Il dataset è stato suddiviso per le fasi di training e testing. Inizialmente, si è creato un test set indipendente, pari al 20\% del dataset totale. Dal restante 80\%, è stato selezionato un "training pool" di 25000 osservazioni, utilizzato per la ricerca degli iperparametri, che è stato ulteriormente suddiviso in un set di training interno (22500 osservazioni) e un set di validazione indipendente (2500 osservazioni), che verrà utilizzato durante lo studio di ablazione, oltre al test set indipendente per la valutazione finale. Per la selezione degli iperparametri, è stata impiegata una Nested CV con Random search, organizzata in un ciclo esterno (Outer CV) di 5 K-fold per stimare la performance generalizzata e un ciclo interno (Inner CV) di 3 K-fold per confrontare le configurazioni campionate dalla ricerca casuale.
-	
-	\subsection{Metriche e intervalli di confidenza}
-	\begin{itemize}
-		\item \textbf{MSE} (Mean Squared Error): \(\text{MSE} = \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2\).
-		\item \textbf{MAE} (Mean Absolute Error): \(\text{MAE} = \frac{1}{n} \sum_{i=1}^{n} |y_i - \hat{y}_i|\).
-		\item \textbf{MAPE} (Mean Absolute Percentage Error): \(\text{MAPE} = \frac{100}{n} \sum_{i=1}^{n} \left| \frac{y_i - \hat{y}_i}{y_i} \right|\), calcolata escludendo i casi con \(y_i=0\) o non finiti.
-		\item \textbf{R\(^2\)} e \textbf{R\(^2\)-adjusted}:
-		\[
-		R^2 = 1 - \frac{\sum (y_i - \hat{y}_i)^2}{\sum (y_i - \bar{y})^2}, \qquad
-		R^2_{adj} = 1 - (1 - R^2)\frac{n-1}{n-k-1},
-		\]
-		dove \(n\) è il numero di osservazioni e \(k\) il numero di predittori.
-		\item \textbf{Max Error}: \(\max_i |y_i - \hat{y}_i|\).
-		\item \textbf{Complessità del modello}: conteggio dei parametri addestrabili per reti neurali; stima del numero di nodi (sommatoria dei nodi degli alberi) per Random Forest / XGBoost.
-	\end{itemize}
-	Sono stati calcolati per MSE, MAE e MAPE gli intervalli di confidenza.
 	
 	\subsection{Strategia di training comune e griglie di iperparametri}
 	La strategia di training è stata omogenea per tutti i modelli considerati. Le procedure comuni adottate sono le seguenti: il protocollo di validazione impiega una Nested CV con un outer KFold $= 5$ e un inner KFold $= 3$. Il ciclo interno esegue una Random Search sulle griglie di iperparametri. La migliore configurazione trovata viene riaddestrata sul sottoinsieme interno e valutata sul corrispondente outer test fold. Per la Random Search, il numero di iterazioni $n$ è stato scelto con una logica probabilistica per assicurare una probabilità del 90\% di includere almeno una delle 10 migliori configurazioni. Per le reti neurali, l'ottimizzazione è stata gestita con l'ottimizzatore \texttt{Adam} e la funzione di perdita \texttt{MSELoss}, con una regolarizzazione L2 opzionale. Le epoche massime sono 1000, ma con l'uso di un Early stopping per interrompere il training in caso di mancato miglioramento. Infine, la \textbf{valutazione finale} di ogni outer fold ha incluso il calcolo delle metriche (MSE, MAE, MAPE, $R^2$, $R^2$-adjusted, Max Error), degli intervalli di confidenza al 95\% per MSE, MAE e MAPE e della complessità del modello. Inoltre, la funzione di attivazione della MLP é la ReLU. \\
@@ -1261,6 +1353,73 @@
 		\caption{Confronto visivo della complessitá e prestazioni dei modelli, utilizzando come metriche $R^2$, MSE, MAE, MAPE e $R^2$ aggiustato.}
 		\label{fig:comparison_models}
 	\end{figure}
+	
+	\begin{table}[H]
+		\centering
+		\small
+		\label{tab:comparison_summary}
+		\resizebox{\textwidth}{!}{
+			\begin{tabular}{l
+					c
+					c
+					c
+					c
+					c
+					c
+					c
+					c}
+				\toprule
+				\textbf{Model} &
+				\textbf{MSE Train (CI95\%)} &
+				\textbf{MSE Test (CI95\%)} &
+				\textbf{\(R^2\) Train} &
+				\textbf{\(R^2\) Test} &
+				\textbf{\(R^2\) Adj. Test} &
+				\textbf{MAE Test} &
+				\textbf{MAPE Test (CI95\%)} &
+				\textbf{Max Error Test} \\
+				\midrule
+				MLP &
+				589.72 (568.69 -- 610.76) &
+				605.28 (556.94 -- 653.62) &
+				0.8541 &
+				0.8467 &
+				0.8451 &
+				18.69 &
+				10.46 (9.91 -- 11.01) &
+				136.45 \\
+				KAN &
+				119.10 (112.34 -- 125.86) &
+				123.33 (110.11 -- 136.54) &
+				0.9705 &
+				0.9688 &
+				0.9687 &
+				8.63 &
+				4.63 (4.45 -- 4.81) &
+				108.35 \\
+				RF &
+				529.81 (510.10 -- 549.51) &
+				511.72 (465.44 -- 558.00) &
+				0.8717 &
+				0.8704 &
+				0.8654 &
+				15.98 &
+				10.89 (10.02 -- 11.76) &
+				134.95 \\
+				XGBoost &
+				12.42 (11.22 -- 13.63) &
+				17.52 (12.56 -- 22.48) &
+				0.9970 &
+				0.9956 &
+				0.9968 &
+				2.39 &
+				1.46 (1.31 -- 1.62) &
+				70.21 \\
+				\bottomrule
+			\end{tabular}
+		}
+		\caption{Tabella riassuntiva delle prestazioni (MSE con CI95\%, R$^2$, MAE, MAPE con CI95\%), Max Error e complessit\`a.}
+	\end{table}
 	
 	\subsection{Risultati sperimentali}
 	
@@ -1438,6 +1597,11 @@
 	
 	\chapter{Secondo Caso Studio: Classificazione di PM2.5}
 	
+	\section{Introduzione}
+	Il presente caso studio si occupa della classificazione dei livelli di PM2.5, utilizzando un dataset nazionale di misurazioni orarie provenienti da 453 città indiane nel periodo 2010-2023, arricchito con variabili meteorologiche. I dati utilizzati sono stati forniti dal \textit{Central Pollution Control Board} (CPCB), portale ufficiale del Governo indiano per il monitoraggio e il controllo dell’inquinamento, resi pubblicamente disponibili sul sito istituzionale \url{https://cpcb.nic.in}. A differenza di altri capitoli, qui le operazioni di caricamento, pulizia, gestione dei missing, individuazione degli outlier, ricampionamento ed aggregazione costituiscono parte integrante del workflow sperimentale e sono descritte nelle sezioni successive. \\
+	Gli obiettivi del caso studio sono: (i) trasformare la previsione delle concentrazioni di PM2.5 in un problema di classificazione ordinata secondo le classi AQI (GOOD $\rightarrow$ HAZARDOUS) per garantire interpretabilità applicativa; (ii) confrontare i quattro modelli precedentemente definiti e valutare l’effetto delle scelte di preprocessing, del feature engineering temporale (lag, componenti cicliche), delle tecniche di bilanciamento e delle procedure di ottimizzazione sugli indicatori di performance. Per una stima robusta della generalizzazione si utilizza una validazione con criterio temporale e si forniscono intervalli di confidenza per le principali metriche. \\
+	Nel capitolo vengono presentati, in sequenza: una nota sulle sorgenti e la composizione del dataset; la pipeline di preprocessing e le scelte di indicizzazione/aggregazione; le tecniche di feature engineering e la discretizzazione in classi AQI; la strategia di training e ottimizzazione; i risultati quantitativi (metriche aggregate con CI95\% e confusion matrix); infine gli studi di ablazione e le considerazioni finali sul compromesso tra performance e complessità per scenari di deployment.
+	
 	\section{Data preparation}
 	
 	Questa sezione descrive in dettaglio le operazioni svolte per il caricamento, la normalizzazione, la pulizia e l'arricchimento del dataset utilizzato nel caso studio. Lo scopo principale della fase di Data preparation è trasformare i dati grezzi in una rappresentazione coerente, completa e utilizzabile per la successiva fase di allenamento.
@@ -1585,21 +1749,22 @@
 	
 	\section{Addestramento dei modelli}
 	
-	\subsection{Pipeline di preprocessing}
-	La pipeline di preprocessing è stata definita per preparare i dati in modo omogeneo per tutti i modelli. Le variabili indipendenti includono feature temporali (\texttt{year, month, dayofmonth, dayofweek, dayofyear, weekofyear, quarter}), l'identificativo geografico (\texttt{state}) e le lag-features. Per garantire un confronto equo tra i modelli, è stata effettuata una rimozione delle righe contenenti valori mancanti (NaN) derivanti dalle lag-features. Successivamente, le colonne numeriche sono state standardizzate tramite \texttt{StandardScaler} e la variabile categorica "state" è stata codificata con \texttt{OneHotEncoder}. Tutte queste trasformazioni sono state incapsulate in un \texttt{ColumnTransformer} che agisce come primo step nelle pipeline di training. Per i modelli che beneficiano di un dataset bilanciato, si è applicato SMOTE all'interno della pipeline, eseguendolo esclusivamente sul training fold di ogni iterazione di cross-validation per prevenire il data leakage. \\
-	È importante notare che, sebbene XGBoost sia in grado di gestire internamente i valori mancanti, si è scelto di rimuovere le righe con NaN prima di tutti gli esperimenti per garantire una base di confronto omogenea con i modelli che non supportano tale funzionalità.
-	
-	\subsection{Split dei dati}
-	Il dataset è stato suddiviso in due partizioni principali, rispettando l'ordine cronologico delle osservazioni per preservare la struttura temporale dei dati. L'80\% del dataset è stato destinato al training set, utilizzato per la ricerca degli iperparametri tramite Time Series Cross Validation e Random Search. Il restante 20\% è stato riservato come test set, tenuto completamente separato e mai utilizzato durante la fase di ricerca degli iperparametri. Questo approccio garantisce una stima realistica delle prestazioni su dati non visti e previene efficacemente il data leakage.
-	
-	\subsection{Metriche e intervalli di confidenza}
-	Vengono utilizzati le seguenti metriche per valutare i diversi modelli sperimentali:
+	Il dataset finale comprende le seguenti features:
 	\begin{itemize}
-		\item \textbf{Accuracy}, \textbf{F1-score weighted} e \textbf{F1-score macro};
-		\item \textbf{Confusion matrix} e \textbf{Classification report} per analisi di classe;
-		\item \textbf{AUC-ROC weighted} e \textbf{AUC-PR weighted} quando disponibili (modelli con predict\_proba);
-		\item \textbf{Bootstrap di intervalli di confidenza (CI95\%)} per F1-weighted, F1-macro e AUC.
+		\item \texttt{Year}: anno della misurazione (numerica);
+		\item \texttt{Month}: mese dell’anno (numerica);
+		\item \texttt{DayOfMonth}: giorno del mese (numerica);
+		\item \texttt{DayOfWeek}: giorno della settimana (numerica);
+		\item \texttt{DayOfYear}: giorno dell’anno (numerica);
+		\item \texttt{WeekOfYear}: settimana dell’anno (numerica);
+		\item \texttt{Quarter}: trimestre dell’anno (numerica);
+		\item \texttt{State}: stato di misurazione (categorica);
+		\item \texttt{PM\_lag\_1D}, \texttt{PM\_lag\_2D}, \texttt{PM\_lag\_3D}, \texttt{PM\_lag\_1W}, \texttt{PM\_lag\_1M}, \texttt{PM\_lag\_1Y}: valori ritardati di PM2.5 rispettivamente di 1, 2, 3 giorni, 1 settimana, 1 mese e 1 anno (numeriche);
+		\item \texttt{CO\_lag\_1D}, \texttt{CO\_lag\_2D}, \texttt{CO\_lag\_3D}, \texttt{CO\_lag\_1W}, \texttt{CO\_lag\_1M}, \texttt{CO\_lag\_1Y}: valori ritardati di CO rispettivamente di 1, 2, 3 giorni, 1 settimana, 1 mese e 1 anno (numeriche);
+		\item \texttt{O3\_lag\_1D}, \texttt{O3\_lag\_2D}, \texttt{O3\_lag\_3D}, \texttt{O3\_lag\_1W}, \texttt{O3\_lag\_1M}, \texttt{O3\_lag\_1Y}: valori ritardati di O\textsubscript{3} rispettivamente di 1, 2, 3 giorni, 1 settimana, 1 mese e 1 anno (numeriche).
 	\end{itemize}
+	
+	La variabile target da prevedere è una variabile discreta a 6 classi, corrispondenti ai livelli di qualità dell’aria per la concentrazione di PM2.5 definiti dalla scala \textit{EPA} (Environmental Protection Agency, USA).
 	
 	\subsection{Strategia di training comune e griglie di iperparametri}
 	La strategia di training adottata è sostanzialmente omogenea per tutti i modelli considerati, con alcune specificità legate all'architettura di ciascun modello. Per la Random Search, il numero di iterazioni $n$ è stato scelto con una logica probabilistica per assicurare una probabilità del 90\% di includere almeno una delle 10 migliori configurazioni. Per le reti neurali (MLP e KAN), l'addestramento è stato gestito con l'ottimizzatore Adam, la funzione di perdita CrossEntropyLoss (che richiede etichette 0-indexed) ed una regolarizzazione L2 opzionale. La dimensione del batch è fissata a 32 ed il calcolo viene eseguito su GPU, se disponibile. Per evitare l'overfitting, è stato implementato un sistema di early stopping con parametri configurabili (\texttt{patience} e \texttt{min\_delta}). Inoltre, la funzione di attivazione della MLP é la ReLU. \\
@@ -1679,11 +1844,199 @@
 		\label{fig:comparison_pm}
 	\end{figure}
 	
+	\subsubsection{Classification report e confusion matrix per modello}
+	
+	\paragraph{Random Forest} \mbox{}\\
+	Numero di parametri / nodi: \textbf{412\,430}.
+	
+	\begin{table}[H]
+		\centering
+		\caption{Classification report}
+		\label{tab:cr_rf}
+		\begin{tabular}{lrrrr}
+			\toprule
+			Classe & precision & recall & f1-score & support \\
+			\midrule
+			0 & 0.76 & 0.73 & 0.74 & 321 \\
+			1 & 0.89 & 0.86 & 0.88 & 2\,727 \\
+			2 & 0.65 & 0.70 & 0.67 & 1\,364 \\
+			3 & 0.85 & 0.80 & 0.82 & 1\,831 \\
+			4 & 0.61 & 0.82 & 0.70 & 307 \\
+			5 & 0.32 & 0.37 & 0.34 & 30 \\
+			\midrule
+			accuracy & \multicolumn{3}{c}{0.80} & 6\,580 \\
+			macro avg & 0.68 & 0.71 & 0.69 & 6\,580 \\
+			weighted avg & 0.81 & 0.80 & 0.80 & 6\,580 \\
+			\bottomrule
+		\end{tabular}
+	\end{table}
+	
+	\begin{table}[H]
+		\centering
+		\caption{Confusion matrix}
+		\label{tab:cm_rf}
+		\[
+		\begin{bmatrix}
+			233 & 88  & 0   & 0   & 0   & 0   \\
+			73  & 2350& 286 & 18  & 0   & 0   \\
+			1   & 196 & 953 & 213 & 1   & 0   \\
+			0   & 9   & 222 & 1456& 143 & 1   \\
+			0   & 1   & 0   & 32  & 252 & 22  \\
+			0   & 0   & 0   & 0   & 19  & 11
+		\end{bmatrix}
+		\]
+		\vspace{1mm}
+		
+		AUC-ROC (OVR, weighted): \textbf{0.952} \\
+		AUC-PR  (OVR, weighted): \textbf{0.858}
+	\end{table}
+	
+	
+	\paragraph{XGBoost} \mbox{}\\
+	Numero di parametri / nodi: \textbf{90\,416}.
+	
+	\begin{table}[H]
+		\centering
+		\caption{Classification report}
+		\label{tab:cr_xgb}
+		\begin{tabular}{lrrrr}
+			\toprule
+			Classe & precision & recall & f1-score & support \\
+			\midrule
+			0 & 0.76 & 0.79 & 0.77 & 321 \\
+			1 & 0.89 & 0.87 & 0.88 & 2\,727 \\
+			2 & 0.67 & 0.68 & 0.68 & 1\,364 \\
+			3 & 0.83 & 0.85 & 0.84 & 1\,831 \\
+			4 & 0.69 & 0.70 & 0.70 & 307 \\
+			5 & 0.32 & 0.43 & 0.37 & 30 \\
+			\midrule
+			accuracy & \multicolumn{3}{c}{0.81} & 6\,580 \\
+			macro avg & 0.69 & 0.72 & 0.71 & 6\,580 \\
+			weighted avg & 0.81 & 0.81 & 0.81 & 6\,580 \\
+			\bottomrule
+		\end{tabular}
+	\end{table}
+	
+	\begin{table}[H]
+		\centering
+		\caption{Confusion matrix}
+		\label{tab:cm_xgb}
+		\[
+		\begin{bmatrix}
+			253 & 68  & 0   & 0   & 0   & 0   \\
+			79  & 2360& 266 & 22  & 0   & 0   \\
+			1   & 200 & 930 & 232 & 1   & 0   \\
+			0   & 8   & 187 & 1556& 78  & 2   \\
+			0   & 1   & 0   & 64  & 216 & 26  \\
+			0   & 0   & 0   & 0   & 17  & 13
+		\end{bmatrix}
+		\]
+		\vspace{1mm}
+		
+		AUC-ROC (OVR, weighted): \textbf{0.957} \\
+		AUC-PR  (OVR, weighted): \textbf{0.875}
+	\end{table}
+	
+	
+	\paragraph{MLP} \mbox{}\\
+	Numero di parametri: \textbf{7\,750}.
+	
+	\begin{table}[H]
+		\centering
+		\caption{Classification report}
+		\label{tab:cr_mlp}
+		\begin{tabular}{lrrrr}
+			\toprule
+			Classe & precision & recall & f1-score & support \\
+			\midrule
+			0 & 0.43 & 0.38 & 0.40 & 321 \\
+			1 & 0.86 & 0.80 & 0.83 & 2\,727 \\
+			2 & 0.63 & 0.72 & 0.67 & 1\,364 \\
+			3 & 0.85 & 0.80 & 0.82 & 1\,831 \\
+			4 & 0.59 & 0.82 & 0.69 & 307 \\
+			5 & 0.37 & 0.57 & 0.45 & 30 \\
+			\midrule
+			accuracy & \multicolumn{3}{c}{0.76} & 6\,580 \\
+			macro avg & 0.62 & 0.68 & 0.64 & 6\,580 \\
+			weighted avg & 0.77 & 0.76 & 0.77 & 6\,580 \\
+			\bottomrule
+		\end{tabular}
+	\end{table}
+	
+	\begin{table}[H]
+		\centering
+		\caption{Confusion matrix}
+		\label{tab:cm_mlp}
+		\[
+		\begin{bmatrix}
+			121 & 200 & 0   & 0   & 0   & 0   \\
+			157 & 2189& 360 & 21  & 0   & 0   \\
+			4   & 160 & 977 & 220 & 3   & 0   \\
+			0   & 5   & 204 & 1465& 156 & 1   \\
+			0   & 1   & 0   & 27  & 251 & 28  \\
+			0   & 0   & 0   & 0   & 13  & 17
+		\end{bmatrix}
+		\]
+		\vspace{1mm}
+		
+		AUC-ROC (OVR, weighted): \textbf{0.938} \\
+		AUC-PR  (OVR, weighted): \textbf{0.800}
+	\end{table}
+	
+	
+	\paragraph{KAN} \mbox{}\\
+	Numero di parametri: \textbf{7\,680}.
+	
+	\begin{table}[H]
+		\centering
+		\caption{Classification report}
+		\label{tab:cr_kan}
+		\begin{tabular}{lrrrr}
+			\toprule
+			Classe & precision & recall & f1-score & support \\
+			\midrule
+			0 & 0.65 & 0.36 & 0.46 & 321 \\
+			1 & 0.85 & 0.85 & 0.85 & 2\,727 \\
+			2 & 0.63 & 0.72 & 0.67 & 1\,364 \\
+			3 & 0.84 & 0.82 & 0.83 & 1\,831 \\
+			4 & 0.74 & 0.69 & 0.71 & 307 \\
+			5 & 0.51 & 0.60 & 0.55 & 30 \\
+			\midrule
+			accuracy & \multicolumn{3}{c}{0.78} & 6\,580 \\
+			macro avg & 0.70 & 0.67 & 0.68 & 6\,580 \\
+			weighted avg & 0.79 & 0.78 & 0.78 & 6\,580 \\
+			\bottomrule
+		\end{tabular}
+	\end{table}
+	
+	\begin{table}[H]
+		\centering
+		\caption{Confusion matrix}
+		\label{tab:cm_kan}
+		\[
+		\begin{bmatrix}
+			116 & 204 & 1   & 0   & 0   & 0   \\
+			61  & 2329& 320 & 17  & 0   & 0   \\
+			2   & 198 & 985 & 179 & 0   & 0   \\
+			0   & 7   & 261 & 1498& 63  & 2   \\
+			0   & 1   & 0   & 79  & 212 & 15  \\
+			0   & 0   & 0   & 0   & 12  & 18
+		\end{bmatrix}
+		\]
+		\vspace{1mm}
+		
+		AUC-ROC (OVR, weighted): \textbf{0.948} \\
+		AUC-PR  (OVR, weighted): \textbf{0.840}
+	\end{table}
+	
 	\subsection{Risultati sperimentali}
 	
-	L’analisi dei risultati ha messo in evidenza che, dal punto di vista delle metriche di classificazione, le differenze tra i modelli testati sono complessivamente ridotte: accuratezza, F1-score, AUC-ROC e AUC-PR si collocano su valori molto simili, con scarti percentuali spesso marginali. La vera distinzione tra i modelli emerge quindi principalmente sul piano della complessità architetturale. \\
-	Per quanto riguarda le reti neurali, la \textbf{MLP} ha ottenuto un’accuratezza complessiva in test pari al $76\%$, con un F1-weighted di $0.7654$, un F1-macro di $0.7421$, un AUC-ROC pari a $0.938$ ed un AUC-PR di $0.800$. Nonostante valori complessivamente accettabili, la sensibilità sulle classi minoritarie si è dimostrata ridotta, limitando l’efficacia in scenari caratterizzati da distribuzioni sbilanciate. Con circa $7.750$ parametri, il modello si presenta come una soluzione leggera e facilmente scalabile, ma meno competitiva sul piano delle performance rispetto alle alternative. La \textbf{KAN} ha invece fornito risultati più equilibrati, raggiungendo un’accuratezza in test pari al $78\%$, con un F1-weighted di $0.7823$ e un F1-macro di $0.7608$, insieme a un AUC-ROC di $0.948$ e un AUC-PR di $0.840$. Questo incremento di precisione, unito al basso numero di parametri (circa $7.680$), conferma la capacità della KAN di garantire un buon compromesso tra accuratezza e parsimonia architetturale, rendendola una candidata ideale per scenari efficienza-aware. \\
-	I modelli ensemble hanno mostrato un comportamento altrettanto interessante. La \textbf{Random Forest}, con circa $412$k nodi, ha raggiunto un’accuratezza dell’$80\%$, con un F1-weighted di $0.7997$ e un F1-macro di $0.7750$, supportati da un AUC-ROC di $0.952$ e un AUC-PR di $0.858$. Le sue prestazioni si sono dimostrate competitive e non molto distanti da quelle di MLP e KAN, ma la complessità computazionale rimane molto elevata, rendendolo meno adatto quando l’efficienza costituisce un vincolo operativo. \textbf{XGBoost}, infine, si è distinto come il modello leggermente più performante: l’accuratezza in test ha raggiunto l’$81\%$, con un F1-weighted di $0.8107$ e un F1-macro di $0.7901$, accompagnati da un AUC-ROC di $0.957$ e un AUC-PR di $0.875$. Tuttavia, tali miglioramenti rispetto a KAN e Random Forest sono marginali, mentre la complessità architetturale (circa $90$k parametri) risulta nettamente superiore rispetto alle reti leggere come MLP e KAN, pur restando inferiore alla Random Forest. \\
+	L'analisi dei classification report e delle confusion matrix (riportati nella sottosezione precedente) mostra che, a livello di metriche aggregate, le differenze tra i modelli testati sono complessivamente contenute: accuratezza, F1-score, AUC-ROC e AUC-PR si collocano su valori molto simili, con scarti percentuali spesso marginali. La discriminante più evidente è la complessità architetturale, che diventa il fattore operativo principale per decisioni di deployment, latenza e consumo di memoria. \\ 
+	Per quanto riguarda le reti neurali, la \textbf{MLP} ha ottenuto un'accuratezza in test pari al $76\%$, con un F1-weighted di $0.7654$, un F1-macro di $0.7421$, un AUC-ROC di $0.938$ e un AUC-PR di $0.800$. L'analisi per classe evidenzia una sensibilità ridotta sulle classi meno rappresentate (ad es. la classe \texttt{0} è spesso confusa), sebbene il modello mantenga buone prestazioni sulla classe maggioritaria (\texttt{1}). Con circa $7{,}750$ parametri la MLP è una soluzione leggera e facilmente scalabile, ma meno competitiva rispetto ad altre alternative sul piano delle performance complessive. \\ 
+	La \textbf{KAN} ha mostrato un comportamento più equilibrato: accuratezza in test del $78\%$, F1-weighted $0.7823$, F1-macro $0.7608$, AUC-ROC $0.948$ e AUC-PR $0.840$. KAN presenta inoltre una migliore capacità di trattare le classi meno rappresentate rispetto alla MLP (si osservano recall e F1 mediamente più alti su alcune classi difficili), mantenendo un numero di parametri molto contenuto (circa $7{,}680$). Queste caratteristiche rendono KAN una candidata interessante quando si richiede un buon compromesso tra accuratezza e parsimonia computazionale. \\ 
+	I modelli ensemble si differenziano principalmente per il trade-off tra performance leggermente migliori e complessità superiore. La \textbf{Random Forest}, con circa $412$k nodi, ha raggiunto un'accuratezza dell'$80\%$, F1-weighted $0.7997$, F1-macro $0.7750$, AUC-ROC $0.952$ e AUC-PR $0.858$. Le confusion matrix mostrano che Random Forest è robusta nel predire la classe maggioritaria e riduce alcune specifiche confusioni osservate nelle reti neurali, ma il costo in termini di complessità è molto elevato. \\ 
+	\textbf{XGBoost} è risultato il modello con le metriche aggregate più alte: accuratezza in test $81\%$, F1-weighted $0.8107$, F1-macro $0.7901$, AUC-ROC $0.957$ e AUC-PR $0.875$. Tuttavia i miglioramenti rispetto a KAN e Random Forest sono marginali. Con circa $90$k parametri XGBoost occupa una posizione intermedia: molto più leggero della Random Forest ma sensibilmente più complesso rispetto alle architetture neurali leggere come MLP e KAN. Dal confronto delle confusion matrix emerge come XGBoost migliori leggermente il recall sulle classi meno rappresentate rispetto a Random Forest e MLP, pur restando i guadagni contenuti in termini assoluti. \\
+	Va inoltre segnalato che, per mitigare lo sbilanciamento delle classi, nel training sono state impiegate sia la ponderazione degli errori per classe (class weights) sia una procedura di oversampling basata su SMOTE. Queste contromisure hanno portato a miglioramenti locali nei punteggi di recall sulle classi minority (riducendo alcuni falsi negativi), ma non hanno eliminato completamente le difficoltà associate alle classi con supporto molto basso.
 	
 	\subsection{Selezione del miglior modello}
 	Per identificare il modello più adatto al problema di classificazione, è stata adottata una procedura di ranking multi-criterio che combina le prestazioni con la complessità. Inizialmente, sono state definite le metriche di interesse e la rispettiva direzione di ottimizzazione, come indicato nel seguente blocco di codice:
@@ -1953,28 +2306,8 @@
 	
 	\section{Addestramento dei modelli}
 	
-	\subsection{Pipeline di preprocessing}
-	La pipeline di preprocessing è stata definita per preparare in modo omogeneo le immagini prima dell'addestramento. Le operazioni principali includono il ridimensionamento e ritaglio centrale a risoluzione \(224\times224\), la conversione in tensore e la normalizzazione canale-per-canale con parametri standard (media e deviazione standard). Per aumentare la robustezza dei modelli si è fatto uso di data augmentation controllata (flip orizzontale, rotazioni lievi, jitter di luminosità/contrasto), applicata esclusivamente durante la fase di training. Per mitigare squilibri residui nelle classi d'età, le tecniche di bilanciamento in fase di training includono il calcolo di pesi di classe e l'uso di un \texttt{WeightedRandomSampler} nei DataLoader. Tutte le trasformazioni sono incapsulate in pipeline di preprocessing riutilizzabili per garantire riproducibilità tra esperimenti.
-	
-	\subsection{Split dei dati}
-	Il dataset è stato suddiviso in due partizioni mantenendo l'ordine originale degli esempi come criterio di split (quando rilevante) o mescolando con seed fissato per garantire riproducibilità. Le partizioni standard adottate sono:
-	\begin{itemize}
-		\item \textbf{Training set (80\%)}: utilizzato per l'ottimizzazione dei pesi e per la Random Search sugli iperparametri;
-		\item \textbf{Test set (20\%)}: tenuto separato e mai utilizzato durante la ricerca degli iperparametri; impiegato esclusivamente per la valutazione finale.
-	\end{itemize}
-	Il mantenimento della separazione tra training e test set è stato fondamentale per evitare data leakage e per ottenere stime realistiche delle prestazioni su dati non visti.
-	
-	\subsection{Metriche e intervalli di confidenza}
-	Per la valutazione comparativa dei modelli sono state adottate le seguenti metriche, calcolate sia sul training set (durante la selezione) sia sul test set (per la valutazione finale):
-	\begin{itemize}
-		\item \textbf{Accuracy}, \textbf{F1-score (weighted)} e \textbf{F1-score (macro)};
-		\item \textbf{Classification report} e \textbf{confusion matrix} per analisi per-classe;
-		\item \textbf{AUC-ROC} (one-vs-rest, weighted) e \textbf{AUC-PR} quando disponibili (modelli che forniscono probabilità);
-		\item \textbf{Bootstrap di intervalli di confidenza (CI95\%)} per metriche principali (es. F1-weighted, AUC) utilizzando ripetuti resampling con reinserimento sul test set.
-	\end{itemize}
-	
 	\subsection{Strategia di training comune e criteri di arresto}
-	La strategia di training adottata è stata uniforme per entrambe le architetture, salvo specifiche architetturali. I punti principali sono: ottimizzatore Adam, funzione di perdita \texttt{CrossEntropyLoss} (richiede etichette 0-indexed), batch size configurabile (tipicamente 32), regularizzazione L2 opzionale e dropout sui layer fully-connected. Per prevenire overfitting è stato utilizzato l'early stopping basato sulla validation loss con parametri \texttt{patience} e \texttt{min\_delta} regolabili. L'addestramento è stato eseguito su device GPU, se disponibile, altrimenti su CPU. Per la ricerca degli iperparametri si è impiegata una Random Search con K-Fold cross-validation. Il numero di iterazioni \(n\) per la Random Search è stato scelto con una logica probabilistica per garantire, con alta probabilità, l'inclusione di configurazioni vicino all'ottimo (probabilità desiderata \(P=0.90\) di includere almeno una delle migliori \(k\) configurazioni in uno spazio totale \(M\)).
+	La strategia di training adottata è stata uniforme per entrambe le architetture, salvo specifiche architetturali. I punti principali sono: ottimizzatore Adam, funzione di perdita \texttt{CrossEntropyLoss} (richiede etichette 0-indexed), batch size configurabile (tipicamente 32), regularizzazione L2 opzionale e dropout sui layer fully-connected. Per prevenire overfitting è stato utilizzato l'early stopping basato sulla validation loss con parametri \texttt{patience} e \texttt{min\_delta} regolabili. L'addestramento è stato eseguito su device GPU, se disponibile, altrimenti su CPU. Per la ricerca degli iperparametri si è impiegata una Random Search con K-Fold cross-validation. Il numero di iterazioni \(n\) per la Random Search è stato scelto con una logica probabilistica per garantire l'inclusione di configurazioni vicino all'ottimo (probabilità desiderata \(P=0.90\) di includere almeno una delle migliori \(k\) configurazioni in uno spazio totale \(M\)). \\
 	
 	Di seguito sono riportate le griglie di iperparametri entro cui la Random Search esplora le combinazioni, al fine di individuare quelle che forniscono i risultati migliori per ciascun modello.
 	\smallskip
