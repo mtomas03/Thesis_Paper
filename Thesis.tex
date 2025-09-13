@@ -1081,14 +1081,14 @@
 	
 	\subsection{Tecnologie e librerie}
 	Il workflow sperimentale e di analisi è stato interamente sviluppato in \texttt{Python}, con un insieme di librerie comuni ai tre casi studio e componenti specifiche in base alla natura del problema affrontato. \\
-	Per la manipolazione dei dati si è fatto uso di \textbf{NumPy} e \textbf{pandas}, mentre la visualizzazione è stata realizzata con \textbf{matplotlib} e \textbf{seaborn} (con configurazione \texttt{sns.set\_theme()}). I moduli \texttt{json}, \texttt{os}, \texttt{inspect} e \texttt{copy} sono stati utilizzati per la gestione dei metadati, il salvataggio dei risultati e la serializzazione delle configurazioni. \\
-	Le reti neurali (MLP, KAN e loro estensioni CNN nel terzo caso studio) sono state implementate in \textbf{PyTorch}, facendo ricorso a \texttt{torch.nn}, \texttt{torch.optim}, \texttt{torch.utils.data} e \texttt{torch.nn.utils.prune}, con funzioni di supporto definite in \texttt{torch.nn.functional}. Nel terzo caso studio è stato inoltre utilizzato \textbf{torchvision} per le trasformazioni e la gestione delle immagini. La libreria \textbf{kan} è stata integrata in tutti i casi studio per l’implementazione della Kolmogorov-Arnold Network.
-	Per gli approcci ensemble, sono stati adottati \textbf{scikit-learn} (RandomForestRegressor, RandomForestClassifier, metriche di regressione e classificazione, pipeline, \texttt{ColumnTransformer}, scaling, encoding, \texttt{ParameterSampler}, \texttt{KFold}, \texttt{RandomizedSearchCV}, \texttt{TimeSeriesSplit}) e \textbf{XGBoost}. Nel secondo e terzo caso studio si è inoltre fatto uso di \textbf{imblearn} (\texttt{SMOTE}, \texttt{ImbPipeline}) per il bilanciamento delle classi. \\
-	Gli strumenti ausiliari hanno incluso \texttt{tqdm} per le progress bar (caso studio 3), \texttt{logging} per il tracciamento degli esperimenti e librerie standard come \texttt{random}, \texttt{time}, \texttt{glob}, \texttt{zipfile}, \texttt{pathlib} e \texttt{PIL.Image} per la gestione dei dataset e delle immagini.
+	Per la manipolazione dei dati si è fatto uso di \textbf{NumPy} e \textbf{pandas}, mentre la visualizzazione dei grafici è stata realizzata con \textbf{matplotlib} e \textbf{seaborn}. I moduli \texttt{json}, \texttt{os}, \texttt{inspect} e \texttt{copy} sono stati utilizzati per la gestione dei metadati, il salvataggio dei risultati e la serializzazione delle configurazioni. \\
+	Le reti neurali e loro estensioni CNN sono state implementate in \textbf{PyTorch}. Nel terzo caso studio è stato inoltre utilizzato \textbf{torchvision} per le trasformazioni e la gestione delle immagini. La libreria \textbf{kan} è stata integrata in tutti i casi studio per l’implementazione della Kolmogorov-Arnold Network, che si basa anch'essa su \textbf{PyTorch}.
+	Sono stati adottati \textbf{scikit-learn} e \textbf{XGBoost} per gli approcci ensemble, le metriche, le pipeline di preprocessing e per l'ottimizzazione degli iperparametri. Nel secondo caso studio si è inoltre fatto uso di \textbf{imblearn} (\texttt{SMOTE}, \texttt{ImbPipeline}) per il bilanciamento delle classi. \\
+	Inoltre, sono stati utilizzati \texttt{tqdm} per le progress bar, \texttt{logging} per il tracciamento degli esperimenti e librerie standard come \texttt{random}, \texttt{time}, \texttt{glob}, \texttt{zipfile}, \texttt{pathlib} e \texttt{PIL.Image} per la gestione dei dataset e delle immagini.
 	
 	\subsection{Ambienti di sviluppo e infrastruttura}
-	La prototipazione ed il debug sono stati effettuati su \textbf{Google Colab}, sfruttando notebook interattivi; le sperimentazioni su larga scala e l’addestramento intensivo dei modelli sono stati condotti sul \textbf{Cluster HPC} dell’Università di Bologna, con allocazione di GPU tramite SLURM. \\
-	Per la riproducibilità delle dipendenze, sono stati creati ambienti virtuali dedicati (\texttt{venv}) e un file \texttt{requirements.txt}. I risultati di ogni run, insieme a configurazioni ed iperparametri, sono stati serializzati in \texttt{JSON}, mentre i notebook eseguiti sul cluster sono stati automaticamente convertiti in HTML per la documentazione.
+	La prototipazione ed il debug sono stati effettuati su \textbf{Google Colab}; le sperimentazioni su larga scala e l’addestramento intensivo dei modelli sono stati condotti sul \textbf{Cluster HPC} dell’Università di Bologna, con allocazione di GPU tramite SLURM. \\
+	Per la riproducibilità delle dipendenze, sono stati creati ambienti virtuali dedicati (\texttt{venv}) ed un file \texttt{requirements.txt}. I risultati di ogni run, insieme a configurazioni ed iperparametri, sono stati serializzati in \texttt{JSON}, mentre i notebook eseguiti sul cluster sono stati automaticamente convertiti in HTML per la documentazione.
 	
 	\subsection{Linguaggi, scripting e automazione del workflow}
 	Il linguaggio principale è \texttt{Python}. Le analisi esplorative e la reportistica sono state realizzate in Jupyter notebooks, mentre l’automazione degli esperimenti e la sottomissione su cluster sono state gestite tramite script \texttt{bash} integrati con SLURM. \\
@@ -1135,7 +1135,7 @@
 	
 	\section{Addestramento dei modelli}
 	
-	In tutti i casi studio considerati (regressione CO2, classificazione PM2.5, classificazione età da immagini) è stata adottata una pipeline di addestramento omogenea che mira a garantire comparabilità sperimentale tra le architetture (MLP, KAN, Random Forest, XGBoost).
+	In tutti i casi studio considerati è stata adottata una pipeline di addestramento omogenea che mira a garantire comparabilità sperimentale tra le architetture.
 	
 	\subsection{Pipeline di preprocessing}
 	Le trasformazioni iniziali applicate alle variabili indipendenti sono state incapsulate in pipeline riutilizzabili (ad es. \texttt{ColumnTransformer}) per evitare data leakage e garantire riproducibilità. La selezione delle feature ha rimosso colonne non informative o ridondanti; le variabili categoriche sono state codificate con \texttt{OneHotEncoder} eseguito all'interno della pipeline; le feature numeriche sono state standardizzate tramite \texttt{StandardScaler}. I missing values sono stati trattati in modo coerente tra gli esperimenti: dove possibile si è preferita la rimozione controllata delle righe; si sottolinea che, sebbene XGBoost gestisca NaN nativamente, per confronto omogeneo i NaN sono stati generalmente eliminati. Per i dataset di immagini il preprocessing include resize e crop centrato a $224\times224$, normalizzazione canale-per-canale e data augmentation (flip orizzontale, rotazioni lievi, jitter di luminosità/contrasto) applicata esclusivamente in fase di training. Per problemi di classificazione sbilanciata si è fatto ricorso a tecniche di bilanciamento approcciate esclusivamente sul training fold (SMOTE per dati tabellari, pesi di classe o \texttt{WeightedRandomSampler} per immagini).
@@ -1246,6 +1246,76 @@
 		dove $T$ è il numero totale di alberi nell'ensemble e $\text{Nodi}_i$ è il numero di nodi nell'albero $i$.
 	\end{itemize}
 	
+	\section{Valutazione dei modelli}
+	
+	La procedura di valutazione adottata in tutti e tre i casi di studio è organizzata in tre fasi principali: (1) analisi qualitativa e quantitativa, (2) selezione del miglior modello e (3) conclusione finale. Le fasi sono pensate per essere applicabili, in modo coerente, a problemi di regressione e classificazione.
+	
+	\subsection{Fase 1 — Analisi qualitativa e quantitativa integrata}
+	La prima fase integra l'analisi visiva dei barplot e l'analisi numerica delle metriche, con l'obiettivo di ottenere in un unico passaggio una panoramica iniziale su quali modelli hanno performato meglio e quali invece hanno mostrato dei limiti. Per ciascun modello si selezionano le configurazioni iperparametriche ottimali risultanti dalla fase di tuning e si generano i grafici per le metriche rilevanti del task. I barplot consentono un confronto visivo immediato tra modelli, evidenziando quale soluzione appare dominante per metriche da massimizzare o da minimizzare . In parallelo, per le stesse configurazioni ottimali si riportano i valori numerici delle metriche calcolate sul test set, corredati da intervalli di confidenza (tipicamente CI95\%). L'approccio integrato permette di sfruttare la rapidità d'interpretazione dei grafici per individuare rapidamente i candidati più promettenti, ed al contempo di validare le impressioni visive con stime oggettive e replicabili. Qualsiasi segnale visivo di instabilità o possibile overfitting individuato nei barplot viene verificato sui valori calcolati.
+	
+	\subsection{Fase 2 — Selezione del miglior modello}
+	Sulla base delle evidenze raccolte nella fase di analisi qualitativa e quantitativa, la selezione finale del modello preferibile viene condotta mediante una procedura di ranking multi-criterio che incorpora in modo esplicito sia le prestazioni sia la complessità. \\
+	Per prima cosa si definisce l'insieme delle metriche rilevanti per il task e la direzione di ottimizzazione per ciascuna. \\
+	
+	\begin{verbatim}
+		regression_metrics = {
+			'MSE_Test'           : 'min',
+			'MAE_Test'           : 'min',
+			'MAPE_Test'          : 'min',
+			'R2_Test'            : 'max',
+			'R2_Adjusted_Test'   : 'max'
+		}
+	\end{verbatim}
+	\begin{verbatim}
+		classification_metrics = {
+			'Accuracy_Test': 'max',
+			'F1_Weighted_Test': 'max',
+			'F1_Macro_Test': 'max',
+			'AUC_ROC_OVR_Weighted': 'max',
+			'AUC_PR_OVR_Weighted': 'max'
+		}
+	\end{verbatim}
+	
+	Per ogni metrica e per ciascun modello si calcola un rank (rank = 1 corrisponde allo score migliore). Il \texttt{performance\_score} di un modello è la media aritmetica dei rank sulle metriche di interesse:
+	\[
+	\text{performance\_score}_m \;=\; \frac{1}{M}\sum_{j=1}^{M} \text{rank}_{m,j},
+	\]
+	dove \(M\) è il numero di metriche considerate e \(\text{rank}_{m,j}\) è il rank del modello \(m\) sulla metrica \(j\). \\
+	In parallelo si ottiene un indicatore di complessità, il \texttt{complexity\_rank}, calcolato ordinando i modelli in base alla formula di complessità scelta (definita precedentemente); anche in questo caso rank 1 indica il modello meno complesso. Per rendere confrontabili i due contributi, è utile normalizzare gli score su una scala comune. Una normalizzazione semplice e robusta consiste nel trasformare ogni score in un valore normalizzato nell'intervallo \([0,1]\) con la formula:
+	\[
+	\tilde{s}_m = \frac{s_m - \min_m s_m}{\max_m s_m - \min_m s_m},
+	\]
+	applicata separatamente a \(\text{performance\_score}\) ed a \(\text{complexity\_rank}\). \\
+	L'aggregazione finale esplora più strategie operative per bilanciare performance e complessità. Nella strategia Equal Weight il punteggio aggregato è la somma diretta delle componenti normalizzate:
+	\[
+	\text{agg}_{m}^{(1:1)} = \tilde{p}_m + \tilde{c}_m.
+	\]
+	Nella strategia Complexity Weighted la complessità è maggiormente penalizzata tramite un fattore di scala \(w_c\) (ad esempio \(w_c=2\) nella variante 1:2 e \(w_c=3\) nella variante extreme 1:3):
+	\[
+	\text{agg}_{m}^{(1:w_c)} = \tilde{p}_m + w_c \cdot \tilde{c}_m.
+	\]
+	Nel Pareto Approach le due componenti vengono normalizzate e combinate con pesi specifici (in questo contesto, 0.4 per la performance e 0.6 per la complessità). \\
+	Nel caso in cui ci siano dei puntaggi pari, viene scelto il modello con minore complessità normalizzata. \\
+	I risultati della procedura vengono documentati con una tabella riassuntiva che riporta per ciascun modello: numero totale di parametri/nodi, \texttt{performance\_score}, \texttt{complexity\_rank} e punteggi aggregati per ciascuna strategia. Inoltre, viene mostrata la classifica dei migliori modelli basata sulla strategia Complexity Weighted.
+	
+	\subsection{Fase 3 — Conclusione finale}
+	La conclusione finale sintetizza le evidenze emerse dalla fase di analisi e dalla procedura di selezione. La sintesi riporta i punti di forza ed i limiti del modello selezionato, confronta i margini numerici rispetto ai concorrenti e valuta la sostenibilità operativa in funzione della complessità stimata. Si motivano le scelte effettuate mediante riferimenti chiari ai barplot ed alle tabelle con le metriche.
+	
+	\section{Studio di ablazione}
+	L'obiettivo dello studio di ablazione è valutare il compromesso tra compressione del modello, intesa come numero di parametri attivi e rapporto di compressione, e mantenimento delle prestazioni predittive. Lo scopo finale è confrontare le prestazioni dei modelli alle quattro soglie di pruning prefissate (30\%, 50\%, 70\%, 90\%), analizzando per ciascuna soglia sia la retention delle metriche target sia il rapporto di compressione, al fine di identificare quale modello offra il miglior trade-off tra efficienza computazionale e qualità predittiva.
+	
+	\subsection{Ablation study: L1 pruning su MLP e KAN}
+	
+	La tecnica di pruning impiegata è il L1 post-training pruning, applicato ai pesi lineari della MLP ed ai coefficienti spline della KAN. Sono stati testati diversi pruning ratios, specificamente l'insieme ${0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,0.95}$. Ciascuna versione del modello potata è stata valutata, sia sul test set che sul train set, sulle metriche definite precedentemente. Per ogni configurazione, sono stati calcolati il numero totale di parametri, il numero di parametri attivi post-pruning ed il rapporto di compressione. Per interpretare i risultati, sono state definite alcune definizioni operative. La baseline è il modello non potato (pruning ratio $= 0.0$). Il punto di degrado significativo è il primo pruning ratio che comporta una perdita relativa in $R^2$/\texttt{F1-Weighted} superiore al 5\% rispetto alla baseline. Il best trade-off è il punto di massima compressione che causa una perdita relativa in $R^2$/\texttt{F1-Weighted} inferiore o uguale al 2\%.
+	
+	\subsection{Ablation study: ensemble pruning su Random Forest e XGBoost}
+	
+	La metodologia di pruning varia per i due modelli. Per il Random Forest, è stato utilizzato un Rank-Based Pruning: gli alberi sono stati ordinati per importanza e quelli meno rilevanti sono stati rimossi fino a raggiungere il \texttt{pruning\_ratio} desiderato. Per XGBoost, si è optato per un Cumulative Pruning, mantenendo solo le prime iterazioni di boosting fino al numero corrispondente a \((1 - \texttt{pruning\_ratio})\) della lunghezza originale, troncando di fatto la sequenza di boosting. Anche in questo caso, i pruning ratios testati sono stati ${0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,0.95}$. Per ogni versione potata, sono stati calcolati il numero totale e residuo di alberi, il rapporto di compressione e le metriche di performance su train e test set. Le definizioni operative di baseline, punto di degrado significativo e best trade-off sono rimaste le medesime. \\
+	
+	\subsection{Ablation study — Confronto complessivo}
+	Questa sezione si concentra sul confronto sistematico degli studi di ablazione eseguiti su ciascun modello, con l’obiettivo di identificare quale modello offra il miglior compromesso tra qualità predittiva e compressione. Il confronto viene effettuato sulle quattro soglie di pruning prefissate (30\%, 50\%, 70\%, 90\%), valutando per ciascuna soglia la retention delle metriche e il rapporto di compressione, così da evidenziare il modello più efficiente in termini di trade-off tra prestazioni e riduzione dei parametri. \\
+	Le informazioni principali vengono presentate in forma tabellare, riportando baseline delle metriche principali, best trade-off e compressione ottenuta per ciascun modello, consentendo un confronto rapido e chiaro delle prestazioni relative. L’analisi delle soglie tipiche permette inoltre di osservare trend di stabilità, degrado o miglioramento dei modelli, fornendo indicazioni pratiche per la scelta del modello più adatto a scenari di deployment con vincoli di memoria o risorse computazionali. \\
+	
 	\chapter{Primo Caso Studio: Regressione su emissioni di automobili}
 	
 	\section{Introduzione}
@@ -1345,8 +1415,6 @@
 	
 	\section{Valutazione dei modelli}
 	
-	La figura \ref{fig:comparison_models} sintetizza le principali metriche di performance con intervalli di confidenza al 95\% e la complessità dei modelli.
-	
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=1.0\textwidth]{img/comparison_car.png}
@@ -1428,20 +1496,6 @@
 	I modelli ensemble hanno mostrato un comportamento altrettanto interessante. La \textbf{Random Forest} ha raggiunto un $R^2$ test pari a $0.8704$ e un $R^2$ aggiustato di $0.8654$, con MSE di $511$ e MAE di $15.9$. Il MAPE ha raggiunto un valore medio del $10.9\%$, mentre il massimo errore assoluto è stato di circa $134.9$. Le sue prestazioni sono state quindi superiori a quelle dell’MLP, ma comunque meno accurate di quelle della KAN e soprattutto di XGBoost. La complessità del modello, stimata in circa $47$k parametri, lo rende più leggero delle reti neurali, ma non sufficientemente performante da rappresentare la soluzione migliore. \textbf{XGBoost}, al contrario, si è distinto come il modello più efficace: il suo $R^2$ test ha raggiunto il valore di $0.9956$ con un $R^2$ aggiustato di $0.9968$, accompagnato da un MSE di appena $17.5$ e un MAE pari a $2.5$. Il MAPE medio in test si attesta intorno all’$1.5\%$, e il massimo errore assoluto è stato limitato a circa $70.2$, valori che lo rendono nettamente superiore agli altri modelli. Oltre all’elevata precisione, un ulteriore vantaggio di XGBoost è l’efficienza, poiché la sua complessità è di soli $15$k parametri, rendendolo non solo il più accurato ma anche il più scalabile e pratico da utilizzare. \\
 	
 	\subsection{Selezione del miglior modello}
-	Per identificare il modello più adatto al problema di regressione delle emissioni di CO2, è stata adottata una procedura che combina prestazione e complessità. Inizialmente, sono state definite le metriche di interesse e la rispettiva direzione di ottimizzazione, come mostrato di seguito: \\
-	
-	\begin{verbatim}
-		metrics = {
-			'MSE_Test'           : 'min',
-			'MAE_Test'           : 'min',
-			'MAPE_Test'          : 'min',
-			'R2_Test'            : 'max',
-			'R2_Adjusted_Test'   : 'max'
-		}
-	\end{verbatim}
-	
-	Per ciascuna metrica è stato calcolato il rank dei modelli (con il rank 1 che indica il migliore), tenendo conto della direzione appropriata (ascendente o discendente). Successivamente, è stato calcolato un \texttt{performance\_score} come media dei rank delle metriche di prestazione e un \texttt{Complexity\_rank} basato sul numero di parametri o nodi, dove il rank 1 corrisponde al modello meno complesso. \\
-	Infine, sono stati combinati i punteggi di performance e complessità in base a diverse strategie di ponderazione. Sono stati usati l'Equal Weight (1:1), che somma direttamente il \texttt{performance\_score} e il \texttt{Complexity\_rank}, e le varianti con peso maggiore sulla complessità, ovvero il Complexity Weighted (1:2) e l'Extreme Complexity (1:3). È stato inoltre applicato un Pareto Approach (40:60), che combina i punteggi normalizzati con una ponderazione di 0.4 per la performance e 0.6 per la complessità. Per ogni metodo di aggregazione, il modello con il punteggio minimo è stato selezionato come il migliore. \\
 	I risultati hanno mostrato una chiara prevalenza del modello XGBoost su tutte le metriche ponderate. Nello specifico, XGBoost è risultato il modello vincente in Equal Weight (1:1), Complexity Weighted (1:2), Extreme Complexity (1:3) e Pareto Approach (40:60). \\
 	Di seguito la tabella riassuntiva con i valori principali usati per il ranking (valori ricavati dall'analisi finale):
 	
@@ -1451,7 +1505,7 @@
 		\small
 		\begin{tabular}{lcccccc}
 			\toprule
-			\textbf{Model} & \textbf{Param\_Count} & \textbf{Avg\_Perf} & \textbf{Compl\_Rank} & \textbf{Equal\_Rank} & \textbf{Ext\_Rank} & \textbf{Pareto\_Rank} \\
+			\textbf{Model} & \textbf{Param\_Count} & \textbf{Perf\_Score} & \textbf{Compl\_Rank} & \textbf{Equal\_Rank} & \textbf{Ext\_Rank} & \textbf{Pareto\_Rank} \\
 			\midrule
 			MLP           & 134,401 & 3.83 & 3 & 4 & 3 & 4 \\
 			KAN           & 219,752 & 2.00 & 4 & 3 & 4 & 3 \\
@@ -1462,22 +1516,18 @@
 		\caption{Riepilogo ranking: conteggio parametri, performance media (rank-based) e ranks per metodo di aggregazione.}
 	\end{table}
 	
-	\subsubsection{Conclusioni}
-	L'analisi ha portato a individuare XGBoost come il più adatto al problema. Questo modello non solo ha ottenuto le migliori performance assolute su tutte le metriche di regressione, ma ha anche la complessità stimata più bassa, rendendolo la scelta ideale per un deployment operativo. La rete KAN ha raggiunto un buon compromesso in termini di performance, sebbene la sua complessità stimata sia risultata elevata in rapporto al beneficio predittivo assoluto. L'MLP, pur avendo il maggior numero di parametri di XGBoost, ha conseguito performance inferiori rispetto ad esso in termini di MSE e MAE. Il Random Forest ha fornito risultati stabili e prestazioni intermedie, ma non è riuscito a superare XGBoost nel compromesso tra performance e complessità. \\
+	\subsection{Conclusioni}
+	L'analisi ha portato ad individuare XGBoost come il più adatto al problema. Questo modello non solo ha ottenuto le migliori performance assolute su tutte le metriche di regressione, ma ha anche la complessità stimata più bassa, rendendolo la scelta ideale per un deployment operativo. La rete KAN ha raggiunto un buon compromesso in termini di performance, sebbene la sua complessità stimata sia risultata elevata in rapporto al beneficio predittivo assoluto. L'MLP, pur avendo il maggior numero di parametri di XGBoost, ha conseguito performance inferiori rispetto ad esso in termini di MSE e MAE. Il Random Forest ha fornito risultati stabili e prestazioni intermedie, ma non è riuscito a superare XGBoost nel compromesso tra performance e complessità. \\
 	La classifica dei tre migliori modelli, secondo il criterio \emph{complexity-weighted} (dal migliore al peggiore), è la seguente:
 	\begin{enumerate}
-		\item XGBoost (Parametri: 14,764 | MSE Test: 17.52)
-		\item Random Forest (Parametri: 46,944 | MSE Test: 511.72)
-		\item MLP (Parametri: 134,401 | MSE Test: 605.28)
+		\item XGBoost (Parametri: 14,764; MSE: 17.52)
+		\item Random Forest (Parametri: 46,944; MSE: 511.72)
+		\item MLP (Parametri: 134,401; MSE: 605.28)
 	\end{enumerate}
 	
 	\section{Studio di ablazione}
 	
 	\subsection{Ablation study: L1 pruning su MLP e KAN}
-	L'obiettivo è misurare il compromesso tra compressione del modello (numero di parametri attivi / rapporto di compressione) ed il mantenimento delle prestazioni (MSE, MAE, \(R^2\), MAPE).
-	
-	\subsubsection{Metodologia}
-	La tecnica di pruning impiegata è il L1 post-training pruning, applicato ai pesi lineari della MLP ed ai coefficienti spline della KAN. Sono stati testati diversi pruning ratios, specificamente l'insieme ${0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,0.95}$. Ciascuna versione del modello potata è stata valutata sia sul test set che sul train set utilizzando le metriche MSE, MAE, MAPE, $R^2$ e max error. Per ogni configurazione, sono stati calcolati il numero totale di parametri, il numero di parametri attivi post-pruning ed il rapporto di compressione. Per interpretare i risultati, sono state definite alcune definizioni operative. La baseline è il modello non potato (pruning ratio $= 0.0$). Il punto di degrado significativo è il primo pruning ratio che comporta una perdita relativa in $R^2$ superiore al 5\% rispetto alla baseline. Il best trade-off è il punto di massima compressione che causa una perdita relativa in $R^2$ inferiore o uguale al 2\%.
 	
 	\subsubsection{Figura riassuntiva}
 	\begin{figure}[H]
@@ -1505,10 +1555,6 @@
 	La KAN, con una baseline \(R^2=0.9688\), ha mostrato il suo miglior trade-off empirico con un pruning del 10\% con una compressione di circa $3.1\times$, mantenendo la performance praticamente invariata. Il degrado significativo compare già a circa il 20\% di pruning, oltre il quale MSE e MAE aumentano rapidamente. La massima compressione sperimentata è di circa $57.8\times$ (pruning del 95\%), ma con una perdita di performance molto elevata. \\
 	
 	\subsection{Ablation study: ensemble pruning su Random Forest e XGBoost}
-	Lo scopo è valutare il compromesso tra riduzione del modello (numero di alberi / rounds) e mantenimento delle prestazioni (qui riportate con metriche di regressione — MSE, \(R^2\), MAE.
-	
-	\subsubsection{Metodologia}
-	La metodologia di pruning varia per i due modelli. Per il Random Forest, è stato utilizzato un Rank-Based Pruning: gli alberi sono stati ordinati per importanza e quelli meno rilevanti sono stati rimossi fino a raggiungere il \texttt{pruning\_ratio} desiderato. Per XGBoost, si è optato per un Cumulative Pruning, mantenendo solo le prime iterazioni di boosting fino al numero corrispondente a \((1 - \texttt{pruning\_ratio})\) della lunghezza originale, troncando di fatto la sequenza di boosting. Anche in questo caso, i pruning ratios testati sono stati ${0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,0.95}$. Per ogni versione potata, sono stati calcolati il numero totale e residuo di alberi, il rapporto di compressione e le metriche di performance su train e test set. Le definizioni operative di baseline, punto di degrado significativo ($R^2 >5\%$) e best trade-off ($R^2 \le 2\%$) sono rimaste le medesime.
 	
 	\subsubsection{Figura riassuntiva}
 	\begin{figure}[H]
@@ -1536,18 +1582,6 @@
 	Nel caso del Random Forest, il pruning rank-based ha mostrato una tendenza a mantenere o addirittura a migliorare leggermente la generalizzazione, riducendo l'overfitting. L'esperimento ha rivelato che il modello rimane stabile anche con pruning aggressivi: mantenendo solo 5 alberi su 100 (95\% di pruning, compressione $20\times$), l'\(R^2\) sul test set non peggiora e, in alcuni casi, migliora rispetto alla baseline.
 	
 	\subsection{Ablation study — Confronto complessivo (Neural Networks vs Ensemble)}
-	Per il confronto, sono stati considerati pruning ratios tipici: 30\%, 50\%, 70\%, 90\%.  
-	
-	\subsubsection{Metriche e output considerati}
-	Per ogni modello sono state raccolte le seguenti misure:
-	\begin{itemize}
-		\item \textbf{\(R^2\)} (test);
-		\item \textbf{MSE} (test);
-		\item \textbf{MAE} (test);
-		\item \textbf{MAPE} (test);
-		\item \textbf{Compression ratio}: rapporto tra dimensione modello baseline e modello pruned;
-		\item statistiche di performance retention (\(R^2\) pruned / baseline).
-	\end{itemize}
 	
 	\subsubsection{Figure riassuntive}
 	\begin{figure}[H]
@@ -1835,8 +1869,6 @@
 	
 	\section{Valutazione dei modelli}
 	
-	La figura \ref{fig:comparison_pm} sintetizza le principali metriche di performance (Accuracy, F1-weighted, F1-macro, AUC-ROC e AUC-PR) con intervalli di confidenza al 95\% (bootstrap) e la complessitá dei modelli.
-	
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=1.0\textwidth]{img/comparison_pm.png}
@@ -2039,20 +2071,7 @@
 	Va inoltre segnalato che, per mitigare lo sbilanciamento delle classi, nel training sono state impiegate sia la ponderazione degli errori per classe (class weights) sia una procedura di oversampling basata su SMOTE. Queste contromisure hanno portato a miglioramenti locali nei punteggi di recall sulle classi minority (riducendo alcuni falsi negativi), ma non hanno eliminato completamente le difficoltà associate alle classi con supporto molto basso.
 	
 	\subsection{Selezione del miglior modello}
-	Per identificare il modello più adatto al problema di classificazione, è stata adottata una procedura di ranking multi-criterio che combina le prestazioni con la complessità. Inizialmente, sono state definite le metriche di interesse e la rispettiva direzione di ottimizzazione, come indicato nel seguente blocco di codice:
-	
-	\begin{verbatim}
-		metrics = {
-			'Accuracy_Test': 'max',
-			'F1_Weighted_Test': 'max',
-			'F1_Macro_Test': 'max',
-			'AUC_ROC_OVR_Weighted': 'max',
-			'AUC_PR_OVR_Weighted': 'max'
-		}
-	\end{verbatim}
-	
-	Per ciascuna metrica, è stato calcolato il "rank" dei modelli (rank 1 = migliore). Successivamente, un performance\_score è stato calcolato come media dei rank di prestazione, mentre un Complexity\_rank è stato determinato in base al numero di parametri/nodi (rank 1 = meno complesso). Infine, performance e complessità sono state combinate attraverso diverse strategie di ponderazione: Equal Weight (1:1), dato dalla somma di performance\_score e Complexity\_rank; Complexity Weighted (1:2), che attribuisce un peso doppio alla complessità; Extreme Complexity (1:3), con un peso triplo; e il Pareto Approach (40:60), che normalizza i punteggi e li combina con pesi di 0.4 per la performance e 0.6 per la complessità. Per ogni metodo, è stato scelto il modello con il punteggio più basso. \\
-	I risultati di questa procedura di ranking mostrano che XGBoost è il migliore secondo i criteri di Equal Weight (1:1) e Pareto Approach (40:60), mentre la MLP risulta vincente nei criteri Complexity Weighted (1:2) ed Extreme Complexity (1:3). I valori principali utilizzati per il ranking sono riassunti nella tabella seguente:
+	I risultati di questa procedura di ranking multi-criterio mostrano che XGBoost è il migliore secondo il criterio di Equal Weight (1:1), mentre la KAN risulta vincente nei criteri Complexity Weighted (1:2), Extreme Complexity (1:3) e Pareto Approach (40:60). I valori principali utilizzati per il ranking sono riassunti nella tabella seguente:
 	
 	\begin{table}[H]
 		\centering
@@ -2060,7 +2079,7 @@
 		\caption{Riepilogo ranking aggiornato: conteggio parametri, performance media (rank-based) e ranks per metodo di aggregazione.}
 		\begin{tabular}{lrrrrrr}
 			\toprule
-			\textbf{Model} & \textbf{Param\_Count} & \textbf{Avg\_Perf} & \textbf{Compl\_Rank} & \textbf{Equal\_Rank} & \textbf{Ext\_Rank} & \textbf{Pareto\_Rank} \\
+			\textbf{Model} & \textbf{Param\_Count} & \textbf{Perf\_Score} & \textbf{Compl\_Rank} & \textbf{Equal\_Rank} & \textbf{Ext\_Rank} & \textbf{Pareto\_Rank} \\
 			\midrule
 			KAN           & 7,680    & 3.0 & 1 & 1 & 1 & 1 \\
 			xgboost       & 90,416   & 1.0 & 2 & 1 & 2 & 2 \\
@@ -2070,22 +2089,18 @@
 		\end{tabular}
 	\end{table}
 	
-	\subsubsection{Conclusioni}
-	Dalla procedura di ranking multi-criterio, XGBoost presenta le performance assolute più elevate sulle metriche di classificazione (in particolare l'F1-weighted), ma richiede una complessità molto maggiore rispetto alle reti neurali testate. KAN offre un eccellente compromesso fra accuratezza e parsimonia e, nelle strategie che penalizzano la complessità, risulta il modello raccomandato per il deployment. La MLP mantiene un buon rapporto performance/complessità, ma è lievemente inferiore a KAN, secondo il criterio complexity-weighted. Il Random Forest, pur competitivo in termini di metriche assolute, è meno interessante quando la parsimonia del modello è un vincolo operativo. \\
+	\subsection{Conclusioni}
+	Dalla procedura di ranking multi-criterio e dall'analisi delle metriche aggregate, XGBoost presenta le performance assolute più elevate sulle metriche di classificazione (in particolare l'F1-weighted), ma richiede una complessità molto maggiore rispetto alle reti neurali testate. KAN offre un eccellente compromesso fra accuratezza e parsimonia e, nelle strategie che penalizzano la complessità, risulta il modello raccomandato per il deployment. La MLP mantiene un buon rapporto performance/complessità, ma è lievemente inferiore a KAN, secondo il criterio complexity-weighted. Il Random Forest, pur competitivo in termini di metriche assolute, è meno interessante quando la parsimonia del modello è un vincolo operativo. \\
 	La classifica dei tre migliori modelli, basata sul criterio "complexity-weighted" (dal migliore al peggiore), è la seguente:
 	\begin{enumerate}
-		\item KAN \quad (Params: 7,680 \;|\; F1-Weighted: 0.7823)
-		\item xgboost \quad (Params: 90,416 \;|\; F1-Weighted: 0.8107)
-		\item MLP \quad (Params: 7,750 \;|\; F1-Weighted: 0.7654)
+		\item KAN \quad (Params: 7,680; F1-Weighted: 0.7823)
+		\item xgboost \quad (Params: 90,416; F1-Weighted: 0.8107)
+		\item MLP \quad (Params: 7,750; F1-Weighted: 0.7654)
 	\end{enumerate}
 	
 	\section{Studio di ablazione}
 	
 	\subsection{Ablation study: L1 pruning su MLP e KAN}
-	L'obiettivo è misurare il compromesso tra compressione del modello (numero di parametri attivi / rapporto di compressione) e il mantenimento delle prestazioni (Accuracy, F1, AUC).
-	
-	\subsubsection{Metodologia}
-	La tecnica di pruning impiegata è il L1 post-training pruning, applicato ai pesi lineari della MLP ed ai coefficienti spline della KAN. Sono stati testati diversi pruning ratios, specificamente l'insieme ${0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,0.95}$. Ciascuna versione del modello potata è stata valutata sia sul test set che sul train set sulle stesse metriche definite precedentemente. Per ogni configurazione, sono stati calcolati il numero totale di parametri, il numero di parametri attivi post-pruning ed il rapporto di compressione. Per interpretare i risultati, sono state definite alcune definizioni operative. La baseline è il modello non potato (pruning ratio $= 0.0$). Il punto di degrado significativo è il primo pruning ratio che comporta una perdita relativa in \texttt{F1-Weighted} superiore al 5\% rispetto alla baseline. Il best trade-off è il punto di massima compressione che causa una perdita relativa in \texttt{F1-Weighted} inferiore o uguale al 2\%.
 	
 	\subsubsection{Figura riassuntiva}
 	\begin{figure}[H]
@@ -2114,10 +2129,6 @@
 	La compressione massima raggiungibile nei test è stata dell'ordine di $\sim 20\times$ per la MLP e $\sim 17.8\times$ per la KAN (pruning $95\%$), ma tali livelli estremi comportano perdite di prestazione troppo elevate per essere considerati praticabili in un contesto di deployment senza ulteriori tecniche (ad esempio, retraining post-pruning).
 	
 	\subsection{Ablation study: ensemble pruning su Random Forest e XGBoost}
-	Lo scopo è valutare il compromesso tra riduzione del modello (numero di alberi / rounds) e mantenimento delle prestazioni (F1-weighted, accuracy, AUC).
-	
-	\subsubsection{Metodologia}
-	La metodologia di pruning varia per i due modelli. Per il Random Forest, è stato utilizzato un Rank-based Pruning: gli alberi sono stati ordinati per importanza (somma delle feature importances dell'albero) e quelli meno rilevanti sono stati rimossi fino a raggiungere il \texttt{pruning\_ratio} desiderato. Per XGBoost, si è optato per un Cumulative Pruning, mantenendo solo le prime iterazioni di boosting fino al numero corrispondente a \((1 - \texttt{pruning\_ratio})\) della lunghezza originale, troncando di fatto la sequenza di boosting. Anche in questo caso, i pruning ratios testati sono stati ${0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,0.95}$. Per ogni versione potata, sono stati calcolati il numero totale e residuo di alberi, il rapporto di compressione e le metriche di performance su train e test set. Le definizioni operative di baseline, punto di degrado significativo ($\texttt{F1-Weighted} >5\%$) e best trade-off ($\texttt{F1-Weighted} \le 2\%$) sono rimaste le medesime.
 	
 	\subsubsection{Figura riassuntiva}
 	\begin{figure}[H]
@@ -2146,7 +2157,6 @@
 	La compressione massima sperimentata è stata dell'ordine di $\sim 20\times$ per Random Forest e $\sim 25\times$ per XGBoost (pruning $95\%$), tuttavia tali livelli estremi comportano perdite di prestazione significativamente maggiori e risultano poco praticabili senza interventi aggiuntivi (es. fine-tuning post-pruning, distillazione o quantizzazione).
 	
 	\subsection{Ablation study — Confronto complessivo (Neural Networks vs Ensemble)}
-	Per un confronto complessivo, sono stati estratti i risultati di ogni modello a soglie tipiche di pruning: 30\%, 50\%, 70\% e 90\%. Le metriche e gli output considerati includono: Accuracy (test), F1-Weighted (test), F1-Macro (test), AUC-ROC e AUC-PR weighted (quando calcolabili), il rapporto di compressione e le statistiche di performance retention (pruned/baseline).
 	
 	\subsubsection{Figure riassuntive}
 	\begin{figure}[H]
@@ -2180,6 +2190,7 @@
 		\caption{Riepilogo sintetico dei principali punti di trade-off e compressione (valori aggiornati).}
 	\end{table}
 	
+	\subsubsection{Confronto su soglie tipiche (30\%, 50\%, 70\%, 90\%)}
 	Al 30\% di pruning, tutti i modelli mantengono o presentano leggeri miglioramenti rispetto alla baseline nelle metriche principali: MLP mostra un lieve incremento dell'F1-weighted, mentre KAN e XGBoost mantengono prestazioni molto elevate. A 50\% di pruning la MLP raggiunge il suo miglior trade-off operativo (compressione $\sim 2\times$ con F1-weighted sostanzialmente invariata rispetto alla baseline), mentre KAN e gli ensemble rimangono stabili. A 70\% di pruning XGBoost continua a mostrare una ritenzione delle prestazioni accettabile (nelle soglie tra il 50\% ed il 70\% la perdita relativa di F1 è inferiore al 2\%), KAN risulta robusto fino a questo livello e la MLP inizia a evidenziare un degrado più marcato oltre certe soglie di sparsity. A 90\% di pruning le reti neurali presentano una degradazione significativa (più pronunciata per MLP), mentre gli ensemble (in particolare Random Forest con pruning rank-based) conservano una retention relativamente migliore fino a livelli molto elevati di riduzione.
 	
 	\subsubsection{Conclusioni}
@@ -2334,8 +2345,7 @@
 		\item \textbf{seed}: 0 per riproducibilità.
 	\end{itemize}
 	
-	\subsection{Scelte architetturali finali (DA MODIFICARE)}
-	% To Be Modified
+	\subsection{Scelte architetturali finali}
 	Nella Tabella \ref{tab:model-config-image} vengono mostrate le scelte finali, dopo l'ottimizzazione degli iperparametri, utilizzate per training, valutazioni comparative e studio di ablazione.
 	
 	\begin{table}[H]
@@ -2344,12 +2354,138 @@
 		\label{tab:model-config-image}
 		\begin{tabular}{l p{0.65\linewidth}}
 			\toprule
-			\textbf{MLP} & \texttt{input\_dim = 49}; \texttt{hidden\_sizes = (64, 64)}; \texttt{dropout = 0.2}; \texttt{ottimizzatore = Adam}; \texttt{lr = 0.0001}; \texttt{l2\_lambda = 0.001}; \texttt{batch\_size = 32}. Early stopping applicato. \\
+			\textbf{CNN + MLP} & \texttt{input\_channels = 3}; \texttt{hidden\_sizes = (128, 64, 32)}; \texttt{dropout = 0.5}; \texttt{lr = $10^{-3}$}; \texttt{l2\_lambda = $10^{-4}$}; \texttt{num\_classes = 4}. Early stopping applicato. \\
 			\midrule
-			\textbf{KAN} & \texttt{input\_dim = 49}; \texttt{width = (16,8)}; \texttt{grid = 5}; \texttt{k = 4}, \texttt{seed = 0}; \texttt{ottimizzatore = Adam}; \texttt{lr = 0.0001}; \texttt{l2\_lambda = 1e-05}; \texttt{batch\_size = 32}. Early stopping applicato. \\
+			\textbf{CNN + KAN} & \texttt{input\_channels = 3}; \texttt{width = (32,16)}; \texttt{grid = 10}; \texttt{k = 2}, \texttt{seed = 0}; \texttt{lr = $10^{-4}$}; \texttt{l2\_lambda = $10^{-5}$}; \texttt{num\_classes = 4}. Early stopping applicato. \\
 			\bottomrule
 		\end{tabular}
 	\end{table}
+	
+	\section{Valutazione dei modelli}
+	
+	\begin{figure}[H]
+		\centering
+		\includegraphics[width=1.0\textwidth]{img/comparison_image.png}
+		\caption{Confronto visivo delle prestazioni dei modelli (Accuracy train vs test, F1-weighted/macro, AUC-ROC e AUC-PR OVR weighted con CI95\%, e complessità in parametri).}
+		\label{fig:comparison_image}
+	\end{figure}
+	
+	\subsubsection{Classification report e confusion matrix per modello}
+	
+	\paragraph{CNN + MLP} \mbox{}\\
+	Numero di parametri / nodi: \textbf{5\,983\,612}.
+	
+	\begin{table}[H]
+		\centering
+		\caption{Classification report}
+		\label{tab:cr_cnn_mlp}
+		\begin{tabular}{lrrrr}
+			\toprule
+			Classe & precision & recall & f1-score & support \\
+			\midrule
+			0 & 0.85 & 0.71 & 0.78 & 775 \\
+			1 & 0.91 & 0.80 & 0.85 & 815 \\
+			2 & 0.57 & 0.75 & 0.65 & 807 \\
+			3 & 0.78 & 0.75 & 0.76 & 803 \\
+			\midrule
+			accuracy & \multicolumn{3}{c}{0.75} & 3\,200 \\
+			macro avg & 0.78 & 0.75 & 0.76 & 3\,200 \\
+			weighted avg & 0.78 & 0.75 & 0.76 & 3\,200 \\
+			\bottomrule
+		\end{tabular}
+	\end{table}
+	
+	\begin{table}[H]
+		\centering
+		\caption{Confusion matrix}
+		\label{tab:cm_cnn_mlp}
+		\[
+		\begin{bmatrix}
+			553 & 21  & 158 & 43 \\
+			22  & 649 & 126 & 18 \\
+			49  & 38  & 607 & 113 \\
+			28  & 5   & 168 & 602 \\
+		\end{bmatrix}
+		\]
+		\vspace{1mm}
+		
+		AUC-ROC (OVR, weighted): \textbf{0.918} \\
+		AUC-PR  (OVR, weighted): \textbf{0.813}
+	\end{table}
+	
+	\paragraph{CNN + KAN} \mbox{}\\
+	Numero di parametri / nodi: \textbf{16\,430\,296}.
+	
+	\begin{table}[H]
+		\centering
+		\caption{Classification report}
+		\label{tab:cr_cnn_kan}
+		\begin{tabular}{lrrrr}
+			\toprule
+			Classe & precision & recall & f1-score & support \\
+			\midrule
+			0 & 0.83 & 0.75 & 0.79 & 775 \\
+			1 & 0.85 & 0.89 & 0.87 & 815 \\
+			2 & 0.66 & 0.68 & 0.67 & 807 \\
+			3 & 0.80 & 0.81 & 0.81 & 803 \\
+			\midrule
+			accuracy & \multicolumn{3}{c}{0.78} & 3\,200 \\
+			macro avg & 0.79 & 0.78 & 0.78 & 3\,200 \\
+			weighted avg & 0.79 & 0.78 & 0.78 & 3\,200 \\
+			\bottomrule
+		\end{tabular}
+	\end{table}
+	
+	\begin{table}[H]
+		\centering
+		\caption{Confusion matrix}
+		\label{tab:cm_cnn_kan}
+		\[
+		\begin{bmatrix}
+			582 & 28  & 124 & 41  \\
+			21  & 727 & 53  & 14  \\
+			70  & 85  & 547 & 105 \\
+			30  & 13  & 106 & 654 \\
+		\end{bmatrix}
+		\]
+		\vspace{1mm}
+		
+		AUC-ROC (OVR, weighted): \textbf{0.928} \\
+		AUC-PR  (OVR, weighted): \textbf{0.837}
+	\end{table}
+	
+	\subsection{Risultati sperimentali}
+	
+	L'analisi complessiva delle prestazioni mostra differenze contenute ma significative tra le due architetture considerate. La \textbf{CNN+KAN} ottiene le migliori prestazioni aggregate sul test set, con un'accuratezza attorno a $0.78$, un F1-weighted pari a circa $0.78$ ed un F1-macro vicino a $0.78$. I valori di AUC risultano anch'essi a favore della CNN+KAN (AUC-ROC OVR weighted $= 0.93$, AUC-PR OVR weighted $= 0.84$). La \textbf{CNN+MLP} presenta prestazioni leggermente inferiori sul test set con un'accuratezza $= 0.75$, con F1-weighted e macro intorno a $0.76$, AUC-ROC $= 0.92$ e AUC-PR $= 0.81$. La differenza di performance, pur costante, rimane nell'ordine di pochi punti percentuali; è pertanto necessario pesare questi guadagni rispetto ai vincoli computazionali e di memoria. \\
+	L'analisi per classe, utilizzando i classification report e le confusion matrix, mostra che la classe 1 è la più stabile in entrambe le architetture, con precision e recall elevate. La classe 2 è quella che presenta il maggior compromesso precision/recall: nella CNN+MLP si osserva una tendenza all'over-prediction su tale classe, mentre la CNN+KAN riduce questo effetto migliorando sia precision sia recall. Le confusioni più frequenti coinvolgono classi adiacenti (fenomeno atteso per la classificazione d'età), suggerendo che molte errate assegnazioni sono dovute a sovrapposizioni tra fasce contigue piuttosto che a errori casuali. \\
+	
+	\subsection{Selezione del miglior modello}
+	Tramite il calcolo del ranking multi-criterio, CNN\_MLP é stato definito come il modello migliore su tutte le metriche ponderate, anche se a livello di pure performance CNN\_KAN rimane il migliore. Nello specifico, CNN\_MLP è risultato il modello vincente in Equal Weight (1:1), Complexity Weighted (1:2), Extreme Complexity (1:3) e Pareto Approach (40:60). \\
+	Di seguito la tabella riassuntiva con i valori principali usati per il ranking:
+	
+	\begin{table}[H]
+		\centering
+		\setlength{\tabcolsep}{2pt}
+		\caption{Riepilogo ranking: conteggio parametri, performance media (rank-based) e ranks per metodo di aggregazione.}
+		\begin{tabular}{lrrrrrr}
+			\toprule
+			\textbf{Model} & \textbf{Param\_Count} & \textbf{Perf\_Score} & \textbf{Compl\_Rank} & \textbf{Equal\_Rank} & \textbf{Ext\_Rank} & \textbf{Pareto\_Rank} \\
+			\midrule
+			CNN\_MLP & 5,983,612 & 2.0 & 1 & 1 & 1 & 1 \\
+			CNN\_KAN & 16,430,296 & 1.0 & 2 & 1 & 2 & 2 \\
+			\bottomrule
+		\end{tabular}
+	\end{table}
+	
+	\subsection{Conclusioni}
+	
+	Dalla procedura di ranking multi-criterio e dall'analisi delle metriche aggregate emerge che la rete \textbf{CNN+KAN} raggiunge le migliori prestazioni complessive sul test set (F1 e AUC sensibilmente più alti), mentre la \textbf{CNN+MLP} presenta una complessità nettamente inferiore (circa $6$M vs $16.4$M parametri). I risultati sintetizzati nella Tabella di selezione mostrano chiaramente questo trade-off tra qualità predittiva e complessità computazionale. \\
+	Se l'obiettivo primario è massimizzare le performance e le risorse computazionali non sono vincolanti, la scelta preferibile è la \textbf{CNN+KAN} per il suo livello di accuratezza e per la maggiore robustezza osservata su alcune classi difficili. Se invece il vincolo dominante è la complessità, la \textbf{CNN+MLP} rappresenta il modello raccomandato: offre prestazioni ancora competitive con costi di deployment significativamente inferiori e quindi un miglior compromesso per scenari reali a bassa latenza o risorse limitate. \\
+	La classifica, basata sul criterio "complexity-weighted" (dal migliore al peggiore), è la seguente:
+	\begin{enumerate}
+		\item CNN\_MLP \quad (Params: 5,983,612; F1-Weighted: 0.7595)
+		\item CNN\_KAN \quad (Params: 16,430,296; F1-Weighted: 0.7843)
+	\end{enumerate}
 	
 	\chapter{Discussione comparativa sui Risultati dei casi studio}
 	
