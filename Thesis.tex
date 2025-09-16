@@ -43,27 +43,38 @@
 			\end{tabular}
 			
 			\vspace{2cm}
-			\textbf{Sessione Settembre 2025} \\
+			\textbf{Sessione Unica} \\
 			\textbf{Anno Accademico 2024/2025}
 		\end{center}
 	\end{titlepage}
 	
 	\tableofcontents
-	
+		
 	\chapter*{Introduzione}
-	% To Be Modified
-	La presente tesi si propone di analizzare, confrontare e valutare diverse architetture di Machine e Deep learning: le Kolmogorov–Arnold Networks (KAN), i Multi-Layer Perceptron (MLP), le Random forest e XGBoost. \\
-	L’obiettivo principale è quello di fornire, da un lato, un’analisi teorica esaustiva di ciascun modello, includendo i fondamenti matematici e le architetture; dall’altro, valutare sperimentalmente le prestazioni dei modelli su tre casi di studio: regressione sulle emissioni di automobili, classificazione dell’inquinamento atmosferico (PM2.5) e riconoscimento di immagini mediante CNN abbinate a MLP e KAN. \\
-	Oltre allo studio comparativo dei modelli, la tesi include un’ampia indagine sui metodi di Hyperparameter Tuning: Grid search, Random search, Bayesian optimization e Genetic algorithms, selezionati in base ad uno studio preliminare di confronto. \\
-	A completamento, sono stati condotti due studi di ablazione post-training per ogni caso di studio:
-	\begin{itemize}
-		\item \textbf{L1 Pruning} per KAN e MLP.
-		\item \textbf{Ensemble Pruning} dove:
-		\begin{itemize}
-			\item \textbf{Rank-Based Pruning} per Random forest.
-			\item \textbf{Cumulative Pruning} per XGBoost.
-		\end{itemize}
+	
+	\section*{Contesto della Tesi}
+	La presente tesi si propone di analizzare, confrontare e valutare diverse architetture di \textit{Machine} e \textit{Deep Learning}: Kolmogorov-Arnold Networks (KAN), Multi-Layer Perceptron (MLP), Random Forest e XGBoost. Questi modelli rappresentano paradigmi differenti nel panorama dell'apprendimento automatico, coprendo sia le reti neurali tradizionali, che quelle di recente introduzione, che i metodi ensemble. L'obiettivo è quello di fornire, da un lato, un'analisi teorica esaustiva di ciascun modello, includendo i fondamenti matematici e le architetture; dall'altro, valutare sperimentalmente le prestazioni dei modelli su tre casi di studio: regressione sulle emissioni di automobili, classificazione dell'inquinamento atmosferico (PM2.5) e riconoscimento di immagini mediante CNN abbinate a MLP e KAN. Oltre allo studio comparativo dei modelli, la tesi include un'ampia indagine sui metodi di Ottimizzazione degli iperparametri ed uno studio di ablazione post-training, che valutano il compromesso tra la complessità del modello e le prestazioni.
+	
+	\section*{Obiettivo della Tesi}
+	L'obiettivo primario è quello di condurre una valutazione metodologica ed applicativa completa dei modelli selezionati, con un focus specifico sulla loro efficacia in scenari del mondo reale. Per la valutazione empirica sono stati scelti tre casi di studio diversificati per tipologia di problema (regressione e classificazione) e natura dei dati (tabellari, serie storiche e immagini). Le metodologie adottate, come la \textit{Nested Cross-Validation} e la \textit{Time Series Cross-Validation}, sono state impiegate per garantire stime robuste e non distorte della capacità di generalizzazione dei modelli. \\
+	Un ulteriore obiettivo è stato quello di investigare l'efficacia di diverse strategie di ottimizzazione, tra cui \textit{Grid Search}, \textit{Random Search}, \textit{Bayesian Optimization} e \textit{Genetic Algorithms}, selezionando il \textit{Random Search} per la sua efficienza e scalabilità nei casi di studio. A completamento, sono stati condotti studi di ablazione post-addestramento per analizzare l'impatto del \textit{pruning} sulla performance dei modelli. In particolare, è stato applicato il pruning L1 per le reti neurali (KAN e MLP) ed il \textit{pruning} \textit{ensemble} (basato sul ranking per Random Forest e cumulativo per XGBoost), al fine di misurare il compromesso tra la riduzione dei parametri ed il mantenimento della qualità predittiva.
+	
+	\section*{Struttura della Tesi}
+	La tesi è organizzata in capitoli che si susseguono in modo logico, partendo dalle basi teoriche dei modelli fino all'analisi dei risultati sperimentali. \\
+	\begin{itemize}[leftmargin=*]
+		\item \textbf{Multi-Layer Perceptron (MLP):} Questo capitolo introduce il Multi-Layer Perceptron, descrivendone l'architettura, i fondamenti matematici e l'algoritmo di backpropagation. Vengono analizzate le funzioni di attivazione e le tecniche di regolarizzazione, con una discussione finale sui vantaggi e sui limiti di questa architettura.
+		\item \textbf{Kolmogorov-Arnold Networks (KAN):} Il capitolo introduce le KAN, un'architettura neurale che si ispira al teorema di approssimazione di Kolmogorov-Arnold. Vengono esaminati i fondamenti matematici, l'architettura, il funzionamento operativo ed un confronto dettagliato con le MLP tradizionali.
+		\item \textbf{Random Forest (RF):} Questo capitolo descrive il Random Forest, un modello ensemble basato su alberi di decisione. Vengono trattati i concetti fondamentali come il bagging ed il feature bagging, che ne garantiscono la robustezza e la capacità di generalizzazione, e vengono discussi vantaggi e svantaggi.
+		\item \textbf{eXtreme Gradient Boosting (XGBoost):} Il capitolo si concentra su XGBoost, un'implementazione ottimizzata del gradient boosting. Vengono analizzati i principi iterativi, i miglioramenti rispetto al boosting tradizionale e l'importanza dei suoi iperparametri per il tuning del modello.
+		\item \textbf{Convolutional Neural Networks (CNN):} Questo capitolo introduce le CNN, un'architettura fondamentale per l'analisi di immagini. Vengono descritti i principi di convoluzione, pooling ed il suo funzionamento, con una panoramica dei vantaggi e dei limiti.
+		\item \textbf{Ottimizzazione degli Iperparametri:} Il capitolo offre una panoramica delle metodologie di ottimizzazione degli iperparametri, tra cui \textit{Grid Search}, \textit{Random Search}, \textit{Bayesian Optimization} e \textit{Genetic Algorithms}, con un focus sulla scelta del \textit{Random Search} per gli studi di caso.
+		\item \textbf{Studio di Ablazione e Pruning post-training:} Vengono introdotte le metodologie di ablazione e di pruning post-training, analizzando in dettaglio le tecniche di pruning L1 per le reti neurali e quelle specifiche per gli ensemble.
+		\item \textbf{Metodologie e Procedure Comuni:} Questo capitolo descrive le scelte condivise che costituiscono la base per la verifica sperimentale dei casi di studio, inclusi gli ambienti di sviluppo, le librerie software, le metriche di valutazione, le procedure di validazione e di ablazione.
+		\item \textbf{Primo, Secondo e Terzo Caso studio:} I capitoli finali presentano i tre casi di studio applicativi (regressione su emissioni di automobili, classificazione di PM2.5 e classificazione di fasce d'età), con una trattazione dettagliata delle fasi di preparazione dei dati, training, valutazione e pruning per ciascuno.
 	\end{itemize}
+	
+	\section*{Tecnologie e Strumenti}
+	Il workflow sperimentale e di analisi è stato interamente sviluppato in Python, facendo uso di un insieme di librerie consolidate nel settore del machine learning e dell'analisi dati. Per la manipolazione e l'analisi dei dati sono state utilizzate le librerie Pandas e NumPy. La visualizzazione è stata realizzata con Matplotlib e Seaborn. Le reti neurali sono state implementate in PyTorch, sfruttando anche la libreria pykan per l'implementazione delle Kolmogorov-Arnold Networks. Gli approcci ensemble sono stati gestiti tramite le librerie scikit-learn e XGBoost. Il framework di lavoro ha previsto l'utilizzo di Jupyter notebooks per la prototipazione e il debug, mentre gli esperimenti su larga scala sono stati eseguiti su un cluster HPC dell'Università di Bologna, con allocazione di GPU tramite SLURM. La gestione dei metadati, il tracciamento degli esperimenti e l'automazione del workflow sono stati gestiti con moduli standard come json, os e logging.
 	
 	\chapter{Multi-Layer Perceptron (MLP)}
 	
@@ -511,7 +522,7 @@
 	\subsection{Sensibilità al rumore e necessità di regolarizzazione}
 	In presenza di dati molto rumorosi, una parametrizzazione spline troppo fine tende al sovraffitting locale. È quindi necessario un attento tuning degli iperparametri (ordine della spline, numero di nodi, termine di regolarizzazione, smoothing), e in alcuni casi una MLP ben regolarizzata può mostrare maggiore robustezza.
 	
-	\chapter{Random forest}
+	\chapter{Random forest (RF)}
 	
 	\section{Introduzione}
 	In questo capitolo viene descritto il Random forest, un algoritmo di Machine learning molto versatile, in grado di gestire sia compiti di classificazione che di regressione. Il suo funzionamento si basa sull'idea dell'ensemble learning, combinando la forza di più alberi di decisione per ottenere un modello finale più robusto e preciso. L'introduzione del capitolo si concentra sui concetti fondamentali che guidano la costruzione del modello, come i criteri di divisione dei dati e la tecnica di bagging, che sfrutta il campionamento casuale per ridurre la varianza. Si approfondisce poi l'architettura specifica del Random forest, che aggiunge un ulteriore livello di casualità nella selezione delle variabili per ogni albero, rendendo la "foresta" più diversificata e meno soggetta ad overfitting. Il capitolo si conclude con una valutazione dei vantaggi e degli svantaggi dell'algoritmo, evidenziando la sua robustezza e la sua capacità di generalizzazione, ma anche i suoi requisiti in termini di risorse computazionali e la minore interpretabilità rispetto ad un singolo albero. \cite{breiman2001randomforest, quinlan1993c45, breiman1996bagging, fatima2023xgbvsrf}
@@ -1075,14 +1086,20 @@
 	
 	Se l'obiettivo è creare un modello più leggero da salvare o esportare, è possibile potare il modello in modo permanente. Questo si ottiene limitando l'ensemble agli alberi selezionati e salvando il nuovo modello ridotto. Questo processo è utile per ridurre l'occupazione di memoria e rendere il modello più efficiente per la distribuzione in produzione, una volta che la migliore configurazione è stata identificata tramite lo studio di ablazione.
 	
-	\chapter{Casi di studio}
+	\chapter{Metodologie e Procedure comuni per la Verifica sperimentale dei Casi di studio}
+	
+	\section{Introduzione}
+	
+	In questo capitolo vengono illustrate le scelte comuni che costituiscono la base della verifica sperimentale delle metodologie proposte. L'obiettivo è fornire un quadro chiaro e coerente delle strategie condivise e specifiche adottate per ciascun caso di studio. Verranno descritte la pipeline sperimentale condivisa: progettazione, pipeline di preprocessing, suddivisione dei dati e validazione, metriche utilizzate, valutazione e studio di ablazione dei modelli precedentemente definiti teoricamente. \\
+	La parte dedicata alla preparazione dei dati non è riportata qui in forma aggregata: per ciascun caso di studio è presente una sottosezione specifica che documenta le scelte di Data Preparation e le motivazioni sperimentali. Per ogni caso saranno inoltre presentate le architetture testate, la procedura di tuning e validazione, i risultati numerici e grafici con intervalli di confidenza e le conclusioni interpretative. \\
+	Il capitolo comprende infine uno studio di ablazione trasversale, volto ad esplorare il compromesso tra compressione dei modelli e mantenimento delle prestazioni; i risultati di questo studio vengono discussi e messi a confronto per facilitare considerazioni pratiche sul deployment. Le sezioni che seguono sviluppano in dettaglio quanto qui sintetizzato, distinguendo esplicitamente le componenti comuni da quelle specifiche di ciascun caso.
 	
 	\section{Progettazione dei casi di studio}
 	
 	\subsection{Tecnologie e librerie}
 	Il workflow sperimentale e di analisi è stato interamente sviluppato in \texttt{Python}, con un insieme di librerie comuni ai tre casi studio e componenti specifiche in base alla natura del problema affrontato. \\
 	Per la manipolazione dei dati si è fatto uso di \textbf{NumPy} e \textbf{pandas}, mentre la visualizzazione dei grafici è stata realizzata con \textbf{matplotlib} e \textbf{seaborn}. I moduli \texttt{json}, \texttt{os}, \texttt{inspect} e \texttt{copy} sono stati utilizzati per la gestione dei metadati, il salvataggio dei risultati e la serializzazione delle configurazioni. \\
-	Le reti neurali e loro estensioni CNN sono state implementate in \textbf{PyTorch}. Nel terzo caso studio è stato inoltre utilizzato \textbf{torchvision} per le trasformazioni e la gestione delle immagini. La libreria \textbf{kan} è stata integrata in tutti i casi studio per l’implementazione della Kolmogorov-Arnold Network, che si basa anch'essa su \textbf{PyTorch}.
+	Le reti neurali e loro estensioni CNN sono state implementate in \textbf{PyTorch}. Nel terzo caso studio è stato inoltre utilizzato \textbf{torchvision} per le trasformazioni e la gestione delle immagini. La libreria \textbf{pykan} è stata integrata in tutti i casi studio per l’implementazione della Kolmogorov-Arnold Network, che si basa anch'essa su \textbf{PyTorch}.
 	Sono stati adottati \textbf{scikit-learn} e \textbf{XGBoost} per gli approcci ensemble, le metriche, le pipeline di preprocessing e per l'ottimizzazione degli iperparametri. Nel secondo caso studio si è inoltre fatto uso di \textbf{imblearn} (\texttt{SMOTE}, \texttt{ImbPipeline}) per il bilanciamento delle classi. \\
 	Inoltre, sono stati utilizzati \texttt{tqdm} per le progress bar, \texttt{logging} per il tracciamento degli esperimenti e librerie standard come \texttt{random}, \texttt{time}, \texttt{glob}, \texttt{zipfile}, \texttt{pathlib} e \texttt{PIL.Image} per la gestione dei dataset e delle immagini.
 	
@@ -1135,7 +1152,7 @@
 	
 	\section{Addestramento dei modelli}
 	
-	In tutti i casi studio considerati è stata adottata una pipeline di addestramento omogenea che mira a garantire comparabilità sperimentale tra le architetture.
+	In tutti i casi studio considerati è stata adottata una pipeline di addestramento fondamentalmente omogenea che mira a garantire comparabilità sperimentale tra le architetture.
 	
 	\subsection{Pipeline di preprocessing}
 	Le trasformazioni iniziali applicate alle variabili indipendenti sono state incapsulate in pipeline riutilizzabili (ad es. \texttt{ColumnTransformer}) per evitare data leakage e garantire riproducibilità. La selezione delle feature ha rimosso colonne non informative o ridondanti; le variabili categoriche sono state codificate con \texttt{OneHotEncoder} eseguito all'interno della pipeline; le feature numeriche sono state standardizzate tramite \texttt{StandardScaler}. I missing values sono stati trattati in modo coerente tra gli esperimenti: dove possibile si è preferita la rimozione controllata delle righe; si sottolinea che, sebbene XGBoost gestisca NaN nativamente, per confronto omogeneo i NaN sono stati generalmente eliminati. Per i dataset di immagini il preprocessing include resize e crop centrato a $224\times224$, normalizzazione canale-per-canale e data augmentation (flip orizzontale, rotazioni lievi, jitter di luminosità/contrasto) applicata esclusivamente in fase di training. Per problemi di classificazione sbilanciata si è fatto ricorso a tecniche di bilanciamento approcciate esclusivamente sul training fold (SMOTE per dati tabellari, pesi di classe o \texttt{WeightedRandomSampler} per immagini).
@@ -1154,7 +1171,7 @@
 		R^2 = 1 - \frac{\sum (y_i - \hat{y}_i)^2}{\sum (y_i - \bar{y})^2}, \qquad
 		R^2_{adj} = 1 - (1 - R^2)\frac{n-1}{n-k-1},
 		\]
-		dove \(n\) è il numero di osservazioni e \(k\) il numero di predittori.
+		dove \(n\) è il numero di osservazioni, \(k\) il numero di predittori, $\bar{y}$ è la media dei valori reali, $y_i$ rappresenta il valore reale (ground truth) e $\hat{y}_i$ rappresenta il valore predetto da un modello.
 		\item \textbf{Max Error}: \(\max_i |y_i - \hat{y}_i|\).
 	\end{itemize}
 	
@@ -1250,10 +1267,10 @@
 	
 	La procedura di valutazione adottata in tutti e tre i casi di studio è organizzata in tre fasi principali: (1) analisi qualitativa e quantitativa, (2) selezione del miglior modello e (3) conclusione finale. Le fasi sono pensate per essere applicabili, in modo coerente, a problemi di regressione e classificazione.
 	
-	\subsection{Fase 1 — Analisi qualitativa e quantitativa integrata}
-	La prima fase integra l'analisi visiva dei barplot e l'analisi numerica delle metriche, con l'obiettivo di ottenere in un unico passaggio una panoramica iniziale su quali modelli hanno performato meglio e quali invece hanno mostrato dei limiti. Per ciascun modello si selezionano le configurazioni iperparametriche ottimali risultanti dalla fase di tuning e si generano i grafici per le metriche rilevanti del task. I barplot consentono un confronto visivo immediato tra modelli, evidenziando quale soluzione appare dominante per metriche da massimizzare o da minimizzare . In parallelo, per le stesse configurazioni ottimali si riportano i valori numerici delle metriche calcolate sul test set, corredati da intervalli di confidenza (tipicamente CI95\%). L'approccio integrato permette di sfruttare la rapidità d'interpretazione dei grafici per individuare rapidamente i candidati più promettenti, ed al contempo di validare le impressioni visive con stime oggettive e replicabili. Qualsiasi segnale visivo di instabilità o possibile overfitting individuato nei barplot viene verificato sui valori calcolati.
+	\subsection{Fase 1: Analisi qualitativa e quantitativa integrata}
+	La prima fase integra l'analisi visiva dei barplot e l'analisi numerica delle metriche, con l'obiettivo di ottenere in un unico passaggio una panoramica iniziale delle prestazioni comparative dei modelli, evidenziando quelli che si sono dimostrati più performanti e quelli che presentano limitazioni. Per ciascun modello si selezionano le configurazioni iperparametriche ottimali risultanti dalla fase di tuning e si generano i grafici per le metriche rilevanti del task. I barplot consentono un confronto visivo immediato tra modelli, evidenziando quale soluzione appare dominante per metriche da massimizzare o da minimizzare . Parallelamente, per le stesse configurazioni ottimali si riportano i valori numerici delle metriche calcolate sul test set, corredati da intervalli di confidenza (tipicamente CI95\%). Questo approccio integrato combina la rapidità interpretativa dei grafici con la solidità delle stime numeriche, permettendo di identificare rapidamente i modelli più promettenti, ed al contempo di validare le impressioni visive con stime oggettive e replicabili. Qualsiasi segnale visivo di instabilità o possibile overfitting individuato nei barplot viene verificato sui valori calcolati.
 	
-	\subsection{Fase 2 — Selezione del miglior modello}
+	\subsection{Fase 2: Selezione del miglior modello}
 	Sulla base delle evidenze raccolte nella fase di analisi qualitativa e quantitativa, la selezione finale del modello preferibile viene condotta mediante una procedura di ranking multi-criterio che incorpora in modo esplicito sia le prestazioni sia la complessità. \\
 	Per prima cosa si definisce l'insieme delle metriche rilevanti per il task e la direzione di ottimizzazione per ciascuna. \\
 	
@@ -1281,51 +1298,582 @@
 	\text{performance\_score}_m \;=\; \frac{1}{M}\sum_{j=1}^{M} \text{rank}_{m,j},
 	\]
 	dove \(M\) è il numero di metriche considerate e \(\text{rank}_{m,j}\) è il rank del modello \(m\) sulla metrica \(j\). \\
-	In parallelo si ottiene un indicatore di complessità, il \texttt{complexity\_rank}, calcolato ordinando i modelli in base alla formula di complessità scelta (definita precedentemente); anche in questo caso rank 1 indica il modello meno complesso. Per rendere confrontabili i due contributi, è utile normalizzare gli score su una scala comune. Una normalizzazione semplice e robusta consiste nel trasformare ogni score in un valore normalizzato nell'intervallo \([0,1]\) con la formula:
+	In parallelo si ottiene un indicatore di complessità, il \texttt{complexity\_rank}, calcolato ordinando i modelli in base alla formula di complessità scelta (definita precedentemente); anche in questo caso rank 1 indica il modello meno complesso. Per rendere confrontabili i due contributi, è utile normalizzare gli score su una scala comune. Una normalizzazione semplice e robusta consiste nel trasformare ogni score $s_m$ in un valore normalizzato nell'intervallo \([0,1]\) con la formula:
 	\[
 	\tilde{s}_m = \frac{s_m - \min_m s_m}{\max_m s_m - \min_m s_m},
 	\]
 	applicata separatamente a \(\text{performance\_score}\) ed a \(\text{complexity\_rank}\). \\
 	L'aggregazione finale esplora più strategie operative per bilanciare performance e complessità. Nella strategia Equal Weight il punteggio aggregato è la somma diretta delle componenti normalizzate:
 	\[
-	\text{agg}_{m}^{(1:1)} = \tilde{p}_m + \tilde{c}_m.
+	\text{agg}_{m}^{(1:1)} = \tilde{p}_m + \tilde{c}_m,
 	\]
+	dove $\tilde{p}_m$ rappresenta il punteggio di performance ($\text{performance\_score}$) normalizzato del modello $m$, mentre $\tilde{c}_m$ rappresenta il punteggio di complessità ($\text{complexity\_rank}$) normalizzato del modello $m$. \\
 	Nella strategia Complexity Weighted la complessità è maggiormente penalizzata tramite un fattore di scala \(w_c\) (ad esempio \(w_c=2\) nella variante 1:2 e \(w_c=3\) nella variante extreme 1:3):
 	\[
 	\text{agg}_{m}^{(1:w_c)} = \tilde{p}_m + w_c \cdot \tilde{c}_m.
 	\]
 	Nel Pareto Approach le due componenti vengono normalizzate e combinate con pesi specifici (in questo contesto, 0.4 per la performance e 0.6 per la complessità). \\
 	Nel caso in cui ci siano dei puntaggi pari, viene scelto il modello con minore complessità normalizzata. \\
-	I risultati della procedura vengono documentati con una tabella riassuntiva che riporta per ciascun modello: numero totale di parametri/nodi, \texttt{performance\_score}, \texttt{complexity\_rank} e punteggi aggregati per ciascuna strategia. Inoltre, viene mostrata la classifica dei migliori modelli basata sulla strategia Complexity Weighted.
+	I risultati della procedura vengono documentati con una tabella riassuntiva che riporta per ciascun modello: numero totale di parametri/nodi, \texttt{performance\_score}, \texttt{complexity\_rank} e punteggi aggregati per ciascuna strategia. Inoltre, viene mostrata la classifica dei migliori modelli basata sulla strategia Complexity Weighted.\\
 	
-	\subsection{Fase 3 — Conclusione finale}
+	Di seguito, il codice responsabile del ranking multi-criterio:
+	\begin{verbatim}
+		df_ranks = results_df.set_index('Model')
+		ranks = pd.DataFrame(index=df_ranks.index)
+		
+		for metric, direction in metrics.items():
+			if direction == 'max':
+				ranks[f"{metric}_rank"] = df_ranks[metric]
+					.rank(ascending=False, method='average')
+			elif direction == 'min':
+				ranks[f"{metric}_rank"] = df_ranks[metric]
+					.rank(ascending=True, method='average')
+		
+		ranks['Complexity_rank'] = df_ranks['Parameters']
+			.rank(ascending=True, method='average')
+		
+		performance_cols = [col for col in ranks.columns 
+			if col.endswith('_rank') and col != 'Complexity_rank']
+		ranks['performance_score'] = ranks[performance_cols]
+			.mean(axis=1)
+		
+		ranks['equal_weight_score'] = ranks['performance_score'] + 
+			ranks['Complexity_rank']
+		
+		ranks['complexity_weighted_score'] = ranks['performance_score'] + 
+			(2 * ranks['Complexity_rank'])
+		
+		ranks['extreme_complexity_score'] = ranks['performance_score'] + 
+			(3 * ranks['Complexity_rank'])
+		
+		performance_norm = (
+			ranks['performance_score'] - ranks['performance_score'].min()) / 
+			(ranks['performance_score'].max() - ranks['performance_score'].min())
+		complexity_norm = (
+			ranks['Complexity_rank'] - ranks['Complexity_rank'].min()) / 
+			(ranks['Complexity_rank'].max() - ranks['Complexity_rank'].min())
+		ranks['pareto_score'] = 0.4 * performance_norm + 
+			0.6 * complexity_norm
+		
+		methods = {
+			'Equal Weight (1:1)': 'equal_weight_score',
+			'Complexity Weighted (1:2)': 'complexity_weighted_score',
+			'Extreme Complexity (1:3)': 'extreme_complexity_score',
+			'Pareto Approach (40:60)': 'pareto_score'
+		}
+		
+		results_summary = pd.DataFrame(index=df_ranks.index)
+		results_summary['Performance_Score'] = ranks['performance_score']
+		results_summary['Complexity_Rank'] = ranks['Complexity_rank']
+		results_summary['Parameters'] = df_ranks['Parameters']
+		
+		print("---")
+		print("Best Models by Weighting Scheme")
+		print("---")
+		best_models_summary_data = {
+			'Weighting Scheme': [],
+			'Best Model(s)': []
+		}
+		
+		for method_name, score_col in methods.items():
+			best_model = ranks[score_col].idxmin()
+			best_models_summary_data['Weighting Scheme'].append(method_name)
+			best_models_summary_data['Best Model(s)'].append(best_model)
+		
+		summary_df = pd.DataFrame(best_models_summary_data)
+		print(summary_df.to_markdown(index=False))
+		
+		print("\n---")
+		print("Detailed Ranking Table")
+		print("---")
+		
+		ranking_display = pd.DataFrame(index=df_ranks.index)
+		ranking_display['Parameters'] = df_ranks['Parameters']
+			.astype(int)
+		ranking_display['Avg_Performance_Rank'] = ranks['performance_score']
+			.round(2)
+		ranking_display['Complexity_Rank'] = ranks['Complexity_rank']
+			.astype(int)
+		
+		for method_name, score_col in methods.items():
+			ranking_display[f'{method_name.split()[0]}_Rank'] = ranks[score_col]
+				.rank().astype(int)
+		
+		ranking_display_sorted = ranking_display.sort_values('Complexity_Rank')
+		print(ranking_display_sorted.to_markdown())
+		
+		print("\n---")
+		print("Recommendation")
+		print("---")
+		
+		recommended_model = ranks['complexity_weighted_score']
+			.idxmin()
+		recommended_score = ranks.loc[
+			recommended_model, 
+			'complexity_weighted_score'
+		]
+		recommended_params = df_ranks.loc[
+			recommended_model, 
+			'Parameters'
+		]
+		recommended_mse = df_ranks.loc[
+			recommended_model, 
+			'MSE_Test'
+		]
+		
+		print(f"**RECOMMENDED MODEL:** {recommended_model}")
+		print(f"**Parameters:** {int(recommended_params):,}")
+		print(f"**MSE Test Score:** {recommended_mse:.4f}")
+		print(f"**Complexity-Weighted Rank Score:** {recommended_score:.3f}")
+		
+		print(f"\n**TOP 3 MODELS** (Based on Complexity-Weighted Ranking):")
+		top_3 = ranks.sort_values('complexity_weighted_score').head(3)
+		for i, (model, row) in enumerate(top_3.iterrows(), 1):
+			params = int(df_ranks.loc[model, 'Parameters'])
+			mse_score = df_ranks.loc[model, 'MSE_Test']
+			print(f" {i}. **{model}** |
+				Parameters: {params:>8,} |
+				MSE: {mse_score:.4f} |
+				Score: {row['complexity_weighted_score']:.3f}")
+	\end{verbatim}
+	
+	\subsection{Fase 3: Conclusione finale}
 	La conclusione finale sintetizza le evidenze emerse dalla fase di analisi e dalla procedura di selezione. La sintesi riporta i punti di forza ed i limiti del modello selezionato, confronta i margini numerici rispetto ai concorrenti e valuta la sostenibilità operativa in funzione della complessità stimata. Si motivano le scelte effettuate mediante riferimenti chiari ai barplot ed alle tabelle con le metriche.
 	
 	\section{Studio di ablazione}
 	L'obiettivo dello studio di ablazione è valutare il compromesso tra compressione del modello, intesa come numero di parametri attivi e rapporto di compressione, e mantenimento delle prestazioni predittive. Lo scopo finale è confrontare le prestazioni dei modelli alle quattro soglie di pruning prefissate (30\%, 50\%, 70\%, 90\%), analizzando per ciascuna soglia sia la retention delle metriche target sia il rapporto di compressione, al fine di identificare quale modello offra il miglior trade-off tra efficienza computazionale e qualità predittiva.
 	
-	\subsection{Ablation study: L1 pruning su MLP e KAN}
+	\subsection{L1 pruning su MLP e KAN}
 	
-	La tecnica di pruning impiegata è il L1 post-training pruning, applicato ai pesi lineari della MLP ed ai coefficienti spline della KAN. Sono stati testati diversi pruning ratios, specificamente l'insieme ${0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,0.95}$. Ciascuna versione del modello potata è stata valutata, sia sul test set che sul train set, sulle metriche definite precedentemente. Per ogni configurazione, sono stati calcolati il numero totale di parametri, il numero di parametri attivi post-pruning ed il rapporto di compressione. Per interpretare i risultati, sono state definite alcune definizioni operative. La baseline è il modello non potato (pruning ratio $= 0.0$). Il punto di degrado significativo è il primo pruning ratio che comporta una perdita relativa in $R^2$/\texttt{F1-Weighted} superiore al 5\% rispetto alla baseline. Il best trade-off è il punto di massima compressione che causa una perdita relativa in $R^2$/\texttt{F1-Weighted} inferiore o uguale al 2\%.
+	La tecnica di pruning impiegata è il L1 post-training pruning, applicato ai pesi lineari della MLP ed ai coefficienti spline della KAN. Sono stati testati diversi pruning ratios, specificamente l'insieme \{0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95\}. Ciascuna versione del modello potata è stata valutata, sia sul test set che sul train set, utilizzando le metriche definite precedentemente. Per ogni configurazione, sono stati calcolati il numero totale di parametri, il numero di parametri attivi post-pruning ed il rapporto di compressione. Per interpretare i risultati, sono state definite alcune definizioni operative. La baseline è il modello non potato (pruning ratio $= 0.0$). Il punto di degrado significativo è il primo pruning ratio che comporta una perdita relativa in $R^2$/\texttt{F1-Weighted} superiore al 5\% rispetto alla baseline. Il best trade-off è il punto di massima compressione che causa una perdita relativa in $R^2$/\texttt{F1-Weighted} inferiore o uguale al 2\%. \\
+	Il codice seguente contiene le principali funzioni responsabili dello studio di ablazione:
+	\begin{verbatim}
+		class PruningAblationStudy:
+			def __init__(self, device='cpu'):
+				self.device = device
+				self.pruning_results = []
+		
+			def get_model_sparsity(self, model):
+				if hasattr(model, 'width') and hasattr(model, 'act_fun'):
+					try:
+						total_params = count_params(model)
+						
+						zero_params = 0
+						for i in range(len(model.width) - 1):
+							if i < len(model.act_fun):
+								layer = model.act_fun[i]
+								if hasattr(layer, 'coef') and layer.coef is not None:
+									zero_params += float(torch.sum(layer.coef == 0))
+						
+						return zero_params / total_params if total_params > 0 else 0.0
+					
+					except Exception as e:
+						print(f"  Error calculating KAN sparsity: {e}")
+						return 0.0
+				
+				else:
+					zero_params = 0
+					total_params = count_params(model)
+					
+					for module in model.modules():
+						if isinstance(module, torch.nn.Linear):
+							if hasattr(module, 'weight'):
+								zero_params += float(torch.sum(module.weight == 0))
+							if hasattr(module, 'bias') and module.bias is not None:
+								zero_params += float(torch.sum(module.bias == 0))
+				
+				return zero_params / total_params if total_params > 0 else 0.0
+		
+			def count_active_parameters(self, model):
+				if hasattr(model, 'width') and hasattr(model, 'act_fun'):
+					try:
+						active_params = 0
+						for i in range(len(model.width) - 1):
+							if i < len(model.act_fun):
+								layer = model.act_fun[i]
+								if hasattr(layer, 'coef') and layer.coef is not None:
+									active_params += float(torch.sum(layer.coef != 0))
+						
+						return int(active_params)
+					except:
+						return count_params(model)
+					
+				else:
+					active_params = 0
+					for module in model.modules():
+						if isinstance(module, torch.nn.Linear):
+							if hasattr(module, 'weight'):
+								active_params += float(torch.sum(module.weight != 0))
+							if hasattr(module, 'bias') and module.bias is not None:
+								active_params += float(torch.sum(module.bias != 0))
+					
+					return int(active_params)
+			
+			def apply_l1_pruning(self, model, pruning_ratio):
+				pruned_model = copy.deepcopy(model)
+				
+				if hasattr(model, 'width') and hasattr(model, 'act_fun'):
+					try:
+						if pruning_ratio == 0.0:
+							return pruned_model
+				
+						kan_modules_to_prune = []
+							for i in range(len(model.width) - 1):
+								if i < len(model.act_fun):
+									layer = pruned_model.act_fun[i]
+									if hasattr(layer, 'coef') and layer.coef is not None:
+										temp_module = torch.nn.Linear(1, 1, bias=False)
+										temp_module.weight = torch.nn.Parameter(layer.coef.view(-1, 1))
+										kan_modules_to_prune.append((temp_module, 'weight'))
+						
+						
+						if kan_modules_to_prune:
+							prune.global_unstructured(
+								kan_modules_to_prune,
+								pruning_method=prune.L1Unstructured,
+								amount=pruning_ratio,
+							)
+						
+							idx = 0
+							for i in range(len(model.width) - 1):
+								if i < len(model.act_fun):
+									layer = pruned_model.act_fun[i]
+									if hasattr(layer, 'coef') and layer.coef is not None:
+										original_shape = layer.coef.shape
+										mask = kan_modules_to_prune[idx][0]
+											.weight_mask.view(original_shape)
+										layer.coef.data = layer.coef.data * mask
+										idx += 1
+						
+							for module, param_name in kan_modules_to_prune:
+							prune.remove(module, param_name)
+						
+						print(f"  Applied L1 pruning to KAN 
+							with ratio: {pruning_ratio:.3f}")
+						return pruned_model
+				
+					except Exception as e:
+						print(f"  Error during KAN L1 pruning: {e}")
+						return model
+				
+				else:
+					modules_to_prune = []
+				
+				for module in pruned_model.modules():
+					if isinstance(module, torch.nn.Linear):
+						modules_to_prune.append((module, 'weight'))
+						if hasattr(module, 'bias') and module.bias is not None:
+							modules_to_prune.append((module, 'bias'))
+				
+				if modules_to_prune:
+					prune.global_unstructured(
+						modules_to_prune,
+						pruning_method=prune.L1Unstructured,
+						amount=pruning_ratio,
+					)
+				
+					for module, param_name in modules_to_prune:
+						prune.remove(module, param_name)
+				
+				print(f"  Applied L1 pruning to MLP 
+					with ratio: {pruning_ratio:.3f}")
+				return pruned_model
+			
+			def run_pruning_study(self, model, model_name, 
+					X_test, y_test, X_train, y_train, pruning_ratios):
+				
+				if hasattr(model, 'width') and hasattr(model, 'act_fun'):
+					model_type = "KAN"
+				else:
+					model_type = "MLP"
+				
+				total_params = count_params(model)
+				print(f"Total Parameters: {total_params:,}")
+				
+				for pruning_ratio in pruning_ratios:
+					print(f"\nTesting {model_type} pruning ratio: {pruning_ratio:.4f}")
+				
+					if pruning_ratio == 0.0:
+						pruned_model = model
+						sparsity = 0.0
+						active_params = total_params
+					else:
+						pruned_model = self.apply_l1_pruning(model, pruning_ratio)
+						pruned_model.to(self.device)
+						sparsity = self.get_model_sparsity(pruned_model)
+						active_params = self.count_active_parameters(pruned_model)
+				
+				metrics = self.evaluate_pruned_model(
+					pruned_model, model_name, X_test, y_test, X_train, y_train
+				)
+				
+				compression_ratio = total_params / active_params 
+					if active_params > 0 else float('inf')
+				
+				result = {
+					'model_name': model_name,
+					'model_type': model_type,
+					'pruning_ratio': pruning_ratio,
+					'sparsity': sparsity,
+					'total_params': total_params,
+					'active_params': active_params,
+					'compression_ratio': compression_ratio,
+					'metrics': metrics
+				}
+				
+				self.pruning_results.append(result)
+	\end{verbatim}
 	
-	\subsection{Ablation study: ensemble pruning su Random Forest e XGBoost}
+	\subsection{Ensemble pruning su Random Forest e XGBoost}
 	
 	La metodologia di pruning varia per i due modelli. Per il Random Forest, è stato utilizzato un Rank-Based Pruning: gli alberi sono stati ordinati per importanza e quelli meno rilevanti sono stati rimossi fino a raggiungere il \texttt{pruning\_ratio} desiderato. Per XGBoost, si è optato per un Cumulative Pruning, mantenendo solo le prime iterazioni di boosting fino al numero corrispondente a \((1 - \texttt{pruning\_ratio})\) della lunghezza originale, troncando di fatto la sequenza di boosting. Anche in questo caso, i pruning ratios testati sono stati ${0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,0.95}$. Per ogni versione potata, sono stati calcolati il numero totale e residuo di alberi, il rapporto di compressione e le metriche di performance su train e test set. Le definizioni operative di baseline, punto di degrado significativo e best trade-off sono rimaste le medesime. \\
+	Il codice seguente contiene le principali funzioni responsabili dello studio di ablazione:
+	\begin{verbatim}
+		class EnsemblePruningAblationStudy:
+			def __init__(self):
+				self.pruning_results = []
+		
+			def rank_based_pruning_rf(self, rf_model, pruning_ratio):
+				if pruning_ratio == 0.0:
+					return rf_model, list(range(len(rf_model.estimators_)))
+		
+				tree_importances = []
+				for i, tree in enumerate(rf_model.estimators_):
+					tree_importance = np.sum(tree.feature_importances_)
+					tree_importances.append((i, tree_importance))
+				
+				tree_importances.sort(key=lambda x: x[1], reverse=True)
+				
+				n_trees_to_keep = max(1,
+					int(len(rf_model.estimators_) * (1 - pruning_ratio)))
+				
+				selected_indices = [idx 
+					for idx, _ in tree_importances[:n_trees_to_keep]]
+				selected_indices.sort()
+				
+				pruned_rf = copy.deepcopy(rf_model)
+				pruned_rf.estimators_ = [rf_model.estimators_[i] 
+					for i in selected_indices]
+				pruned_rf.n_estimators = len(selected_indices)
+				
+				return pruned_rf, selected_indices
+		
+			def cumulative_pruning_xgb(self, xgb_model, pruning_ratio):
+				if pruning_ratio == 0.0:
+					return xgb_model, list(range(xgb_model.n_estimators))
+				
+				total_trees = xgb_model.n_estimators
+				num_classes = xgb_model.n_classes_
+				total_rounds = total_trees // num_classes
+				keep_rounds = max(1, int(total_rounds * (1 - pruning_ratio)))
+				n_keep = keep_rounds * num_classes
+				
+				pruned_model = copy.deepcopy(xgb_model)
+				pruned_model.n_estimators = n_keep
+				
+				def predict_pruned(self, X):
+					dmat = xgb.DMatrix(X)
+					raw_predictions = self.get_booster()
+						.predict(dmat, iteration_range=(0, n_keep))
+					predicted_labels = np.argmax(raw_predictions, axis=1)
+					return predicted_labels
+				
+				def predict_proba(self, X):
+					dmat = xgb.DMatrix(X)
+					raw_predictions = self.get_booster()
+						.predict(dmat, iteration_range=(0, n_keep))
+					proba = np.exp(raw_predictions) / 
+						np.sum(np.exp(raw_predictions), axis=1, keepdims=True)
+					return proba
+				
+				pruned_model.predict = types
+					.MethodType(predict_pruned, pruned_model)
+				pruned_model.predict_proba = types
+					.MethodType(predict_proba, pruned_model)
+				
+				selected_indices = list(range(n_keep))
+				return pruned_model, selected_indices
+		
+			def calculate_ensemble_sparsity(self, original_count, pruned_count):
+				return (original_count - pruned_count) / original_count 
+					if original_count > 0 else 0.0
+		
+			def run_rf_pruning_study(self, rf_model, model_name,
+					X_test, y_test, X_train, y_train, pruning_ratios):
+				print(f"\n=== Rank-Based Pruning Study for {model_name} ===")
+				
+				total_trees = len(rf_model.estimators_)
+				print(f"Total Trees: {total_trees:,}")
+				
+				for pruning_ratio in pruning_ratios:
+					print(f"\nTesting RF pruning ratio: {pruning_ratio:.2f}")
+					
+					pruned_model, selected_indices = self
+						.rank_based_pruning_rf(rf_model, pruning_ratio)
+					
+					remaining_trees = len(selected_indices)
+					sparsity = self
+						.calculate_ensemble_sparsity(total_trees, remaining_trees)
+					compression_ratio = total_trees / remaining_trees 
+						if remaining_trees > 0 else float('inf')
+					
+					metrics = self.evaluate_pruned_ensemble(
+						pruned_model, model_name, X_test, y_test, X_train, y_train
+					)
+					
+					result = {
+						'model_name': model_name,
+						'model_type': 'Random Forest',
+						'pruning_method': 'Rank-Based',
+						'pruning_ratio': pruning_ratio,
+						'sparsity': sparsity,
+						'total_trees': total_trees,
+						'remaining_trees': remaining_trees,
+						'compression_ratio': compression_ratio,
+						'metrics': metrics
+					}
+					
+					self.pruning_results.append(result)
+		
+			def run_xgb_pruning_study(self, xgb_model, model_name, 
+					X_test, y_test, X_train, y_train, pruning_ratios):
+				print(f"\n=== Cumulative Pruning Study for {model_name} ===")
+				
+				total_trees = xgb_model.n_estimators
+				print(f"Total Trees: {total_trees:,}")
+				print(f"Number of Classes: {xgb_model.n_classes_}")
+				
+				for pruning_ratio in pruning_ratios:
+					print(f"\nTesting XGB pruning ratio: {pruning_ratio:.2f}")
+					
+					pruned_model, selected_indices = self
+						.cumulative_pruning_xgb(xgb_model, pruning_ratio)
+					
+					remaining_trees = len(selected_indices)
+					sparsity = self
+						.calculate_ensemble_sparsity(total_trees, remaining_trees)
+					compression_ratio = total_trees / remaining_trees 
+						if remaining_trees > 0 else float('inf')
+					
+					metrics = self.evaluate_pruned_ensemble(
+						pruned_model, model_name, X_test, y_test, X_train, y_train
+					)
+					
+					result = {
+						'model_name': model_name,
+						'model_type': 'XGBoost',
+						'pruning_method': 'Cumulative',
+						'sparsity': sparsity,
+						'pruning_ratio': pruning_ratio,
+						'total_trees': total_trees,
+						'remaining_trees': remaining_trees,
+						'compression_ratio': compression_ratio,
+						'metrics': metrics
+					}
+					
+					self.pruning_results.append(result)
+	\end{verbatim}
 	
-	\subsection{Ablation study — Confronto complessivo}
+	\subsection{Confronto complessivo}
 	Questa sezione si concentra sul confronto sistematico degli studi di ablazione eseguiti su ciascun modello, con l’obiettivo di identificare quale modello offra il miglior compromesso tra qualità predittiva e compressione. Il confronto viene effettuato sulle quattro soglie di pruning prefissate (30\%, 50\%, 70\%, 90\%), valutando per ciascuna soglia la retention delle metriche e il rapporto di compressione, così da evidenziare il modello più efficiente in termini di trade-off tra prestazioni e riduzione dei parametri. \\
 	Le informazioni principali vengono presentate in forma tabellare, riportando baseline delle metriche principali, best trade-off e compressione ottenuta per ciascun modello, consentendo un confronto rapido e chiaro delle prestazioni relative. L’analisi delle soglie tipiche permette inoltre di osservare trend di stabilità, degrado o miglioramento dei modelli, fornendo indicazioni pratiche per la scelta del modello più adatto a scenari di deployment con vincoli di memoria o risorse computazionali. \\
+	
+	\begin{verbatim}
+		def compare_all_pruning_methods(metrics):
+		
+		all_models_comparison = []
+		
+		for _, result in results_df.iterrows():
+		if result['pruning_ratio'] in [0.0, 0.3, 0.5, 0.7, 0.9]:
+		all_models_comparison.append({
+			'Model': result['model_name'],
+			'Type': 'Neural Network',
+			'Pruning_Method': 'L1 Norm',
+			'Pruning_Ratio': result['pruning_ratio'],
+			'Metrics': result['metrics'],
+			'Compression': result['compression_ratio'],
+			'Components': f"{result['active_params']}/{result['total_params']}"
+		})
+		
+		for _, result in ensemble_results_df.iterrows():
+		if result['pruning_ratio'] in [0.0, 0.3, 0.5, 0.7, 0.9]:
+		pruning_method = 'Rank-Based' 
+			if result['model_name'] == 'Random Forest' else 'Cumulative'
+		all_models_comparison.append({
+			'Model': result['model_name'],
+			'Type': 'Ensemble',
+			'Pruning_Method': pruning_method,
+			'Pruning_Ratio': result['pruning_ratio'],
+			'Metrics': result['metrics'],
+			'Compression': result['compression_ratio'],
+			'Trees': f"{result['remaining_trees']}/{result['total_trees']}"
+		})
+		
+		comparison_df = pd.DataFrame(all_models_comparison)
+		
+		for m in metrics:
+			pivot = comparison_df.pivot_table(
+				values=m,
+				index=['Model', 'Type', 'Pruning_Method'],
+				columns='Pruning_Ratio',
+				fill_value=np.nan
+			)
+			
+			print(f"\n{m} Performance Across Pruning Levels:")
+			print(pivot.round(4))
+		
+		pruning_levels = [0.3, 0.5, 0.7, 0.9]
+		
+		for pruning_level in pruning_levels:
+			print(f"\n{'-'*60}")
+			print(f"PERFORMANCE RETENTION AT {int(pruning_level*100)}% PRUNING")
+			print(f"{'-'*60}")
+			
+			retention_summary = []
+			for model in comparison_df['Model'].unique():
+				model_data = comparison_df[comparison_df['Model'] == model]
+				baseline = model_data[model_data['Pruning_Ratio'] == 0.0]
+				pruned = model_data[model_data['Pruning_Ratio'] == pruning_level]
+			
+				if len(baseline) > 0 and len(pruned) > 0:
+					baseline_metric = baseline.iloc[0][metrics[0]]
+					pruned_metric = pruned.iloc[0][metrics[0]]
+					retention = pruned_metric / baseline_metric
+						if baseline_metric != 0 else 0
+				
+					retention_summary.append({
+						'Model': model,
+						'Type': baseline.iloc[0]['Type'],
+						'Method': baseline.iloc[0]['Pruning_Method'],
+						f'Baseline_{metrics[0]}': baseline_metric,
+						f'Pruned_{metrics[0]}': pruned_metric,
+						'Retention': retention,
+						'Compression': pruned.iloc[0]['Compression']
+					})
+			
+			if retention_summary:
+				retention_df = pd.DataFrame(retention_summary)
+					.sort_values('Retention', ascending=False)
+				print(retention_df.round(4))
+		
+			best_model = retention_df.iloc[0]
+			print(f"\nBEST PRUNING METHOD AT {int(pruning_level*100)}% LEVEL:")
+			print(f"Model: {best_model['Model']} ({best_model['Type']})")
+			print(f"Method: {best_model['Method']}")
+			print(f"Performance Retention: {best_model['Retention']:.1%}")
+			print(f"Compression Achieved: {best_model['Compression']:.1f}x")
+	\end{verbatim}
 	
 	\chapter{Primo Caso Studio: Regressione su emissioni di automobili}
 	
 	\section{Introduzione}
-	Il presente caso studio affronta la previsione delle emissioni di CO2 di veicoli a partire da caratteristiche tecniche e di consumo (anno di produzione, cilindrata, tipo di trasmissione e carburante, consumo L/100km, ecc.). Il dataset utilizzato deriva dalla fusione di tre sorgenti ufficiali: i dati originali provengono dalla Vehicle Certification Agency (VCA) del Department for Transport del Regno Unito, dal sito ufficiale del Governo canadese e dal Instituto para la Diversificación y Ahorro de la Energía (IDAE), istituzione spagnola; il materiale è stato fornito in forma pre-elaborata da terze parti \cite{olivi2024car}. Per questo motivo, la trattazione qui riportata si concentra sulle fasi di modellazione, validazione ed analisi dei risultati, più che sulle operazioni di preprocessing. Per ottenere stime di performance affidabili si adotta il Nested CV con Random Search per l’ottimizzazione degli iperparametri ed una valutazione che combina indicatori di accuratezza con misure di complessità ed intervalli di confidenza. Inoltre, sono condotti studi di ablazione che valutano l’impatto di tecniche di pruning sui diversi tipi di modello per investigare il trade-off tra compressione e mantenimento della qualità predittiva. \\
-	Nel capitolo seguente vengono presentati, in ordine: una sintetica nota sull’origine e lo stato del dataset; la pipeline di preprocessing e le scelte di split; la descrizione delle procedure di training e ottimizzazione; i risultati principali con le valutazioni comparative e gli esperimenti di ablazione con le considerazioni finali sul compromesso performance/complessità.
+	Il presente caso studio affronta la previsione delle emissioni di CO2 di veicoli a partire da caratteristiche tecniche e di consumo (anno di produzione, cilindrata, tipo di trasmissione e carburante, consumo L/100km, ecc.). Il dataset utilizzato deriva dalla fusione di tre sorgenti ufficiali: i dati originali provengono dalla Vehicle Certification Agency (VCA) del Department for Transport del Regno Unito, dal sito ufficiale del Governo canadese e dal Instituto para la Diversificación y Ahorro de la Energía (IDAE), istituzione spagnola; il materiale è stato fornito in forma pre-elaborata da terze parti \cite{olivi2024car}. Per questo motivo, la trattazione qui riportata si concentra sulle fasi di modellazione, validazione ed analisi dei risultati, più che sulle operazioni di preprocessing. Inoltre, sono condotti studi di ablazione che valutano l’impatto di tecniche di pruning sui diversi tipi di modello per investigare il trade-off tra compressione e mantenimento della qualità predittiva. \\
+	Nel capitolo vengono presentati, in ordine: una sintetica nota sull’origine e lo stato del dataset; la pipeline di preprocessing e le scelte di split; la descrizione delle procedure di training e ottimizzazione; i risultati principali con le valutazioni comparative e gli esperimenti di ablazione con le considerazioni finali sul compromesso performance/complessità.
 	
 	\section{Data preparation}
 	
 	\subsection{Riassunto delle principali trasformazioni}
-	Le principali trasformazioni applicate includono: l'unione delle tre sorgenti in un unico dataframe coerente; l'omogeneizzazione degli schemi attraverso la mappatura e la ridenominazione delle colonne per ottenere uno schema comune; la pulizia testuale con la standardizzazione e capitalizzazione dei valori e la rimozione di suffissi o annotazioni spurie. Inoltre, è stata effettuata un'imputazione conservativa, utilizzando la mediana (globale o per gruppo/categoria) per riempire i valori mancanti numerici significativi, con eliminazioni conservative per categoria quando necessario. Infine, sono stati applicati dei filtri per eliminare righe prive della variabile target (\texttt{CO2\_Emissions}) o prive di attributi ritenuti fondamentali per l'allenamento dei modelli.
+	Le principali trasformazioni applicate come descritto in \cite{olivi2024car}: l'unione delle tre sorgenti in un unico dataframe coerente; l'omogeneizzazione degli schemi attraverso la mappatura e la ridenominazione delle colonne per ottenere uno schema comune; la pulizia testuale con la standardizzazione e capitalizzazione dei valori e la rimozione di suffissi o annotazioni spurie. Inoltre, è stata effettuata una rimozione conservativa, utilizzando la mediana per riempire i valori mancanti numerici significativi, con eliminazioni conservative per categoria quando necessario. Infine, sono stati applicati dei filtri per eliminare righe prive della variabile target (\texttt{CO2\_Emissions}) o prive di attributi ritenuti fondamentali per l'allenamento dei modelli.
 	
 	\section{Addestramento dei modelli}
 	
@@ -1339,12 +1887,173 @@
 		\item \texttt{Fuel\_type}: Petrol / Diesel / LPG / \ldots (categorica);
 		\item \texttt{Fuel\_consumption}: L/100km (numerica).
 	\end{itemize}
+	Per poter essere utilizzate negli algoritmi di machine learning, le variabili categoriche sono state codificate in formato numerico tramite \textbf{One-Hot Encoding}. \\
 	La variabile target da prevedere è \texttt{CO2\_Emissions} (g/km).
 	
 	\subsection{Strategia di training comune e griglie di iperparametri}
-	La strategia di training è stata omogenea per tutti i modelli considerati. Le procedure comuni adottate sono le seguenti: il protocollo di validazione impiega una Nested CV con un outer KFold $= 5$ e un inner KFold $= 3$. Il ciclo interno esegue una Random Search sulle griglie di iperparametri. La migliore configurazione trovata viene riaddestrata sul sottoinsieme interno e valutata sul corrispondente outer test fold. Per la Random Search, il numero di iterazioni $n$ è stato scelto con una logica probabilistica per assicurare una probabilità del 90\% di includere almeno una delle 10 migliori configurazioni. Per le reti neurali, l'ottimizzazione è stata gestita con l'ottimizzatore \texttt{Adam} e la funzione di perdita \texttt{MSELoss}, con una regolarizzazione L2 opzionale. Le epoche massime sono 1000, ma con l'uso di un Early stopping per interrompere il training in caso di mancato miglioramento. Infine, la \textbf{valutazione finale} di ogni outer fold ha incluso il calcolo delle metriche (MSE, MAE, MAPE, $R^2$, $R^2$-adjusted, Max Error), degli intervalli di confidenza al 95\% per MSE, MAE e MAPE e della complessità del modello. Inoltre, la funzione di attivazione della MLP é la ReLU. \\
+	La strategia di training è stata mantenuta coerente per tutti i modelli considerati e si è basata su una Nested Cross-Validation, con un KFold esterno a $5$ fold e uno interno a $3$ fold. La configurazione che minimizzava la MSE di validazione interna è stata selezionata come ottimale per ogni outer split. Per le reti neurali, la procedura ha distinto i parametri di modello da quelli di addestramento, con training condotto tramite ottimizzatore Adam e funzione di perdita MSELoss. Il numero massimo di epoche è stato fissato a 1000, ma controllato da un meccanismo di Early Stopping per interrompere l’addestramento in caso di mancato miglioramento. Per i modelli ensemble, la logica è rimasta analoga: ogni configurazione di iperparametri è stata valutata nei fold interni e quella con la migliore media di MSE è stata riaddestrata sull’intero sottoinsieme interno e testata sull’outer fold corrispondente. I risultati finali di ciascun outer fold includono i migliori iperparametri individuati e le metriche di test, successivamente aggregati per la costruzione delle statistiche riassuntive e degli intervalli di confidenza.
 	
-	Di seguito sono riportate le griglie di iperparametri entro cui la Random Search esplora le combinazioni, al fine di individuare quelle che forniscono i risultati migliori per ciascun modello.
+	\begin{verbatim}
+		def nested_random_search_neural(model_builder, param_dist, dataset,
+									outer_folds=5, inner_folds=3, n_iter=10,
+									early_patience=10, early_min_delta=1e-4):
+			train_keys = ['lr', 'batch_size', 'l2_lambda']
+			outer_cv = KFold(n_splits=outer_folds, shuffle=True, random_state=42)
+			results = []
+			
+			for train_idx, test_idx in outer_cv.split(range(len(dataset))):
+				inner_train = Subset(dataset, train_idx)
+				inner_test = Subset(dataset, test_idx)
+				best_val_loss = float('inf')
+				best_model_params, best_train_params = None, None
+				
+				for params in ParameterSampler(
+						param_dist, n_iter=n_iter, random_state=42):
+					model_params = {k: v for k, v in params.items() 
+						if k not in train_keys}
+					train_params = {k: v for k, v in params.items() 
+						if k in train_keys}
+					
+					inner_cv = KFold(
+						n_splits=inner_folds, shuffle=True, random_state=42)
+					val_losses = []
+					for subtrain_idx, val_idx in inner_cv.split(range(len(inner_train))):
+						subtrain = Subset(inner_train, subtrain_idx)
+						valset = Subset(inner_train, val_idx)
+						train_loader = DataLoader(
+							subtrain, 
+							batch_size=train_params['batch_size'], 
+							shuffle=True)
+						val_loader = DataLoader(
+							valset, 
+							batch_size=train_params['batch_size'], 
+							shuffle=False)
+						
+						model = model_builder(**model_params)
+						if hasattr(model, 'speed'):
+							model.speed()
+						model.to(device)
+						optimizer = optim.Adam(
+							model.parameters(), 
+							lr=train_params['lr'], 
+							weight_decay=train_params.get(
+								'l2_lambda', 0.0)
+						)
+						stopper = EarlyStopper(
+							patience=early_patience, 
+							min_delta=early_min_delta
+						)
+						
+						for epoch in range(1000):
+							train_epoch(
+								model, train_loader, 
+								optimizer, nn.MSELoss(), 
+								l2_lambda=train_params.get(
+									'l2_lambda', 0.0)
+							)
+							val_loss = eval_loss(model, val_loader, nn.MSELoss())
+							if stopper.early_stop(val_loss):
+								break
+						
+						val_losses.append(eval_loss(model, val_loader, nn.MSELoss()))
+				
+					mean_val = np.mean(val_losses)
+					if mean_val < best_val_loss:
+						best_val_loss = mean_val
+						best_model_params = model_params
+						best_train_params = train_params
+				
+				full_train_loader = DataLoader(
+					inner_train, 
+					batch_size=best_train_params['batch_size'], 
+					shuffle=True)
+				test_loader = DataLoader(
+					inner_test, 
+					batch_size=best_train_params['batch_size'], 
+					shuffle=False)
+				
+				final_model = model_builder(**best_model_params)
+				if hasattr(final_model, 'speed'):
+					final_model.speed()
+				final_model.to(device)
+				
+				optimizer = optim.Adam(
+					final_model.parameters(), 
+					lr=best_train_params['lr'], 
+					weight_decay=train_params.get(
+						'l2_lambda', 0.0))
+				stopper = EarlyStopper(
+					patience=early_patience, 
+					min_delta=early_min_delta)
+				
+				for epoch in range(1000):
+					train_epoch(final_model, full_train_loader, optimizer, 
+						nn.MSELoss(), l2_lambda=best_train_params.get(
+							'l2_lambda', 0.0))
+					if stopper.early_stop(eval_loss(
+							final_model, full_train_loader, nn.MSELoss())):
+						break
+				
+				test_loss = eval_loss(final_model, test_loader, nn.MSELoss())
+				results.append((best_model_params, best_train_params, test_loss))
+			
+			return results
+		
+		def nested_random_search_ensemble(model_builder, param_dist,
+										X_data, y_data, outer_folds=5, 
+										inner_folds=3, n_iter=10):
+			outer_cv = KFold(n_splits=outer_folds, shuffle=True, random_state=42)
+			results = []
+			
+			for train_idx, test_idx in outer_cv.split(X_data):
+				X_inner_train, X_inner_test = 
+					X_data.iloc[train_idx], 
+					X_data.iloc[test_idx]
+				y_inner_train, y_inner_test = 
+					y_data.iloc[train_idx], 
+					y_data.iloc[test_idx]
+			
+				best_val_mse = float('inf')
+				best_params = None
+			
+				for params in ParameterSampler(
+						param_dist, n_iter=n_iter, random_state=42):
+					inner_cv = KFold(
+						n_splits=inner_folds, 
+						shuffle=True,
+						random_state=42)
+					val_mses = []
+					
+					for subtrain_idx, val_idx in inner_cv.split(X_inner_train):
+					X_subtrain, X_val = 
+						X_inner_train.iloc[subtrain_idx], 
+						X_inner_train.iloc[val_idx]
+					y_subtrain, y_val = 
+						y_inner_train.iloc[subtrain_idx], 
+						y_inner_train.iloc[val_idx]
+					
+					model = model_builder(**params)
+					model.fit(X_subtrain, y_subtrain)
+					val_pred = model.predict(X_val)
+					val_mse = mean_squared_error(y_val, val_pred)
+					val_mses.append(val_mse)
+				
+				mean_val_mse = np.mean(val_mses)
+				if mean_val_mse < best_val_mse:
+					best_val_mse = mean_val_mse
+					best_params = params
+			
+				final_model = model_builder(**best_params)
+				final_model.fit(X_inner_train, y_inner_train)
+				test_pred = final_model.predict(X_inner_test)
+				test_mse = mean_squared_error(y_inner_test, test_pred)
+			
+			results.append((best_params, {}, test_mse))
+			
+			return results
+	\end{verbatim}
+	
+	Di seguito sono riportate le griglie di iperparametri entro cui la Random Search esplora le combinazioni, al fine di individuare quelle che forniscono i risultati migliori per ciascun modello. \\
 	\smallskip
 	\noindent\textbf{MLP} \quad (Random Search: $n=15$)
 	\begin{itemize}
@@ -1489,7 +2198,11 @@
 		\caption{Tabella riassuntiva delle prestazioni (MSE con CI95\%, R$^2$, MAE, MAPE con CI95\%), Max Error e complessit\`a.}
 	\end{table}
 	
-	\subsection{Risultati sperimentali}
+	\begin{verbatim}
+		
+	\end{verbatim}
+	
+	\subsection{Analisi dei risultati sperimentali}
 	
 	L’analisi dei risultati ha messo in evidenza differenze significative tra le reti neurali e i modelli ensemble, sia in termini di accuratezza sia di complessità computazionale. \\
 	Per quanto riguarda le reti neurali, la \textbf{MLP} ha ottenuto un $R^2$ in test pari a $0.8467$ e un $R^2$ aggiustato di $0.8451$, con un errore quadratico medio (MSE) di circa $605$ e un errore assoluto medio (MAE) pari a $18.9$. Il valore di MAPE si attesta attorno al $10.5\%$, mentre il massimo errore assoluto in test ha raggiunto circa $136.5$. Queste prestazioni sono accettabili ma non particolarmente competitive, soprattutto considerando il numero relativamente elevato di parametri del modello (circa $134$k), che lo rende più pesante da addestrare e meno efficiente rispetto ad altre soluzioni. La \textbf{KAN} ha invece fornito risultati decisamente migliori, raggiungendo un $R^2$ test pari a $0.9688$ e un $R^2$ aggiustato di $0.9687$, con un MSE di $123$ e un MAE di $9.0$. Anche il MAPE, pari a circa $4.6\%$, conferma l’elevata accuratezza, mentre il massimo errore assoluto in test è stato di circa $108.3$. Questo incremento di precisione è stato ottenuto al costo di una complessità ancora maggiore, pari a circa $220$k parametri. Nel complesso, le reti neurali hanno mostrato un buon compromesso tra capacità di generalizzazione e accuratezza, ma con differenze marcate: l’MLP è risultato il meno competitivo, mentre KAN ha dimostrato una notevole capacità di modellare il problema, pur a fronte di un costo parametrico elevato. \\
@@ -1539,7 +2252,7 @@
 	\subsubsection{Risultati}
 	\begin{table}[H]
 		\centering
-		\setlength{\tabcolsep}{4pt}
+		\setlength{\tabcolsep}{2pt}
 		\begin{tabular}{lcccc}
 			\toprule
 			\textbf{Model} & \textbf{Total params} & \textbf{Baseline $R^2$} & \textbf{Best trade-off} & \textbf{Sign. degr.} \\
@@ -1566,7 +2279,7 @@
 	\subsubsection{Risultati}
 	\begin{table}[H]
 		\centering
-		\setlength{\tabcolsep}{4pt}
+		\setlength{\tabcolsep}{2pt}
 		\begin{tabular}{lcccc}
 			\toprule
 			\textbf{Model} & \textbf{Total components} & \textbf{Baseline (\(R^2\))} & \textbf{Best trade-off} & \textbf{Sign. degr.} \\
@@ -1602,6 +2315,7 @@
 	\subsubsection{Riepilogo}
 	\begin{table}[H]
 		\centering
+		\setlength{\tabcolsep}{2pt}
 		\begin{tabular}{lccc}
 			\toprule
 			\textbf{Model} & \textbf{Baseline \(R^2\)} & \textbf{Best trade-off} & \textbf{Compression} \\
@@ -1632,7 +2346,7 @@
 	\chapter{Secondo Caso Studio: Classificazione di PM2.5}
 	
 	\section{Introduzione}
-	Il presente caso studio si occupa della classificazione dei livelli di PM2.5, utilizzando un dataset nazionale di misurazioni orarie provenienti da 453 città indiane nel periodo 2010-2023, arricchito con variabili meteorologiche. I dati utilizzati sono stati forniti dal \textit{Central Pollution Control Board} (CPCB), portale ufficiale del Governo indiano per il monitoraggio e il controllo dell’inquinamento, resi pubblicamente disponibili sul sito istituzionale \url{https://cpcb.nic.in}. A differenza di altri capitoli, qui le operazioni di caricamento, pulizia, gestione dei missing, individuazione degli outlier, ricampionamento ed aggregazione costituiscono parte integrante del workflow sperimentale e sono descritte nelle sezioni successive. \\
+	Il presente caso studio si occupa della classificazione dei livelli di PM2.5, polveri fini inquinanti, utilizzando un dataset nazionale di misurazioni orarie provenienti da 453 città indiane nel periodo 2010-2023, arricchito con variabili meteorologiche. I dati utilizzati sono stati forniti dal \textit{Central Pollution Control Board} (CPCB), portale ufficiale del Governo indiano per il monitoraggio e il controllo dell’inquinamento, resi pubblicamente disponibili sul sito istituzionale (\url{https://cpcb.nic.in}). In questo caso di studio, le operazioni di caricamento, pulizia, gestione dei missing, individuazione degli outlier, ricampionamento ed aggregazione costituiscono parte integrante del workflow sperimentale e sono descritte nelle sezioni successive. \\
 	Gli obiettivi del caso studio sono: (i) trasformare la previsione delle concentrazioni di PM2.5 in un problema di classificazione ordinata secondo le classi AQI (GOOD $\rightarrow$ HAZARDOUS) per garantire interpretabilità applicativa; (ii) confrontare i quattro modelli precedentemente definiti e valutare l’effetto delle scelte di preprocessing, del feature engineering temporale (lag, componenti cicliche), delle tecniche di bilanciamento e delle procedure di ottimizzazione sugli indicatori di performance. Per una stima robusta della generalizzazione si utilizza una validazione con criterio temporale e si forniscono intervalli di confidenza per le principali metriche. \\
 	Nel capitolo vengono presentati, in sequenza: una nota sulle sorgenti e la composizione del dataset; la pipeline di preprocessing e le scelte di indicizzazione/aggregazione; le tecniche di feature engineering e la discretizzazione in classi AQI; la strategia di training e ottimizzazione; i risultati quantitativi (metriche aggregate con CI95\% e confusion matrix); infine gli studi di ablazione e le considerazioni finali sul compromesso tra performance e complessità per scenari di deployment.
 	
@@ -1652,7 +2366,74 @@
 	Nel dataset originale, le finestre temporali di misurazione sono definite dalle colonne "From Date" e "To Date". Per semplificare la gestione delle serie storiche, la colonna "From Date" è stata convertita in tipo datetime, quindi rinominata in "datetime" ed impostata come indice temporale del DataFrame. La colonna "To Date", ridondante per l'analisi, è stata rimossa. Questa trasformazione permette di sfruttare le funzionalità native di raggruppamento e ricampionamento temporale offerte dalle librerie per la manipolazione delle serie storiche.
 	
 	\subsection{Riduzione e unificazione di feature ridondanti}
-	Durante l'esplorazione iniziale è emersa la presenza di colonne duplicate o varianti dello stesso nome, come "Ozone (ug/m3)" e "Ozone (ppb)". Per evitare rappresentazioni inconsistenti della stessa grandezza, sono state seguite alcune operazioni. In primo luogo, sono stati identificati i gruppi di colonne equivalenti tramite l'analisi grafica dei trend (andamento delle medie annue) ed il confronto delle statistiche di base. Successivamente, è stato definito un mapping di riduzione, ad esempio aggregando tutte le varianti di Xilene in una singola colonna comune. Infine, per ogni gruppo, i valori non nulli provenienti dalle colonne secondarie sono stati trasferiti nella colonna principale, e le colonne ridondanti sono state eliminate.
+	Durante l'esplorazione iniziale è emersa la presenza di colonne duplicate o varianti dello stesso nome, come "Ozone (ug/m3)" e "Ozone (ppb)". Per evitare rappresentazioni inconsistenti della stessa grandezza, sono state seguite alcune operazioni. In primo luogo, sono stati identificati i gruppi di colonne equivalenti tramite l'analisi grafica dei trend (andamento delle medie annue) ed il confronto delle statistiche di base. Successivamente, è stato definito un mapping di riduzione, ad esempio aggregando tutte le varianti di Xilene in una singola colonna comune. Infine, per ogni gruppo, i valori non nulli provenienti dalle colonne secondarie sono stati trasferiti nella colonna principale, e le colonne ridondanti sono state eliminate. \\
+	Il codice seguente mostra le funzioni usate per la riduzione e l'unificazione delle colonne ridondanti.
+	\begin{verbatim}
+		def plot_feature_similarities(dataframe, feature_groups, columns=2):
+			rows = int((len(feature_groups)/columns)//1)
+			fig, axes = plt.subplots(rows, columns, figsize=(13, 4*rows))
+			fig.tight_layout(pad=3.0)
+			
+			row_num = 0
+			col_num = 0
+			for pos, group in enumerate(feature_groups):
+				if pos % columns == 0 and pos != 0:
+					row_num += 1
+					col_num = 0
+				
+				for feature in feature_groups[group]:
+					df_feature = dataframe[dataframe[feature].notnull()][feature]
+					df_feature = df_feature.groupby([df_feature.index.year])
+						.mean(numeric_only=True)
+					sns.lineplot(
+						data=df_feature, 
+						label=feature, 
+						ax=axes[row_num, col_num])
+				axes[row_num, col_num].set_title(group)
+				axes[row_num, col_num].set(xlabel=None)
+				col_num += 1
+			
+			plt.plot()
+		
+		groups = {
+			'Xylene': ['Xylene (ug/m3)', 'Xylene ()'],
+			"MP-Xylene": ['MP-Xylene (ug/m3)', 'MP-Xylene ()'],
+			'Wind Direction': ["WD (degree)", "WD (degree C)", "WD (deg)", "WD ()"],
+			'Ozone': ['Ozone (ug/m3)', 'Ozone (ppb)'],
+			'Nitrogen Oxides': ['NOx (ug/m3)', 'NOx (ppb)'],
+			'Relative humidity': ['RH (%)', 'RH ()'],
+			'Solar Radiation': ['SR (W/mt2)', 'SR ()'],
+			'Air Temperature': ['AT (degree C)', 'AT ()']
+		}
+		plot_feature_similarities(df_india, groups, columns=2)
+		
+		reduction_groups = {
+			"Xylene (ug/m3)":    ["Xylene ()"],
+			"MP-Xylene (ug/m3)": ["MP-Xylene ()"],
+			"Benzene (ug/m3)":   ["Benzene ()"],
+			"Toluene (ug/m3)":   ["Toluene ()"],
+			"SO2 (ug/m3)":       ["SO2 ()"],
+			"NOx (ug/m3)":       ["NOx (ppb)"],
+			"Ozone (ug/m3)":     ["Ozone (ppb)"],
+			"AT (degree C)":     ["AT ()"],
+			"WD (degree)":       ["WD (degree C)", "WD (deg)", "WD ()"],
+			"WS (m/s)":          ["WS ()"]
+		}
+		def merge_columns(dataframe, columns):
+			for column, cols_to_merge in columns.items():
+				if column not in dataframe.columns 
+					and any(name in dataframe.columns for name in cols_to_merge):
+						dataframe[column] = np.nan
+			
+				for col_name in cols_to_merge:
+					if col_name in dataframe.columns:
+						dataframe[column] = dataframe[column].fillna(dataframe[col_name])
+						dataframe = dataframe.drop(columns=[col_name])
+			
+			return dataframe
+			
+		df_india = merge_columns(df_india, reduction_groups)
+	\end{verbatim}
 	
 	\begin{figure}[H]
 		\centering
@@ -1661,7 +2442,29 @@
 	\end{figure}
 	
 	\subsection{Verifica e gestione dei valori mancanti}
-	La quantificazione dei valori mancanti è stata effettuata calcolando il numero assoluto e la percentuale di missing per ogni variabile.
+	La quantificazione dei valori mancanti è stata effettuata calcolando il numero assoluto e la percentuale di missing per ogni variabile. \\
+	\begin{verbatim}
+		def get_null_info(dataframe):
+			null_vals = dataframe.isnull().sum()
+			
+			df_null_vals = pd.concat(
+				{'Null Count': null_vals,
+					'Percentage of Missing Values (%)': 
+					round(null_vals * 100 / len(dataframe), 2)}, axis=1)
+			
+			return df_null_vals.sort_values(by=['Null Count'], ascending=False)
+		
+		df_india_null_info = get_null_info(df_india)
+		
+		plt.figure(figsize=(8, 10))
+		sns.barplot(
+			data=df_india_null_info, 
+			x='Percentage of Missing Values (%)', 
+			y=df_india_null_info.index, 
+			orient='h', 
+			color='steelblue')
+		plt.show()
+	\end{verbatim}
 	
 	\begin{figure}[H]
 		\centering
@@ -1671,8 +2474,65 @@
 	
 	Sono stati applicati i seguenti criteri: la rimozione delle osservazioni completamente vuote e delle colonne completamente vuote; l'eliminazione delle colonne con una proporzione di valori mancanti superiore al 40\%, una soglia scelta per bilanciare la perdita informativa con la robustezza statistica; e, per le restanti colonne numeriche, la sostituzione dei valori NaN. Questa sostituzione è stata eseguita tramite il metodo di interpolazione \texttt{forward-fill} (propagazione dell'ultimo valore valido), seguita da una sostituzione tramite la media per eventuali valori mancanti residui. Questa strategia è comunemente adottata nelle serie temporali, poiché preserva la dinamica locale dei segnali ed evita l'introduzione di discontinuità.
 	
+	\begin{verbatim}
+		numeric_cols = df_india.select_dtypes(include='number').columns
+		df_india[numeric_cols] = df_india[numeric_cols]
+			.interpolate(method='pad')
+		df_india[numeric_cols] = df_india[numeric_cols]
+			.fillna(df_india[numeric_cols].mean())
+	\end{verbatim}
+	
 	\subsection{Analisi esplorativa e selezione delle feature rilevanti}
 	Per esplorare le relazioni e le correlazioni tra le variabili, sono state eseguite diverse analisi. Sono state calcolate le medie su diverse frequenze temporali (giorno, mese, anno) per visualizzare i trend con grafici a linee. È stato utilizzato il pairplot per ispezionare le relazioni bivariate e le distribuzioni univariate. Inoltre, è stata costruita la matrice di correlazione e visualizzata tramite una heatmap per quantificare le correlazioni lineari, identificando come potenziali feature rilevanti quelle con una correlazione assoluta superiore a 0.4 con "PM2.5".
+	
+	\begin{verbatim}
+		slice_groups = {
+			'Group by Day':   df_india.groupby(pd.Grouper(freq='1D'))
+				.mean(numeric_only=True),
+			'Group by Month': df_india.groupby(pd.Grouper(freq='1ME'))
+				.mean(numeric_only=True),
+			'Group by Year':  df_india.groupby(pd.Grouper(freq='1YE'))
+				.mean(numeric_only=True)
+		}
+		def plot_features_by_group(features, slice_groups):
+			for feature in features:
+				fig, ax = plt.subplots(1, 1, figsize=(12, 4))
+				fig.suptitle(feature)
+				
+				labels = []
+				for i, (group, group_df) in enumerate(slice_groups.items()):
+					data_slice = group_df[
+						group_df.columns.intersection(pollutants[feature])
+					]
+					
+					if feature == "Nitrogen Compounds":
+						data_slice = data_slice.drop(['NO (ug/m3)', 'NO2 (ug/m3)'], axis=1)
+					
+					data_slice.plot(kind="line", ax=ax)
+					
+					for column in data_slice.columns:
+						labels.append(f'{column} [{group}]')
+				
+				ax.set(xlabel=None)
+				ax.legend(labels)
+				plt.plot()
+		features_to_plot = [
+			'Particulate Matter', 
+			'Carbon Monoxide', 
+			'Ozone Concentration', 
+			'Nitrogen Compounds']
+		plot_features_by_group(features_to_plot, slice_groups)
+		df_india.head()
+		
+		sns.pairplot(slice_groups['Group by Month'])
+		
+		corr = slice_groups['Group by Day'].corr(numeric_only=True).round(2)
+		mask = np.triu(np.ones_like(corr, dtype=bool))
+		
+		plt.figure(figsize=(10,5))
+		sns.heatmap(data=corr, mask=mask, annot=True, cmap="rocket_r")
+		plt.show()
+	\end{verbatim}
 	
 	\begin{figure}[H]
 		\centering
@@ -1711,15 +2571,47 @@
 	Poiché i dati aggregati includevano misurazioni provenienti da più stazioni all'interno dello stesso stato con lo stesso timestamp, si é deciso di ricampionare temporaneamente i dati a frequenza oraria e di aggregare le osservazioni a livello di stato tramite media aritmetica. La procedura implementata é la seguente:
 	
 	\begin{verbatim}
-		df_resampled = df_india
+		df_resampled = (df_india
 			.groupby('state')
 			.resample('60min')
 			.mean(numeric_only=True)
 			.reset_index()
+		)
+		df_resampled = df_resampled.set_index('datetime')
+		df_india=df_resampled.copy()
 	\end{verbatim}
 	
 	\subsection{Rilevamento e rimozione degli outlier}
 	Per l'identificazione degli outlier nelle concentrazioni degli inquinanti, si è utilizzato l'algoritmo Isolation Forest, un metodo ensemble efficace per l'identificazione di valori anomali indipendentemente dalla distribuzione a priori dei dati \cite{liu2009iforest}. I punti principali dell'approccio sono stati: la scelta di un insieme limitato di variabili ("PM2.5", "CO", "Ozone", "NOx"); l'inizializzazione del modello con un valore di \texttt{contamination} pari a $0.01$ ed un \texttt{random\_state} fisso per la riproducibilità; l'addestramento del modello e l'utilizzo del metodo \texttt{predict} per etichettare le istanze anomale (-1) e quelle normali (1); infine, la rimozione delle osservazioni etichettate come outlier e la verifica della distribuzione prima e dopo tramite istogrammi.
+	
+	\begin{verbatim}
+		features = [
+			'PM2.5 (ug/m3)', 
+			'CO (mg/m3)', 
+			'Ozone (ug/m3)', 
+			'NOx (ug/m3)']
+		df_india_features = df_india[features].copy()
+		iso = IsolationForest(
+			contamination=0.01, 
+			random_state=42, 
+			n_jobs=-1)
+		iso.fit(df_india_features)
+		df_india['anomaly'] = iso.predict(df_india_features)
+		df_india_clean = df_india[df_india['anomaly'] == 1]
+			.drop(columns='anomaly')
+		
+		fig, axes = plt.subplots(4, 2, figsize=(14, 12))
+		for i, col in enumerate(features):
+			axes[i, 0].hist(df_india[col].dropna(), bins=100)
+			axes[i, 0].set_title(f"Originale: {col}")
+
+			axes[i, 1].hist(df_india_clean[col].dropna(), bins=100)
+			axes[i, 1].set_title(f"Pulita: {col}")
+		plt.tight_layout()
+		plt.show()
+		
+		df_india = df_india_clean.copy()
+	\end{verbatim}
 	
 	\begin{figure}[H]
 		\centering
@@ -1728,7 +2620,45 @@
 	\end{figure}
 	
 	\subsection{Feature engineering ed arricchimento temporale}
-	Per catturare informazioni temporali rilevanti per aiutare i modelli a predire in modo più accurato, sono state create variabili derivate dall'indice temporale quali: "hour", "dayofmonth", "dayofweek", "dayofyear", "weekofyear", "month", "quarter" e "year". Queste variabili servono a modellare stagionalità, ciclicità giornaliera e pattern settimanali/annuali tipici dei fenomeni atmosferici e delle attività umane legate all'inquinamento atmosferico.
+	Per catturare informazioni temporali rilevanti e migliorare la capacità predittiva dei modelli, sono state create variabili derivate dall'indice temporale quali: "hour", "dayofmonth", "dayofweek", "dayofyear", "weekofyear", "month", "quarter" e "year". Queste variabili servono a modellare stagionalità, ciclicità giornaliera e pattern settimanali/annuali tipici sia dei processi atmosferici sia delle attività umane che influenzano l’inquinamento atmosferico.
+	
+	\begin{verbatim}
+		def create_features(df):
+			df = df.copy()
+			df['hour']       = df.index.hour
+			df['dayofmonth'] = df.index.day
+			df['dayofweek']  = df.index.dayofweek
+			df['dayofyear']  = df.index.dayofyear
+			df['weekofyear'] = df.index.isocalendar().week.astype("int64")
+			df['month']      = df.index.month
+			df['quarter']    = df.index.quarter
+			df['year']       = df.index.year
+			return df
+		df_india = create_features(df_india)
+		
+		def plot_by_datetime(metric, time_groups):
+			for time_group in time_groups:
+				fig, ax = plt.subplots(figsize=(12, 4))
+				sns.boxplot(
+					data=df_india, 
+					x=time_group, 
+					y=metric, 
+					hue=time_group, 
+					palette="icefire", 
+					showfliers=False, 
+					legend=False)
+				ax.set_title(f'{metric} by {time_group}')
+				ax.set(xlabel=time_group)
+				plt.show()
+		plot_by_datetime('PM2.5 (ug/m3)', [
+			'hour', 
+			'dayofmonth', 
+			'dayofweek', 
+			'weekofyear', 
+			'month', 
+			'quarter', 
+			'year'])
+	\end{verbatim}
 	
 	\begin{figure}[H]
 		\centering
@@ -1768,7 +2698,7 @@
 	
 	\subsection{Creazione di lag-features e categorizzazione di PM2.5}
 	
-	Per catturare l'informazione storica intrinseca nelle serie temporali, sono state create delle lag-features per alcune delle variabili più rilevanti, che consentono ai modelli di sfruttare dipendenze temporali (ad esempio stagionalità annua, effetto di breve periodo (giorni/settimane) e persistenti condizioni mensili) e rappresentano una tecnica consolidata nella preparazione dei dati per serie temporali. In questo caso, sono state generate lag a lungo termine (1 e 2 anni), a medio termine (1 mese) ed a breve termine (1 settimana e ultimi 3 giorni). \\
+	Per catturare l'informazione storica intrinseca nelle serie temporali, sono state create delle lag-features per alcune delle variabili più rilevanti, che consentono ai modelli di sfruttare dipendenze temporali (ad esempio stagionalità annua, effetto di breve periodo e persistenti condizioni mensili). La creazione di lag è una tecnica consolidata nella preparazione dei dati per serie temporali. In questo caso, sono state generate lag a lungo termine (1 e 2 anni), a medio termine (1 mese) ed a breve termine (1 settimana e ultimi 3 giorni). \\
 	Per trasformare la variabile target "PM2.5" da continua a discreta, con l'obiettivo di passare da un problema di regressione ad uno di classificazione, si é deciso di mappare i valori di PM2.5 in sei categorie dell'AQI (Good, Moderate, Unhealthy for Sensitive, Unhealthy, Very Unhealthy, Hazardous) usando le soglie standard corrispondenti ai breakpoints AQI per "PM2.5" (National Ambient Air Quality Standards for PM). Questo passaggio è motivato dalla volontà di concentrarsi sulla valutazione della qualità dell'aria in termini di rischio per la salute, piuttosto che sulla semplice previsione del valore esatto della concentrazione. Per molte applicazioni, è più utile sapere se la qualità dell'aria rientra in una categoria di rischio "pericoloso" o "buono", piuttosto che prevedere un valore numerico preciso, che potrebbe non essere immediatamente interpretabile.\\
 	Le soglie utilizzate, misurate in $\mu g/m^3$, sono le seguenti:
 	\begin{itemize}
@@ -1801,9 +2731,201 @@
 	La variabile target da prevedere è una variabile discreta a 6 classi, corrispondenti ai livelli di qualità dell’aria per la concentrazione di PM2.5 definiti dalla scala \textit{EPA} (Environmental Protection Agency, USA).
 	
 	\subsection{Strategia di training comune e griglie di iperparametri}
-	La strategia di training adottata è sostanzialmente omogenea per tutti i modelli considerati, con alcune specificità legate all'architettura di ciascun modello. Per la Random Search, il numero di iterazioni $n$ è stato scelto con una logica probabilistica per assicurare una probabilità del 90\% di includere almeno una delle 10 migliori configurazioni. Per le reti neurali (MLP e KAN), l'addestramento è stato gestito con l'ottimizzatore Adam, la funzione di perdita CrossEntropyLoss (che richiede etichette 0-indexed) ed una regolarizzazione L2 opzionale. La dimensione del batch è fissata a 32 ed il calcolo viene eseguito su GPU, se disponibile. Per evitare l'overfitting, è stato implementato un sistema di early stopping con parametri configurabili (\texttt{patience} e \texttt{min\_delta}). Inoltre, la funzione di attivazione della MLP é la ReLU. \\
+	La strategia di training è stata mantenuta coerente per tutti i modelli, con differenze mirate alle singole architetture. Per i modelli ensemble, la pipeline ha incluso un preprocessore per la standardizzazione delle variabili numeriche e la codifica one-hot di quelle categoriche, seguito dall’oversampling tramite SMOTE e dal classificatore. Per gestire i casi in cui il numero di campioni minoritari risultava troppo basso rispetto al parametro \texttt{k\_neighbors}, è stata implementata una versione adattiva di SMOTE, in grado di ridurre dinamicamente $k$. In aggiunta, è stato applicato il bilanciamento dei pesi di classe. Per le reti neurali, l’addestramento ha utilizzato l’ottimizzatore Adam, la funzione di perdita \texttt{CrossEntropyLoss}, una regolarizzazione L2 opzionale e il meccanismo di early stopping per ridurre l’overfitting. La configurazione finale per ciascun modello è stata selezionata in base alle prestazioni medie sui fold di validazione. \\
 	
-	Di seguito sono riportate le griglie di iperparametri entro cui la Random Search esplora le combinazioni, al fine di individuare quelle che forniscono i risultati migliori per ciascun modello.
+	\begin{verbatim}
+		class SmoteKNeighbors(SMOTE):
+			def __init__(self, **kwargs):
+				super().__init__(**kwargs)
+		
+			def _fit_resample(self, X, y):
+				counts = np.bincount(y)
+				minority_class = np.argmin(counts)
+				n_samples_minority = counts[minority_class]
+				
+				if self.k_neighbors >= n_samples_minority:
+					new_k_neighbors = max(1, n_samples_minority - 1)
+					
+					original_k_neighbors = self.k_neighbors
+					self.k_neighbors = new_k_neighbors
+					
+					print(f"Warning: k_neighbors too high. 
+						Adjusting from {original_k_neighbors} 
+						to {self.k_neighbors} for this fold.")
+					
+					X_res, y_res = super()._fit_resample(X, y)
+					
+					self.k_neighbors = original_k_neighbors
+					
+					return X_res, y_res
+				else:
+					return super()._fit_resample(X, y)
+		
+		model_ht_rf = ImbPipeline([
+			("preproc", preprocessor),
+			("sampler", SmoteKNeighbors(random_state=42)),
+			("tree", RandomForestClassifier(
+				random_state=42, 
+				class_weight='balanced'))
+		])
+		gs_rf = RandomizedSearchCV(
+			model_ht_rf, grid_rf, n_iter=49, 
+			cv=tscv, scoring='f1_weighted', n_jobs=-1, 
+			verbose=0, random_state=42)
+		
+		model_ht_xgb = ImbPipeline([
+			("preproc", preprocessor),
+			("sampler", SmoteKNeighbors(random_state=RANDOM_STATE)),
+			("xgb", xgb.XGBClassifier(objective='multi:softprob',
+				num_class=num_classes,
+				use_label_encoder=False,
+				eval_metric='mlogloss',
+				n_jobs=-1,
+				verbosity=0,
+				random_state=42))
+		])
+		gs_xgb = RandomizedSearchCV(
+			model_ht_xgb, grid_xgb, n_iter=98, 
+			cv=tscv, scoring='f1_weighted', n_jobs=-1, 
+			verbose=0, random_state=42
+		)
+		
+		
+		def random_search_neural(model_builder, param_dist, dataset,
+								n_iter=10, cv_folds=5, early_patience=5,
+								early_min_delta=1e-4, class_weights=None,
+								smote_k_neighbors=6):
+			train_keys = ['lr', 'l2_lambda']
+			best_val_loss = float('inf')
+			best_model_params, best_train_params = None, None
+			best_model = None
+			
+			tscv = TimeSeriesSplit(n_splits=cv_folds)
+			
+			print("Avvio Random Search")
+			
+			smote = SMOTE(
+				k_neighbors=smote_k_neighbors,
+				random_state=RANDOM_STATE
+			)
+			
+			for param_id, params in enumerate(ParameterSampler(
+					param_dist, n_iter=n_iter, random_state=42)):
+				print(f"Testing parameter set {param_id+1}/{n_iter}")
+			
+				model_params = {k: v for k, v in params.items() if k not in train_keys}
+				train_params = {k: v for k, v in params.items() if k in train_keys}
+				val_losses = []
+				
+				for fold_idx, (train_idx, val_idx) in 
+						enumerate(tscv.split(range(len(dataset)))):
+					print(f"  Fold {fold_idx+1}/{cv_folds}")
+					
+					train_features = dataset.tensors[0][train_idx].cpu().numpy()
+					train_labels = dataset.tensors[1][train_idx].cpu().numpy()
+					
+					val_features = dataset.tensors[0][val_idx]
+					val_labels = dataset.tensors[1][val_idx]
+					
+					try:
+						unique_classes = np.unique(train_labels)
+						if len(unique_classes) < 2:
+							train_features_resampled = train_features
+							train_labels_resampled = train_labels
+						else:
+							min_samples = min([np.sum(train_labels == cls) 
+								for cls in unique_classes])
+							if min_samples <= smote_k_neighbors:
+								print(f"    Warning: 
+									some classes have fewer than {smote_k_neighbors+1} samples. 
+									Reducing k_neighbors.")
+								smote_fold = SMOTE(
+									k_neighbors=min(min_samples-1, 1), 
+									random_state=42)
+							else:
+								smote_fold = smote
+						
+							train_features_resampled, train_labels_resampled = 
+								smote_fold.fit_resample(
+									train_features, 
+									train_labels)
+							
+							print(f"    SMOTE applicato: 
+								{len(train_features)} -> {len(train_features_resampled)} campioni")
+							
+							unique, counts = np.unique(train_labels_resampled, return_counts=True)
+							print(f"    Distribuzione post-SMOTE: 
+								{{{', '.join(f'{u}: {c}' for u, c in zip(unique, counts))}}}")
+					
+					except Exception as e:
+						print(f"    Warning: SMOTE fallito ({str(e)}). Uso dataset originale.")
+						train_features_resampled = train_features
+						train_labels_resampled = train_labels
+					
+					train_features_tensor = torch.FloatTensor(
+						train_features_resampled)
+					train_labels_tensor = torch.LongTensor(
+						train_labels_resampled)
+					
+					balanced_train_dataset = TensorDataset(
+						train_features_tensor, train_labels_tensor)
+					val_dataset = TensorDataset(
+						val_features, val_labels)
+					
+					train_loader = DataLoader(
+						balanced_train_dataset, batch_size=32, shuffle=True)
+					val_loader = DataLoader(
+						val_dataset, batch_size=32, shuffle=False)
+					
+					model = model_builder(**model_params)
+					if hasattr(model, 'speed'):
+					model.speed()
+					model.to(device)
+					optimizer = optim.Adam(model.parameters(), lr=train_params['lr'])
+					criterion = nn.CrossEntropyLoss()
+					stopper = EarlyStopper(
+						patience=early_patience, 
+						min_delta=early_min_delta)
+					
+					for epoch in range(1000):
+						train_loss = train_epoch(
+							model, 
+							train_loader, 
+							optimizer, 
+							criterion, 
+							l2_lambda=train_params.get('l2_lambda', 0.0))
+						val_loss = eval_loss(
+							model, val_loader, criterion)
+						
+						if epoch % 10 == 0:
+							print(f"    Epoch {epoch}: 
+								train_loss = {train_loss:.6f}, 
+								val_loss = {val_loss:.6f}")
+						
+						if stopper.early_stop(val_loss):
+							print(f"    Early stopping at epoch {epoch}, 
+								best_val_loss: {stopper.best_loss:.6f}")
+							break
+					
+					final_val_loss = eval_loss(model, val_loader, criterion)
+					val_losses.append(final_val_loss)
+				
+				mean_val = np.mean(val_losses)
+				print(f"  Mean validation loss: {mean_val:.6f}")
+				
+				if mean_val < best_val_loss:
+					best_val_loss = mean_val
+					best_model_params = model_params
+					best_train_params = train_params
+					best_model = model_builder(**best_model_params).to(device)
+					best_model.load_state_dict(model.state_dict())
+					print(f"  New best validation loss: {best_val_loss:.6f}")
+			
+			print(f"\nBest validation loss: {best_val_loss:.6f}")
+			return best_model, best_model_params, best_train_params
+	\end{verbatim}
+	
+	Di seguito sono riportate le griglie di iperparametri entro cui la Random Search esplora le combinazioni, al fine di individuare quelle che forniscono i risultati migliori per ciascun modello. \\
 	\smallskip
 	\noindent\textbf{Random Forest} \quad (Random Search: $n=49$)
 	\begin{itemize}
@@ -2061,7 +3183,7 @@
 		AUC-PR  (OVR, weighted): \textbf{0.840}
 	\end{table}
 	
-	\subsection{Risultati sperimentali}
+	\subsection{Analisi dei risultati sperimentali}
 	
 	L'analisi dei classification report e delle confusion matrix (riportati nella sottosezione precedente) mostra che, a livello di metriche aggregate, le differenze tra i modelli testati sono complessivamente contenute: accuratezza, F1-score, AUC-ROC e AUC-PR si collocano su valori molto simili, con scarti percentuali spesso marginali. La discriminante più evidente è la complessità architetturale, che diventa il fattore operativo principale per decisioni di deployment, latenza e consumo di memoria. \\ 
 	Per quanto riguarda le reti neurali, la \textbf{MLP} ha ottenuto un'accuratezza in test pari al $76\%$, con un F1-weighted di $0.7654$, un F1-macro di $0.7421$, un AUC-ROC di $0.938$ e un AUC-PR di $0.800$. L'analisi per classe evidenzia una sensibilità ridotta sulle classi meno rappresentate (ad es. la classe \texttt{0} è spesso confusa), sebbene il modello mantenga buone prestazioni sulla classe maggioritaria (\texttt{1}). Con circa $7{,}750$ parametri la MLP è una soluzione leggera e facilmente scalabile, ma meno competitiva rispetto ad altre alternative sul piano delle performance complessive. \\ 
@@ -2075,16 +3197,16 @@
 	
 	\begin{table}[H]
 		\centering
-		\setlength{\tabcolsep}{6pt}
+		\setlength{\tabcolsep}{2pt}
 		\caption{Riepilogo ranking aggiornato: conteggio parametri, performance media (rank-based) e ranks per metodo di aggregazione.}
 		\begin{tabular}{lrrrrrr}
 			\toprule
 			\textbf{Model} & \textbf{Param\_Count} & \textbf{Perf\_Score} & \textbf{Compl\_Rank} & \textbf{Equal\_Rank} & \textbf{Ext\_Rank} & \textbf{Pareto\_Rank} \\
 			\midrule
-			KAN           & 7,680    & 3.0 & 1 & 1 & 1 & 1 \\
-			xgboost       & 90,416   & 1.0 & 2 & 1 & 2 & 2 \\
-			MLP           & 7,750    & 4.0 & 3 & 3 & 2 & 3 \\
-			random\_forest& 412,430  & 2.0 & 4 & 3 & 4 & 4 \\
+			KAN       & 7,680    & 3.0 & 1 & 1 & 1 & 1 \\
+			XGBoost   & 90,416   & 1.0 & 2 & 1 & 2 & 2 \\
+			MLP       & 7,750    & 4.0 & 3 & 3 & 2 & 3 \\
+			RF        & 412,430  & 2.0 & 4 & 3 & 4 & 4 \\
 			\bottomrule
 		\end{tabular}
 	\end{table}
@@ -2094,7 +3216,7 @@
 	La classifica dei tre migliori modelli, basata sul criterio "complexity-weighted" (dal migliore al peggiore), è la seguente:
 	\begin{enumerate}
 		\item KAN \quad (Params: 7,680; F1-Weighted: 0.7823)
-		\item xgboost \quad (Params: 90,416; F1-Weighted: 0.8107)
+		\item XGBoost \quad (Params: 90,416; F1-Weighted: 0.8107)
 		\item MLP \quad (Params: 7,750; F1-Weighted: 0.7654)
 	\end{enumerate}
 	
@@ -2112,7 +3234,7 @@
 	\subsubsection{Risultati}
 	\begin{table}[H]
 		\centering
-		\setlength{\tabcolsep}{4pt}
+		\setlength{\tabcolsep}{2pt}
 		\begin{tabular}{lcccc}
 			\toprule
 			\textbf{Model} & \textbf{Total params} & \textbf{Baseline F1} & \textbf{Best trade-off} & \textbf{Sign. degr.} \\
@@ -2140,13 +3262,13 @@
 	\subsubsection{Risultati}
 	\begin{table}[H]
 		\centering
-		\setlength{\tabcolsep}{4pt}
+		\setlength{\tabcolsep}{2pt}
 		\begin{tabular}{lcccc}
 			\toprule
 			\textbf{Model} & \textbf{Total trees} & \textbf{Baseline F1} & \textbf{Best trade-off (pruning)} & \textbf{Sign. degr.} \\
 			\midrule
-			Random Forest & 100 & 0.8011 & 90\% (9 trees rimasti, $\approx 11.1\times$ compression) & nessuna degr. rilevata \\
-			XGBoost       & 300 & 0.8107 & 60\% (120 rounds rimasti, $\approx 2.5\times$ compression) & nessuna degr. rilevata \\
+			RF & 100 & 0.8011 & 90\% ($11.1\times$ compression) & nessuna degr. rilevata \\
+			XGB       & 300 & 0.8107 & 60\% ($2.5\times$ compression) & nessuna degr. rilevata \\
 			\bottomrule
 		\end{tabular}
 		\caption{Riepilogo sintetico dei punti di trade-off osservati per i due ensemble (valori aggiornati).}
@@ -2177,6 +3299,7 @@
 	\subsubsection{Riepilogo}
 	\begin{table}[H]
 		\centering
+		\setlength{\tabcolsep}{2pt}
 		\begin{tabular}{lccc}
 			\toprule
 			\textbf{Model} & \textbf{Baseline F1 (weighted)} & \textbf{Best trade-off (pruning)} & \textbf{Compression} \\
@@ -2200,7 +3323,12 @@
 		\item Random Forest presenta un comportamento interessante con il rank-based pruning: è possibile rimuovere gran parte degli alberi mantenendo performance stabili; il best trade-off è risultato ad un pruning molto elevato (90\%), con 9 alberi rimasti (compressione $\approx 11.1\times$) ed una perdita relativa in F1 dell'ordine di $1\%$-$2\%$. Questo rende la RF particolarmente utile quando si desidera una forte riduzione del modello senza operare ri-addestramenti complessi.
 	\end{enumerate}
 	
-	\chapter{Terzo Caso Studio: Classificazione di età tramite immagini}
+	\chapter{Terzo Caso Studio: Classificazione di fasce d'età tramite immagini}
+	
+	\section{Introduzione}
+	Il presente caso studio affronta il problema della classificazione di fasce d'età a partire da immagini facciali. Il dataset utilizzato si chiama UTKFace (\url{https://susanqq.github.io/UTKFace/}) ed è un insieme di volti annotati con età, genere ed etnia, che copre un ampio intervallo di età (da 0 a 116 anni) e mostra un'ampia variabilità in termini di posa, espressione, illuminazione e qualità delle immagini. \\
+	Gli obiettivi del caso di studio sono: innanzitutto si trasforma il compito di stima continua dell'età in un problema di classificazione multi-classe mediante la definizione di fasce d'età interpretabili (\textit{child}, \textit{young}, \textit{adult}, \textit{senior}), bilanciate quando possibile per garantire stabilità statistica; in secondo luogo viene valutata e confrontata l'efficacia di CNN con classificatore MLP e KAN, con particolare attenzione alla quantificazione del trade-off prestazioni/complessità; inoltre si analizza l'impatto delle scelte di preprocessing, comprendenti la pulizia delle etichette estratte dai nomi file, la normalizzazione e le strategie di data augmentation, così come delle politiche di campionamento e bilanciamento; infine il caso studio include studi di ablazione mirati a valutare l’effetto di tecniche di pruning per analizzare quanto un modello possa essere ridotto, a livello di complessitá, mantenendo delle performance piuttosto simili al modello originale. \\
+	Nel capitolo vengono presentati, in sequenza, la composizione del dataset; la pipeline di preprocessing e le motivazioni alla base della discretizzazione delle età; la strategia di training e le procedure di ottimizzazione degli iperparametri; la descrizione delle architetture finali impiegate per i confronti; i risultati quantitativi corredati da intervalli di confidenza, confusion matrix ed analisi per classe; infine gli studi di ablazione e le considerazioni conclusive riguardo al compromesso tra performance e complessità computazionale per scenari di deployment.
 	
 	\section{Data preparation}
 	
@@ -2217,7 +3345,24 @@
 	\[
 	N_{\text{target}} \;=\; \left\lfloor \frac{N_{tot}}{G} \right\rfloor,
 	\]
-	con gestione del resto tramite possibile assegnazione di una o più istanze aggiuntive ad alcune classi. I campioni per ogni classe vengono concatenati ed infine rimescolati con seed fissato, ottenendo così il dataset sperimentale definitivo. Tale procedura controllata consente di limitare il bias dovuto a classi fortemente sbilanciate mantenendo riproducibilità e semplicità di implementazione.
+	con gestione del resto tramite possibile assegnazione di una o più istanze aggiuntive ad alcune classi. I campioni per ogni classe vengono concatenati ed infine rimescolati con seed fissato, ottenendo così il dataset sperimentale definitivo. Tale procedura controllata consente di limitare il bias dovuto a classi fortemente sbilanciate mantenendo riproducibilità e semplicità di implementazione. \\
+	Di seguito, il codice responsabile della generazione del grafico a torta che mostra il bilanciamento tra classi nel dataset modificato.
+	\begin{verbatim}
+		class_counts = df['age_group'].value_counts()
+		print(class_counts)
+		
+		age_group_labels = {
+			0: "Child [1;12]", 
+			1: "Young [13;18]", 
+			2: "Adult [19;60]", 
+			3: "Senior [60;inf]"}
+		pie_labels = [age_group_labels[i] for i in class_counts.index]
+		
+		plt.figure(figsize=(8, 8))
+		plt.pie(class_counts, labels=pie_labels, autopct='%1.1f%%', startangle=140)
+		plt.title('Distribution of Classes')
+		plt.show()
+	\end{verbatim}
 	
 	\begin{figure}[H]
 		\centering
@@ -2235,6 +3380,33 @@
 	L'analisi esplorativa è stata finalizzata a identificare squilibri ed anomalie nei dati grezzi e a produrre una serie di visualizzazioni da inserire nella tesi per documentare lo stato del dataset. \\
 	La prima visualizzazione è una rappresentazione circolare (pie chart) della distribuzione percentuale delle età; le età con frequenza inferiore alla soglia dell'1\% sono state aggregate nella categoria "Others" al fine di migliorare chiarezza e leggibilità. \\
 	
+	\begin{verbatim}
+		age_counts = df.age.value_counts()
+		total_count = age_counts.sum()
+		age_percentages = (age_counts / total_count) * 100
+		
+		other_ages = age_percentages[age_percentages < 1]
+		other_percentage = other_ages.sum()
+		
+		plot_data = age_percentages[age_percentages >= 1]
+		if other_percentage > 0:
+			plot_data['Others'] = other_percentage
+		
+		sns.set_style("whitegrid")
+		
+		plt.figure(figsize=(10, 10))
+		plt.title("Distribution of Ages in Percentage")
+		plot_data.plot.pie(autopct='%1.1f%%', startangle=90)
+		plt.ylabel('')
+		plt.figtext(0.5, 0.01, 
+			"The 'Others' category includes ages 
+				with a distribution of less than 1%.", 
+			ha="center", 
+			fontsize=10, 
+			bbox={"facecolor":"orange", "alpha":0.5, "pad":5})
+		plt.show()
+	\end{verbatim}
+	
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=0.8\textwidth]{img/ages_image.png}
@@ -2243,13 +3415,60 @@
 	
 	A complemento della panoramica generale, sono stati prodotti tre grafici a barre posti in parallelo che mostrano la distribuzione per età del dataset complessivo, dei soli individui di genere maschile e femminile. Questa tripletta di visualizzazioni consente di osservare in maniera immediata eventuali bias di genere associati a singole età o fasce d'età. \\
 	
+	\begin{verbatim}
+		sns.set_style("whitegrid")
+		fig, axes = plt.subplots(3, 1, figsize=(40, 30))
+		fig.suptitle("Distribution of Ages by Gender", fontsize=40) 
+		
+		age_counts = df.age.value_counts()
+		sns.barplot(
+			x=age_counts.index, 
+			y=age_counts.values, 
+			ax=axes[0], color='black')
+		axes[0].set_title("Distribution of All Ages", fontsize=20)
+		axes[0].set_xlabel("Age", fontsize=18)
+		axes[0].set_ylabel("Count", fontsize=18)
+		
+		male_age_counts = df[df.gender == 'Male'].age.value_counts()
+		sns.barplot(
+			x=male_age_counts.index, 
+			y=male_age_counts.values, 
+			ax=axes[1], color='blue')
+		axes[1].set_title("Distribution of Ages for Males", fontsize=20)
+		axes[1].set_xlabel("Age", fontsize=18)
+		axes[1].set_ylabel("Count", fontsize=18)
+		
+		female_age_counts = df[df.gender == 'Female'].age.value_counts()
+		sns.barplot(
+			x=female_age_counts.index, 
+			y=female_age_counts.values, 
+			ax=axes[2], color='orange')
+		axes[2].set_title("Distribution of Ages for Females", fontsize=20)
+		axes[2].set_xlabel("Age", fontsize=18)
+		axes[2].set_ylabel("Count", fontsize=18)
+		
+		plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+		plt.show()
+	\end{verbatim}
+	
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=0.8\textwidth]{img/ages_bygender_image.png}
 		\caption{Distribuzione dell'etá per genere.}
 	\end{figure}
 	
-	In aggiunta alla distribuzione delle fasce d'età, è stata analizzata la composizione di genere del dataset, che evidenzia la quasi perfetta parità tra soggetti maschili e femminili, condizione che riduce il rischio di bias sistematici legati al genere. 
+	In aggiunta alla distribuzione delle fasce d'età, è stata analizzata la composizione di genere del dataset, che evidenzia la quasi perfetta parità tra soggetti maschili e femminili, condizione che riduce il rischio di bias sistematici legati al genere. \\
+	
+	\begin{verbatim}
+		sns.set_style("whitegrid")
+		plt.figure(figsize=(8,8))
+		plt.title("Distribution of Genders")
+		plt.pie(
+			df.gender.value_counts(), 
+			labels=df.gender.value_counts().index, 
+			autopct='%1.1f%%')
+		plt.show()
+	\end{verbatim}
 	
 	\begin{figure}[H]
 		\centering
@@ -2259,6 +3478,43 @@
 	
 	Per indagare la relazione tra età e genere è stato inoltre prodotto un grafico a barre che mostra, per ciascuna età, la percentuale di individui maschi e femmine, che evidenzia come la distribuzione sia in generale bilanciata, pur mostrando variazioni locali dovute a squilibri demografici.
 	
+	\begin{verbatim}
+		age_gender_counts = df.groupby(['age', 'gender'], observed=True)
+			.size().unstack(fill_value=0)
+		age_gender_percentages = age_gender_counts
+			.apply(lambda x: x / x.sum(), axis=1)
+		
+		ax = age_gender_percentages.plot(
+			kind='bar', 
+			stacked=True, 
+			figsize=(20, 10), 
+			color=['blue', 'orange'])
+		
+		plt.title('Percentage of Males and Females by Age', fontsize=20)
+		plt.xlabel('Age', fontsize=15)
+		plt.ylabel('Percentage', fontsize=15)
+		plt.xticks(fontsize=8)
+		plt.yticks(fontsize=10)
+		plt.legend(title='Gender')
+		
+		for p in ax.patches:
+			width, height = p.get_width(), p.get_height()
+			if height > 0:
+				x, y = p.get_xy()
+				ax.text(
+					x + width / 2,
+					y + height / 2,
+					'{:.1f}%'.format(height * 100),
+					horizontalalignment='center',
+					verticalalignment='center',
+					fontsize=6,
+					color='white'
+				)
+		
+		plt.tight_layout()
+		plt.show()
+	\end{verbatim}
+	
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=1.0\textwidth]{img/gender_byage_images.png}
@@ -2266,6 +3522,27 @@
 	\end{figure} 
 	
 	La ripartizione etnica è stata analizzata mediante grafici a torta e conteggi per età distinti per ciascun gruppo etnico, in modo da mettere in evidenza potenziali disparità demografiche all'interno delle fasce d'età. \\
+	
+	\begin{verbatim}
+		sns.set_style("whitegrid")
+		plt.figure(figsize=(8,8))
+		plt.title("Distribution of Ethnic groups")
+		plt.pie(
+			df.ethnic.value_counts(), 
+			labels=df.ethnic.value_counts().index, 
+			autopct='%1.1f%%')
+		plt.show()
+		
+		for ethnic_group in df['ethnic'].unique():
+			plt.figure(figsize=(20, 10))
+			ethnic_df = df[df['ethnic'] == ethnic_group]
+			sns.countplot(data=ethnic_df, x='age')
+			plt.title(f'Age Distribution for {ethnic_group}')
+			plt.xlabel('Age')
+			plt.ylabel('Count')
+			plt.xticks(rotation=90)
+			plt.show()
+	\end{verbatim}
 	
 	\begin{figure}[H]
 		\centering
@@ -2301,6 +3578,16 @@
 	
 	L'interazione tra etnia e genere è stata ulteriormente indagata con un grafico a barre con suddivisione per genere, utile per rilevare concentrazioni di genere in specifici cluster etnici. Per ricapitolare la composizione delle classi d'età, è stato infine elaborato un grafico a torta riepilogativo che sintetizza la quota relativa di ciascuna fascia definita nella fase di preprocessing. \\
 	
+	\begin{verbatim}
+		plt.figure(figsize=(10, 6))
+		sns.countplot(data=df, x='ethnic', hue='gender')
+		plt.title('Distribution of Gender by Ethnicity')
+		plt.xlabel('Ethnicity')
+		plt.ylabel('Count')
+		plt.legend(title='Gender')
+		plt.show()
+	\end{verbatim}
+	
 	\begin{figure}[H]
 		\centering
 		\includegraphics[width=1.0\textwidth]{img/ethnic_bygender_image.png}
@@ -2308,6 +3595,40 @@
 	\end{figure}
 	
 	Per l'ispezione qualitativa, sono state generate delle griglie di immagini in formato $5\times5$ per triple "età–genere-etnia" specifiche. Tali griglie sono state impiegate per valutare variabilità intrinseca al dataset (pose, espressioni, illuminazione, qualità) e per motivare eventuali scelte di pulizia addizionale.
+	
+	\begin{verbatim}
+		print(f'Choose one Age in: 
+			{sorted([int(age) for age in df["age"].unique()])}\n')
+		print(f'Choose one Gender in: 
+			{df["gender"].unique()}\n')
+		print(f'Choose one Ethnic (or "All") in: 
+			{df["ethnic"].unique()}\n')
+		
+		age = 26
+		gender = 'Male'
+		ethnic = 'All'
+		
+		if ethnic == 'All':
+			files = df.loc[(df['gender'] == gender) 
+				& (df['age'] == age)
+			]
+		else:
+			files = df.loc[(df['gender'] == gender) 
+				& (df['ethnic'] == ethnic) 
+				& (df['age'] == age)
+			]
+		
+		plt.figure(figsize=(20,20))
+		for i, (index, row) in enumerate(files.head(25).iterrows()):
+			plt.subplot(5,5, i+1)
+			img = Image.open(row['image'])
+			img = np.array(img)
+			plt.imshow(img)
+			plt.title(f"Age: {row['age']} ; Gender: {row['gender']}")
+			plt.axis('off')
+		
+		plt.show()
+	\end{verbatim}
 	
 	\begin{figure}[H]
 		\centering
@@ -2318,9 +3639,204 @@
 	\section{Addestramento dei modelli}
 	
 	\subsection{Strategia di training comune e criteri di arresto}
-	La strategia di training adottata è stata uniforme per entrambe le architetture, salvo specifiche architetturali. I punti principali sono: ottimizzatore Adam, funzione di perdita \texttt{CrossEntropyLoss} (richiede etichette 0-indexed), batch size configurabile (tipicamente 32), regularizzazione L2 opzionale e dropout sui layer fully-connected. Per prevenire overfitting è stato utilizzato l'early stopping basato sulla validation loss con parametri \texttt{patience} e \texttt{min\_delta} regolabili. L'addestramento è stato eseguito su device GPU, se disponibile, altrimenti su CPU. Per la ricerca degli iperparametri si è impiegata una Random Search con K-Fold cross-validation. Il numero di iterazioni \(n\) per la Random Search è stato scelto con una logica probabilistica per garantire l'inclusione di configurazioni vicino all'ottimo (probabilità desiderata \(P=0.90\) di includere almeno una delle migliori \(k\) configurazioni in uno spazio totale \(M\)). \\
+	La strategia di addestramento è stata mantenuta omogenea per entrambe le architetture, con ottimizzatore Adam, perdita CrossEntropyLoss e batch size configurabile (tipicamente 32). Per prevenire l'overfitting è stato adottato l'early stopping basato sulla validation loss, parametrizzato da \texttt{patience} e \texttt{min\_delta}. La ricerca degli iperparametri è stata effettuata tramite Random Search abbinata a K-Fold cross-validation. La gestione dei dati immagine è centralizzata in una classe ImageDataset che si occupa di trasformazioni standard (resize, center crop, normalizzazione).
 	
-	Di seguito sono riportate le griglie di iperparametri entro cui la Random Search esplora le combinazioni, al fine di individuare quelle che forniscono i risultati migliori per ciascun modello.
+	\begin{verbatim}
+		class CNNFeatureExtractor(nn.Module):
+			def __init__(self, input_channels=3):
+				super(CNNFeatureExtractor, self).__init__()
+				self.conv1 = nn.Conv2d(input_channels, 6, 3, 1)
+				self.conv2 = nn.Conv2d(6, 16, 3, 1)
+				self.feature_dim = 16 * 54 * 54
+			
+			def forward(self, x):
+				x = F.relu(self.conv1(x))
+				x = F.max_pool2d(x, 2, 2)
+				x = F.relu(self.conv2(x))
+				x = F.max_pool2d(x, 2, 2)
+				x = x.view(-1, self.feature_dim)
+				return x
+		
+		class CNN_MLP(nn.Module):
+			def __init__(self, input_channels=3, 
+						hidden_sizes=[120, 84, 20], 
+						dropout=0.0, num_classes=6, 
+						device='cpu'):
+				super(CNN_MLP, self).__init__()
+				self.cnn_features = CNNFeatureExtractor(input_channels)
+		
+				layers = []
+				dim = self.cnn_features.feature_dim
+				for hs in hidden_sizes:
+					layers.append(nn.Linear(dim, hs))
+					layers.append(nn.ReLU())
+					layers.append(nn.Dropout(dropout))
+					dim = hs
+				layers.append(nn.Linear(dim, num_classes))
+				self.mlp = nn.Sequential(*layers)
+		
+			def forward(self, x):
+				features = self.cnn_features(x)
+				return self.mlp(features)
+		
+		class CNN_KAN(nn.Module):
+			def __init__(self, input_channels=3, width=[8, 4], 
+						grid=5, k=3, num_classes=6, 
+						seed=0, device='cpu'):
+				super(CNN_KAN, self).__init__()
+				self.cnn_features = CNNFeatureExtractor(input_channels)
+			
+				kan_width = [self.cnn_features.feature_dim] + 
+					list(width) + 
+					[num_classes]
+				self.kan = KAN(
+					width=kan_width,
+					grid=grid,
+					k=k,
+					seed=seed,
+					device=device
+				)
+			
+			def forward(self, x):
+				features = self.cnn_features(x)
+				return self.kan(features)
+		
+		
+		class ImageDataset(torch.utils.data.Dataset):
+			def __init__(self, image_paths, labels, transform=None):
+				self.image_paths = image_paths
+				self.labels = labels
+				self.transform = transform
+			
+				if self.transform is None:
+					self.transform = transforms.Compose([
+						transforms.Resize(224),
+						transforms.CenterCrop(224),
+						transforms.ToTensor(),
+						transforms.Normalize([0.485, 0.456, 0.406],
+											[0.229, 0.224, 0.225])
+					])
+			
+			def __len__(self):
+				return len(self.image_paths)
+			
+			def __getitem__(self, idx):
+				try:
+					img = Image.open(self.image_paths[idx]).convert('RGB')
+					img = self.transform(img)
+					label = self.labels[idx]
+					return img, label
+				except Exception as e:
+					print(f"Errore nel caricamento dell'immagine {self.image_paths[idx]}: {e}")
+					img = torch.zeros(3, 224, 224)
+					return img, self.labels[idx]
+			
+			def create_image_train_test_sets(image_paths, labels, split=0.8):
+				dataset_size = len(image_paths)
+				train_size = int(dataset_size * split)
+				
+				train_paths = image_paths[:train_size]
+				test_paths = image_paths[train_size:]
+				train_labels = labels[:train_size]
+				test_labels = labels[train_size:]
+				
+				return train_paths, test_paths, train_labels, test_labels
+			
+		
+		def random_search_cnn(model_builder, param_dist, train_paths, train_labels,
+							n_iter=10, cv_folds=5, batch_size=32,
+							early_patience=5, early_min_delta=1e-4,
+							class_weights=None, device='cpu'):
+			train_keys = ['lr', 'l2_lambda']
+			best_val_loss = float('inf')
+			best_model_params, best_train_params = None, None
+			best_model = None
+			
+			kf = KFold(n_splits=cv_folds, shuffle=True, random_state=42)
+			
+			print("Starting Random Search CNN with KFold Cross Validation...")
+			
+			for param_id, params in enumerate(ParameterSampler(param_dist, n_iter=n_iter, random_state=42)):
+				print(f"Testing parameter set {param_id+1}/{n_iter}")
+				
+				model_params = {k: v for k, v in params.items() if k not in train_keys}
+				train_params = {k: v for k, v in params.items() if k in train_keys}
+				val_losses = []
+				
+				indices = np.arange(len(train_paths))
+				
+				for fold_idx, (train_idx, val_idx) in enumerate(kf.split(indices)):
+					print(f"  Fold {fold_idx+1}/{cv_folds}")
+					
+					fold_train_paths = [train_paths[i] for i in train_idx]
+					fold_train_labels = [train_labels[i] for i in train_idx]
+					fold_val_paths = [train_paths[i] for i in val_idx]
+					fold_val_labels = [train_labels[i] for i in val_idx]
+					
+					train_dataset = ImageDataset(fold_train_paths, fold_train_labels)
+					val_dataset = ImageDataset(fold_val_paths, fold_val_labels)
+					
+					if class_weights is not None:
+						sample_weights = np.array([class_weights.get(label, 1.0) for label in fold_train_labels])
+						sampler = WeightedRandomSampler(
+							weights=sample_weights,
+							num_samples=len(sample_weights),
+							replacement=True
+						)
+						train_loader = DataLoader(train_dataset, batch_size=batch_size, sampler=sampler)
+					else:
+						train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+					
+					val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
+					
+					if 'width' in model_params:
+						model = model_builder(**model_params, device=device)
+						if isinstance(model, CNN_KAN):
+							model.kan.speed()
+					else:
+						model = model_builder(**model_params)
+					model.to(device)
+					
+					optimizer = torch.optim.Adam(model.parameters(), lr=train_params['lr'])
+					criterion = nn.CrossEntropyLoss()
+					stopper = EarlyStopper(patience=early_patience, min_delta=early_min_delta)
+					
+					for epoch in range(100):
+						train_loss = train_cnn_epoch(model, train_loader, optimizer, criterion, device,
+												l2_lambda=train_params.get('l2_lambda', 0.0))
+						val_loss = eval_cnn_loss(model, val_loader, criterion, device)
+						
+						if epoch % 10 == 0:
+							print(f"    Epoch {epoch}: train_loss = {train_loss:.6f}, val_loss = {val_loss:.6f}")
+						
+						if stopper.early_stop(val_loss):
+							print(f"    Early stopping at epoch {epoch}, best_val_loss: {stopper.best_loss:.6f}")
+							break
+					
+					final_val_loss = eval_cnn_loss(model, val_loader, criterion, device)
+					val_losses.append(final_val_loss)
+				
+				mean_val = np.mean(val_losses)
+				print(f"  Mean validation loss: {mean_val:.6f}")
+				
+				if mean_val < best_val_loss:
+					best_val_loss = mean_val
+					best_model_params = model_params
+					best_train_params = train_params
+					if 'width' in best_model_params:
+						best_model = model_builder(**best_model_params, device=device).to(device)
+					else:
+						best_model = model_builder(**best_model_params).to(device)
+					
+					best_model.load_state_dict(model.state_dict())
+					print(f"  New best validation loss: {best_val_loss:.6f}")
+			
+			print(f"\nBest validation loss: {best_val_loss:.6f}")
+			return best_model, best_model_params, best_train_params
+	\end{verbatim}
+	
+	Di seguito sono riportate le griglie di iperparametri entro cui la Random Search esplora le combinazioni, al fine di individuare quelle che forniscono i risultati migliori per ciascun modello. \\
+	
 	\smallskip
 	\noindent\textbf{CNN + MLP} \quad (Random Search: $n=11$)  
 	Il modello adotta una rete convoluzionale come feature extractor, composta da due blocchi di convoluzione + pooling. Per un input di dimensione \(224\times224\), la prima convoluzione con kernel \(3\times3\) e successivo max pooling riduce la dimensione spaziale a \(111\times111\). La seconda convoluzione seguita da max pooling produce una mappa finale di \(16\times54\times54\), corrispondente a un vettore flatten di dimensione \(\text{feature\_dim} = 46,656\).
@@ -2454,7 +3970,7 @@
 		AUC-PR  (OVR, weighted): \textbf{0.837}
 	\end{table}
 	
-	\subsection{Risultati sperimentali}
+	\subsection{Analisi dei risultati sperimentali}
 	
 	L'analisi complessiva delle prestazioni mostra differenze contenute ma significative tra le due architetture considerate. La \textbf{CNN+KAN} ottiene le migliori prestazioni aggregate sul test set, con un'accuratezza attorno a $0.78$, un F1-weighted pari a circa $0.78$ ed un F1-macro vicino a $0.78$. I valori di AUC risultano anch'essi a favore della CNN+KAN (AUC-ROC OVR weighted $= 0.93$, AUC-PR OVR weighted $= 0.84$). La \textbf{CNN+MLP} presenta prestazioni leggermente inferiori sul test set con un'accuratezza $= 0.75$, con F1-weighted e macro intorno a $0.76$, AUC-ROC $= 0.92$ e AUC-PR $= 0.81$. La differenza di performance, pur costante, rimane nell'ordine di pochi punti percentuali; è pertanto necessario pesare questi guadagni rispetto ai vincoli computazionali e di memoria. \\
 	L'analisi per classe, utilizzando i classification report e le confusion matrix, mostra che la classe 1 è la più stabile in entrambe le architetture, con precision e recall elevate. La classe 2 è quella che presenta il maggior compromesso precision/recall: nella CNN+MLP si osserva una tendenza all'over-prediction su tale classe, mentre la CNN+KAN riduce questo effetto migliorando sia precision sia recall. Le confusioni più frequenti coinvolgono classi adiacenti (fenomeno atteso per la classificazione d'età), suggerendo che molte errate assegnazioni sono dovute a sovrapposizioni tra fasce contigue piuttosto che a errori casuali. \\
@@ -2487,13 +4003,8 @@
 		\item CNN\_KAN \quad (Params: 16,430,296; F1-Weighted: 0.7843)
 	\end{enumerate}
 	
-	\chapter{Discussione comparativa sui Risultati dei casi studio}
+	\chapter*{Conclusioni}
 	
-	\section{Comparazione valutazione modelli}
-	
-	\section{Comparazione studio di ablazione dei modelli}
-	
-	\chapter{Conclusioni}
 	
 	\begin{thebibliography}{99}
 		\bibitem{popescu2009mlp}
