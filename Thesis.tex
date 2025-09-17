@@ -53,7 +53,8 @@
 	\chapter*{Introduzione}
 	
 	\section*{Contesto della Tesi}
-	La presente tesi si propone di analizzare, confrontare e valutare diverse architetture di \textit{Machine} e \textit{Deep Learning}: Kolmogorov-Arnold Networks (KAN), Multi-Layer Perceptron (MLP), Random Forest e XGBoost. Questi modelli rappresentano paradigmi differenti nel panorama dell'apprendimento automatico, coprendo sia le reti neurali tradizionali, che quelle di recente introduzione, che i metodi ensemble. L'obiettivo è quello di fornire, da un lato, un'analisi teorica esaustiva di ciascun modello, includendo i fondamenti matematici e le architetture; dall'altro, valutare sperimentalmente le prestazioni dei modelli su tre casi di studio: regressione sulle emissioni di automobili, classificazione dell'inquinamento atmosferico (PM2.5) e riconoscimento di immagini mediante CNN abbinate a MLP e KAN. Oltre allo studio comparativo dei modelli, la tesi include un'ampia indagine sui metodi di Ottimizzazione degli iperparametri ed uno studio di ablazione post-training, che valutano il compromesso tra la complessità del modello e le prestazioni.
+	La presente tesi si propone di analizzare, confrontare e valutare diverse architetture di Machine e Deep Learning: Random Forest, XGBoost, Multi-Layer Perceptron (MLP) e Kolmogorov-Arnold Networks
+	(KAN). Questi modelli rappresentano paradigmi differenti nel panorama dell'apprendimento automatico, coprendo sia le reti neurali tradizionali, che quelle di recente introduzione, che i metodi ensemble. L'obiettivo è quello di fornire, da un lato, un'analisi teorica esaustiva di ciascun modello, includendo i fondamenti matematici e le architetture; dall'altro, valutare sperimentalmente le prestazioni dei modelli su tre casi di studio: regressione sulle emissioni di automobili, classificazione dell'inquinamento atmosferico (PM2.5) e classificazione di immagini mediante CNN abbinate a MLP e KAN. Oltre allo studio comparativo dei modelli, la tesi include un'ampia indagine sui metodi di Ottimizzazione degli iperparametri ed uno studio di ablazione post-training, che valutano il compromesso tra la complessità del modello e le prestazioni.
 	
 	\section*{Obiettivo della Tesi}
 	L'obiettivo primario è quello di condurre una valutazione metodologica ed applicativa completa dei modelli selezionati, con un focus specifico sulla loro efficacia in scenari del mondo reale. Per la valutazione empirica sono stati scelti tre casi di studio diversificati per tipologia di problema (regressione e classificazione) e natura dei dati (tabellari, serie storiche e immagini). Le metodologie adottate, come la \textit{Nested Cross-Validation} e la \textit{Time Series Cross-Validation}, sono state impiegate per garantire stime robuste e non distorte della capacità di generalizzazione dei modelli. \\
@@ -970,6 +971,7 @@
 	\subsection{Matrice decisionale per la scelta del metodo}
 	\begin{table}[H]
 		\centering
+		\setlength{\tabcolsep}{2pt}
 		\footnotesize
 		\begin{tabular}{lccc}
 			\toprule
@@ -1446,7 +1448,7 @@
 	\subsection{L1 pruning su MLP e KAN}
 	
 	La tecnica di pruning impiegata è il L1 post-training pruning, applicato ai pesi lineari della MLP ed ai coefficienti spline della KAN. Sono stati testati diversi pruning ratios, specificamente l'insieme \{0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95\}. Ciascuna versione del modello potata è stata valutata, sia sul test set che sul train set, utilizzando le metriche definite precedentemente. Per ogni configurazione, sono stati calcolati il numero totale di parametri, il numero di parametri attivi post-pruning ed il rapporto di compressione. Per interpretare i risultati, sono state definite alcune definizioni operative. La baseline è il modello non potato (pruning ratio $= 0.0$). Il punto di degrado significativo è il primo pruning ratio che comporta una perdita relativa in $R^2$/\texttt{F1-Weighted} superiore al 5\% rispetto alla baseline. Il best trade-off è il punto di massima compressione che causa una perdita relativa in $R^2$/\texttt{F1-Weighted} inferiore o uguale al 2\%. \\
-	Il codice seguente contiene le principali funzioni responsabili dello studio di ablazione:
+	Il codice mostrato di seguito racchiude le principali funzioni che costituiscono il nucleo dello studio sull’ablazione.
 	\begin{verbatim}
 		class PruningAblationStudy:
 			def __init__(self, device='cpu'):
@@ -1465,7 +1467,8 @@
 								if hasattr(layer, 'coef') and layer.coef is not None:
 									zero_params += float(torch.sum(layer.coef == 0))
 						
-						return zero_params / total_params if total_params > 0 else 0.0
+						return zero_params / total_params 
+							if total_params > 0 else 0.0
 					
 					except Exception as e:
 						print(f"  Error calculating KAN sparsity: {e}")
@@ -1482,7 +1485,8 @@
 							if hasattr(module, 'bias') and module.bias is not None:
 								zero_params += float(torch.sum(module.bias == 0))
 				
-				return zero_params / total_params if total_params > 0 else 0.0
+				return zero_params / total_params 
+					if total_params > 0 else 0.0
 		
 			def count_active_parameters(self, model):
 				if hasattr(model, 'width') and hasattr(model, 'act_fun'):
@@ -1523,8 +1527,10 @@
 									layer = pruned_model.act_fun[i]
 									if hasattr(layer, 'coef') and layer.coef is not None:
 										temp_module = torch.nn.Linear(1, 1, bias=False)
-										temp_module.weight = torch.nn.Parameter(layer.coef.view(-1, 1))
-										kan_modules_to_prune.append((temp_module, 'weight'))
+										temp_module.weight = torch.nn
+											.Parameter(layer.coef.view(-1, 1))
+										kan_modules_to_prune
+											.append((temp_module, 'weight'))
 						
 						
 						if kan_modules_to_prune:
@@ -1591,17 +1597,21 @@
 				print(f"Total Parameters: {total_params:,}")
 				
 				for pruning_ratio in pruning_ratios:
-					print(f"\nTesting {model_type} pruning ratio: {pruning_ratio:.4f}")
+					print(f"\nTesting {model_type} pruning ratio: 
+						{pruning_ratio:.4f}")
 				
 					if pruning_ratio == 0.0:
 						pruned_model = model
 						sparsity = 0.0
 						active_params = total_params
 					else:
-						pruned_model = self.apply_l1_pruning(model, pruning_ratio)
+						pruned_model = self
+							.apply_l1_pruning(model, pruning_ratio)
 						pruned_model.to(self.device)
-						sparsity = self.get_model_sparsity(pruned_model)
-						active_params = self.count_active_parameters(pruned_model)
+						sparsity = self
+							.get_model_sparsity(pruned_model)
+						active_params = self
+							.count_active_parameters(pruned_model)
 				
 				metrics = self.evaluate_pruned_model(
 					pruned_model, model_name, X_test, y_test, X_train, y_train
@@ -1627,7 +1637,7 @@
 	\subsection{Ensemble pruning su Random Forest e XGBoost}
 	
 	La metodologia di pruning varia per i due modelli. Per il Random Forest, è stato utilizzato un Rank-Based Pruning: gli alberi sono stati ordinati per importanza e quelli meno rilevanti sono stati rimossi fino a raggiungere il \texttt{pruning\_ratio} desiderato. Per XGBoost, si è optato per un Cumulative Pruning, mantenendo solo le prime iterazioni di boosting fino al numero corrispondente a \((1 - \texttt{pruning\_ratio})\) della lunghezza originale, troncando di fatto la sequenza di boosting. Anche in questo caso, i pruning ratios testati sono stati ${0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,0.95}$. Per ogni versione potata, sono stati calcolati il numero totale e residuo di alberi, il rapporto di compressione e le metriche di performance su train e test set. Le definizioni operative di baseline, punto di degrado significativo e best trade-off sono rimaste le medesime. \\
-	Il codice seguente contiene le principali funzioni responsabili dello studio di ablazione:
+	Il codice mostrato di seguito racchiude le principali funzioni che costituiscono il nucleo dello studio sull’ablazione:
 	\begin{verbatim}
 		class EnsemblePruningAblationStudy:
 			def __init__(self):
@@ -1898,10 +1908,14 @@
 									outer_folds=5, inner_folds=3, n_iter=10,
 									early_patience=10, early_min_delta=1e-4):
 			train_keys = ['lr', 'batch_size', 'l2_lambda']
-			outer_cv = KFold(n_splits=outer_folds, shuffle=True, random_state=42)
+			outer_cv = KFold(
+				n_splits=outer_folds, 
+				shuffle=True, 
+				random_state=42)
 			results = []
 			
-			for train_idx, test_idx in outer_cv.split(range(len(dataset))):
+			for train_idx, test_idx in outer_cv.split(
+					range(len(dataset))):
 				inner_train = Subset(dataset, train_idx)
 				inner_test = Subset(dataset, test_idx)
 				best_val_loss = float('inf')
@@ -1994,15 +2008,26 @@
 							final_model, full_train_loader, nn.MSELoss())):
 						break
 				
-				test_loss = eval_loss(final_model, test_loader, nn.MSELoss())
-				results.append((best_model_params, best_train_params, test_loss))
+				test_loss = eval_loss(
+					final_model, 
+					test_loader, 
+					nn.MSELoss()
+				)
+				results.append((
+					best_model_params, 
+					best_train_params, 
+					test_loss)
+				)
 			
 			return results
 		
 		def nested_random_search_ensemble(model_builder, param_dist,
 										X_data, y_data, outer_folds=5, 
 										inner_folds=3, n_iter=10):
-			outer_cv = KFold(n_splits=outer_folds, shuffle=True, random_state=42)
+			outer_cv = KFold(
+				n_splits=outer_folds, 
+				shuffle=True, 
+				random_state=42)
 			results = []
 			
 			for train_idx, test_idx in outer_cv.split(X_data):
@@ -2198,10 +2223,6 @@
 		\caption{Tabella riassuntiva delle prestazioni (MSE con CI95\%, R$^2$, MAE, MAPE con CI95\%), Max Error e complessit\`a.}
 	\end{table}
 	
-	\begin{verbatim}
-		
-	\end{verbatim}
-	
 	\subsection{Analisi dei risultati sperimentali}
 	
 	L’analisi dei risultati ha messo in evidenza differenze significative tra le reti neurali e i modelli ensemble, sia in termini di accuratezza sia di complessità computazionale. \\
@@ -2369,7 +2390,8 @@
 	Durante l'esplorazione iniziale è emersa la presenza di colonne duplicate o varianti dello stesso nome, come "Ozone (ug/m3)" e "Ozone (ppb)". Per evitare rappresentazioni inconsistenti della stessa grandezza, sono state seguite alcune operazioni. In primo luogo, sono stati identificati i gruppi di colonne equivalenti tramite l'analisi grafica dei trend (andamento delle medie annue) ed il confronto delle statistiche di base. Successivamente, è stato definito un mapping di riduzione, ad esempio aggregando tutte le varianti di Xilene in una singola colonna comune. Infine, per ogni gruppo, i valori non nulli provenienti dalle colonne secondarie sono stati trasferiti nella colonna principale, e le colonne ridondanti sono state eliminate. \\
 	Il codice seguente mostra le funzioni usate per la riduzione e l'unificazione delle colonne ridondanti.
 	\begin{verbatim}
-		def plot_feature_similarities(dataframe, feature_groups, columns=2):
+		def plot_feature_similarities(
+				dataframe, feature_groups, columns=2):
 			rows = int((len(feature_groups)/columns)//1)
 			fig, axes = plt.subplots(rows, columns, figsize=(13, 4*rows))
 			fig.tight_layout(pad=3.0)
@@ -2398,7 +2420,8 @@
 		groups = {
 			'Xylene': ['Xylene (ug/m3)', 'Xylene ()'],
 			"MP-Xylene": ['MP-Xylene (ug/m3)', 'MP-Xylene ()'],
-			'Wind Direction': ["WD (degree)", "WD (degree C)", "WD (deg)", "WD ()"],
+			'Wind Direction': ["WD (degree)", "WD (degree C)", 
+				"WD (deg)", "WD ()"],
 			'Ozone': ['Ozone (ug/m3)', 'Ozone (ppb)'],
 			'Nitrogen Oxides': ['NOx (ug/m3)', 'NOx (ppb)'],
 			'Relative humidity': ['RH (%)', 'RH ()'],
@@ -2427,7 +2450,8 @@
 			
 				for col_name in cols_to_merge:
 					if col_name in dataframe.columns:
-						dataframe[column] = dataframe[column].fillna(dataframe[col_name])
+						dataframe[column] = dataframe[column]
+							.fillna(dataframe[col_name])
 						dataframe = dataframe.drop(columns=[col_name])
 			
 			return dataframe
@@ -2452,7 +2476,8 @@
 					'Percentage of Missing Values (%)': 
 					round(null_vals * 100 / len(dataframe), 2)}, axis=1)
 			
-			return df_null_vals.sort_values(by=['Null Count'], ascending=False)
+			return df_null_vals.sort_values(
+				by=['Null Count'], ascending=False)
 		
 		df_india_null_info = get_null_info(df_india)
 		
@@ -2475,7 +2500,8 @@
 	Sono stati applicati i seguenti criteri: la rimozione delle osservazioni completamente vuote e delle colonne completamente vuote; l'eliminazione delle colonne con una proporzione di valori mancanti superiore al 40\%, una soglia scelta per bilanciare la perdita informativa con la robustezza statistica; e, per le restanti colonne numeriche, la sostituzione dei valori NaN. Questa sostituzione è stata eseguita tramite il metodo di interpolazione \texttt{forward-fill} (propagazione dell'ultimo valore valido), seguita da una sostituzione tramite la media per eventuali valori mancanti residui. Questa strategia è comunemente adottata nelle serie temporali, poiché preserva la dinamica locale dei segnali ed evita l'introduzione di discontinuità.
 	
 	\begin{verbatim}
-		numeric_cols = df_india.select_dtypes(include='number').columns
+		numeric_cols = df_india.select_dtypes(include='number')
+			.columns
 		df_india[numeric_cols] = df_india[numeric_cols]
 			.interpolate(method='pad')
 		df_india[numeric_cols] = df_india[numeric_cols]
@@ -2506,7 +2532,8 @@
 					]
 					
 					if feature == "Nitrogen Compounds":
-						data_slice = data_slice.drop(['NO (ug/m3)', 'NO2 (ug/m3)'], axis=1)
+						data_slice = data_slice.drop(
+							['NO (ug/m3)', 'NO2 (ug/m3)'], axis=1)
 					
 					data_slice.plot(kind="line", ax=ax)
 					
@@ -2526,11 +2553,16 @@
 		
 		sns.pairplot(slice_groups['Group by Month'])
 		
-		corr = slice_groups['Group by Day'].corr(numeric_only=True).round(2)
+		corr = slice_groups['Group by Day']
+			.corr(numeric_only=True).round(2)
 		mask = np.triu(np.ones_like(corr, dtype=bool))
 		
 		plt.figure(figsize=(10,5))
-		sns.heatmap(data=corr, mask=mask, annot=True, cmap="rocket_r")
+		sns.heatmap(
+			data=corr, 
+			mask=mask, 
+			annot=True, 
+			cmap="rocket_r")
 		plt.show()
 	\end{verbatim}
 	
@@ -2731,7 +2763,7 @@
 	La variabile target da prevedere è una variabile discreta a 6 classi, corrispondenti ai livelli di qualità dell’aria per la concentrazione di PM2.5 definiti dalla scala \textit{EPA} (Environmental Protection Agency, USA).
 	
 	\subsection{Strategia di training comune e griglie di iperparametri}
-	La strategia di training è stata mantenuta coerente per tutti i modelli, con differenze mirate alle singole architetture. Per i modelli ensemble, la pipeline ha incluso un preprocessore per la standardizzazione delle variabili numeriche e la codifica one-hot di quelle categoriche, seguito dall’oversampling tramite SMOTE e dal classificatore. Per gestire i casi in cui il numero di campioni minoritari risultava troppo basso rispetto al parametro \texttt{k\_neighbors}, è stata implementata una versione adattiva di SMOTE, in grado di ridurre dinamicamente $k$. In aggiunta, è stato applicato il bilanciamento dei pesi di classe. Per le reti neurali, l’addestramento ha utilizzato l’ottimizzatore Adam, la funzione di perdita \texttt{CrossEntropyLoss}, una regolarizzazione L2 opzionale e il meccanismo di early stopping per ridurre l’overfitting. La configurazione finale per ciascun modello è stata selezionata in base alle prestazioni medie sui fold di validazione. \\
+	La strategia di training è stata mantenuta coerente per tutti i modelli, con differenze mirate alle singole architetture. Per i modelli ensemble, la pipeline ha incluso un preprocessore per la standardizzazione delle variabili numeriche e la codifica one-hot di quelle categoriche, seguito dall’oversampling tramite SMOTE e dal classificatore. Per gestire i casi in cui il numero di campioni minoritari risultava troppo basso rispetto al parametro \texttt{k\_neighbors}, è stata implementata una versione adattiva di SMOTE, in grado di ridurre dinamicamente $k$. In aggiunta, è stato applicato il bilanciamento dei pesi di classe. Per le reti neurali, l’addestramento ha utilizzato l’ottimizzatore Adam, la funzione di perdita \texttt{CrossEntropyLoss}, una regolarizzazione L2 opzionale e il meccanismo di early stopping per ridurre l’overfitting. La configurazione finale per ciascun modello è stata selezionata in base alle prestazioni medie sui fold di validazione. \cite{chawla2011smote} \\
 	
 	\begin{verbatim}
 		class SmoteKNeighbors(SMOTE):
@@ -2775,7 +2807,7 @@
 		
 		model_ht_xgb = ImbPipeline([
 			("preproc", preprocessor),
-			("sampler", SmoteKNeighbors(random_state=RANDOM_STATE)),
+			("sampler", SmoteKNeighbors(random_state=42)),
 			("xgb", xgb.XGBClassifier(objective='multi:softprob',
 				num_class=num_classes,
 				use_label_encoder=False,
@@ -2813,16 +2845,20 @@
 					param_dist, n_iter=n_iter, random_state=42)):
 				print(f"Testing parameter set {param_id+1}/{n_iter}")
 			
-				model_params = {k: v for k, v in params.items() if k not in train_keys}
-				train_params = {k: v for k, v in params.items() if k in train_keys}
+				model_params = {k: v for k, v in params.items() 
+					if k not in train_keys}
+				train_params = {k: v for k, v in params.items() 
+					if k in train_keys}
 				val_losses = []
 				
 				for fold_idx, (train_idx, val_idx) in 
 						enumerate(tscv.split(range(len(dataset)))):
 					print(f"  Fold {fold_idx+1}/{cv_folds}")
 					
-					train_features = dataset.tensors[0][train_idx].cpu().numpy()
-					train_labels = dataset.tensors[1][train_idx].cpu().numpy()
+					train_features = dataset.tensors[0][train_idx]
+						.cpu().numpy()
+					train_labels = dataset.tensors[1][train_idx]
+						.cpu().numpy()
 					
 					val_features = dataset.tensors[0][val_idx]
 					val_labels = dataset.tensors[1][val_idx]
@@ -2837,7 +2873,8 @@
 								for cls in unique_classes])
 							if min_samples <= smote_k_neighbors:
 								print(f"    Warning: 
-									some classes have fewer than {smote_k_neighbors+1} samples. 
+									some classes have fewer than 
+									{smote_k_neighbors+1} samples. 
 									Reducing k_neighbors.")
 								smote_fold = SMOTE(
 									k_neighbors=min(min_samples-1, 1), 
@@ -2851,14 +2888,18 @@
 									train_labels)
 							
 							print(f"    SMOTE applicato: 
-								{len(train_features)} -> {len(train_features_resampled)} campioni")
+								{len(train_features)} -> 
+								{len(train_features_resampled)} campioni")
 							
-							unique, counts = np.unique(train_labels_resampled, return_counts=True)
+							unique, counts = np.unique(
+								train_labels_resampled, 
+								return_counts=True)
 							print(f"    Distribuzione post-SMOTE: 
 								{{{', '.join(f'{u}: {c}' for u, c in zip(unique, counts))}}}")
 					
 					except Exception as e:
-						print(f"    Warning: SMOTE fallito ({str(e)}). Uso dataset originale.")
+						print(f"    Warning: SMOTE fallito ({str(e)}). 
+							Uso dataset originale.")
 						train_features_resampled = train_features
 						train_labels_resampled = train_labels
 					
@@ -2881,7 +2922,10 @@
 					if hasattr(model, 'speed'):
 					model.speed()
 					model.to(device)
-					optimizer = optim.Adam(model.parameters(), lr=train_params['lr'])
+					optimizer = optim.Adam(
+						model.parameters(), 
+						lr=train_params['lr']
+					)
 					criterion = nn.CrossEntropyLoss()
 					stopper = EarlyStopper(
 						patience=early_patience, 
@@ -3356,10 +3400,15 @@
 			1: "Young [13;18]", 
 			2: "Adult [19;60]", 
 			3: "Senior [60;inf]"}
-		pie_labels = [age_group_labels[i] for i in class_counts.index]
+		pie_labels = [age_group_labels[i] 
+			for i in class_counts.index]
 		
 		plt.figure(figsize=(8, 8))
-		plt.pie(class_counts, labels=pie_labels, autopct='%1.1f%%', startangle=140)
+		plt.pie(
+			class_counts, 
+			labels=pie_labels, 
+			autopct='%1.1f%%', 
+			startangle=140)
 		plt.title('Distribution of Classes')
 		plt.show()
 	\end{verbatim}
@@ -3727,7 +3776,8 @@
 					label = self.labels[idx]
 					return img, label
 				except Exception as e:
-					print(f"Errore nel caricamento dell'immagine {self.image_paths[idx]}: {e}")
+					print(f"Errore nel caricamento dell'immagine 
+						{self.image_paths[idx]}: {e}")
 					img = torch.zeros(3, 224, 224)
 					return img, self.labels[idx]
 			
@@ -3743,7 +3793,8 @@
 				return train_paths, test_paths, train_labels, test_labels
 			
 		
-		def random_search_cnn(model_builder, param_dist, train_paths, train_labels,
+		def random_search_cnn(model_builder, param_dist,
+							train_paths, train_labels,
 							n_iter=10, cv_folds=5, batch_size=32,
 							early_patience=5, early_min_delta=1e-4,
 							class_weights=None, device='cpu'):
@@ -3756,16 +3807,21 @@
 			
 			print("Starting Random Search CNN with KFold Cross Validation...")
 			
-			for param_id, params in enumerate(ParameterSampler(param_dist, n_iter=n_iter, random_state=42)):
+			for param_id, params in enumerate(
+					ParameterSampler(
+						param_dist, n_iter=n_iter, random_state=42)):
 				print(f"Testing parameter set {param_id+1}/{n_iter}")
 				
-				model_params = {k: v for k, v in params.items() if k not in train_keys}
-				train_params = {k: v for k, v in params.items() if k in train_keys}
+				model_params = {k: v for k, v in params.items() 
+					if k not in train_keys}
+				train_params = {k: v for k, v in params.items() 
+					if k in train_keys}
 				val_losses = []
 				
 				indices = np.arange(len(train_paths))
 				
-				for fold_idx, (train_idx, val_idx) in enumerate(kf.split(indices)):
+				for fold_idx, (train_idx, val_idx) in enumerate(
+						kf.split(indices)):
 					print(f"  Fold {fold_idx+1}/{cv_folds}")
 					
 					fold_train_paths = [train_paths[i] for i in train_idx]
@@ -3777,17 +3833,27 @@
 					val_dataset = ImageDataset(fold_val_paths, fold_val_labels)
 					
 					if class_weights is not None:
-						sample_weights = np.array([class_weights.get(label, 1.0) for label in fold_train_labels])
+						sample_weights = np.array([class_weights.get(label, 1.0) 
+							for label in fold_train_labels])
 						sampler = WeightedRandomSampler(
 							weights=sample_weights,
 							num_samples=len(sample_weights),
 							replacement=True
 						)
-						train_loader = DataLoader(train_dataset, batch_size=batch_size, sampler=sampler)
+						train_loader = DataLoader(
+							train_dataset, 
+							batch_size=batch_size, 
+							sampler=sampler)
 					else:
-						train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+						train_loader = DataLoader(
+							train_dataset, 
+							batch_size=batch_size, 
+							shuffle=True)
 					
-					val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
+					val_loader = DataLoader(
+						val_dataset, 
+						batch_size=batch_size, 
+						shuffle=False)
 					
 					if 'width' in model_params:
 						model = model_builder(**model_params, device=device)
@@ -3797,23 +3863,33 @@
 						model = model_builder(**model_params)
 					model.to(device)
 					
-					optimizer = torch.optim.Adam(model.parameters(), lr=train_params['lr'])
+					optimizer = torch.optim.Adam(
+						model.parameters(), lr=train_params['lr'])
 					criterion = nn.CrossEntropyLoss()
-					stopper = EarlyStopper(patience=early_patience, min_delta=early_min_delta)
+					stopper = EarlyStopper(
+						patience=early_patience, min_delta=early_min_delta)
 					
 					for epoch in range(100):
-						train_loss = train_cnn_epoch(model, train_loader, optimizer, criterion, device,
-												l2_lambda=train_params.get('l2_lambda', 0.0))
-						val_loss = eval_cnn_loss(model, val_loader, criterion, device)
+						train_loss = train_cnn_epoch(
+							model, train_loader, optimizer, 
+							criterion, device, 
+							l2_lambda=train_params.get('l2_lambda', 0.0))
+						val_loss = eval_cnn_loss(
+							model, val_loader, criterion, device)
 						
 						if epoch % 10 == 0:
-							print(f"    Epoch {epoch}: train_loss = {train_loss:.6f}, val_loss = {val_loss:.6f}")
+							print(f"    Epoch {epoch}: 
+								train_loss = {train_loss:.6f}, 
+								val_loss = {val_loss:.6f}")
 						
 						if stopper.early_stop(val_loss):
-							print(f"    Early stopping at epoch {epoch}, best_val_loss: {stopper.best_loss:.6f}")
+							print(f"    Early stopping at 
+								epoch {epoch}, 
+								best_val_loss: {stopper.best_loss:.6f}")
 							break
 					
-					final_val_loss = eval_cnn_loss(model, val_loader, criterion, device)
+					final_val_loss = eval_cnn_loss(
+						model, val_loader, criterion, device)
 					val_losses.append(final_val_loss)
 				
 				mean_val = np.mean(val_losses)
@@ -3824,12 +3900,16 @@
 					best_model_params = model_params
 					best_train_params = train_params
 					if 'width' in best_model_params:
-						best_model = model_builder(**best_model_params, device=device).to(device)
+						best_model = model_builder(
+							**best_model_params, 
+							device=device).to(device)
 					else:
-						best_model = model_builder(**best_model_params).to(device)
+						best_model = model_builder(
+							**best_model_params).to(device)
 					
 					best_model.load_state_dict(model.state_dict())
-					print(f"  New best validation loss: {best_val_loss:.6f}")
+					print(f"  New best validation loss: 
+						{best_val_loss:.6f}")
 			
 			print(f"\nBest validation loss: {best_val_loss:.6f}")
 			return best_model, best_model_params, best_train_params
